@@ -3,7 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Seat;
-
+use Illuminate\Support\Facades\DB;
 class SeatRepository
 {
     /**
@@ -28,6 +28,26 @@ class SeatRepository
     public function create(array $data)
     {
         return Seat::create($data);
+    }
+
+    /**
+     * Tạo nhiều Seat cùng lúc
+     */
+    public function bulkCreate(array $seats)
+    {
+        return DB::transaction(function () use ($seats) {
+            $createdSeats = [];
+            
+            foreach ($seats as $seatData) {
+                // KHÔNG tạo SeatId vì nó là auto increment
+                // Xóa SeatId nếu có trong data
+                unset($seatData['SeatId']);
+                
+                $createdSeats[] = Seat::create($seatData);
+            }
+            
+            return $createdSeats;
+        });
     }
 
     /**

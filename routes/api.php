@@ -127,6 +127,19 @@ Route::get('/staffs/{StaffId}', [StaffController::class, 'show']);
 // 🔐 Protected routes (cần JWT token)
 Route::middleware(['auth:api'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+
+   // Profile routes - Khách hàng tự quản lý profile
+   Route::get('/profile', [UserController::class, 'getProfile']);
+   Route::put('/profile', [UserController::class, 'updateProfile']);
+   
+   // Hoặc nếu muốn dùng userId trong URL:
+   Route::put('/users/{UserId}/profile', [UserController::class, 'updateProfile']);
+   
+   Route::put('/change-password', [UserController::class, 'changePassword']); 
+
+
+
+
     // 📌 Chỉ Admin mới được phép thêm/sửa/xóa auditlogs
     Route::middleware(['checkrole:Admin'])->group(function () {
         Route::post('/auditlogs', [AuditlogController::class, 'store']);
@@ -206,9 +219,11 @@ Route::middleware(['auth:api'])->group(function () {
         Route::put('/payments/{PaymentId}', [PaymentController::class, 'update']);
         Route::delete('/payments/{PaymentId}', [PaymentController::class, 'destroy']);
         //seats
-        Route::post('/seats', [SeatController::class, 'store']);    
+        Route::post('/seats/bulk', [SeatController::class, 'bulkStore']);   
+        Route::post('/seats', [SeatController::class, 'store']);  
         Route::put('/seats/{SeatId}', [SeatController::class, 'update']);
         Route::delete('/seats/{SeatId}', [SeatController::class, 'destroy']);
+        Route::delete('/seats/room/{roomId}', [SeatController::class, 'deleteByRoom']);
         //showtimeseats
         Route::post('/showtimeseats', [ShowtimeseatController::class, 'store']);    
         Route::put('/showtimeseats/{Id}', [ShowtimeseatController::class, 'update']);
@@ -245,5 +260,7 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/staffs', [StaffController::class, 'store']);
         Route::put('/staffs/{StaffId}', [StaffController::class, 'update']);
         Route::delete('/staffs/{StaffId}', [StaffController::class, 'destroy']);
+
+        
     });
 });

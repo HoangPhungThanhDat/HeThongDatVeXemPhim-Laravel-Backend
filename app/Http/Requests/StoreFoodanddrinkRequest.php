@@ -22,14 +22,19 @@ class StoreFoodanddrinkRequest extends FormRequest
     //kiểm tra dữ liệu đầu vào
     public function rules(): array
     {
+        // Kiểm tra xem đây là request tạo mới hay cập nhật
+        $isUpdate = $this->isMethod('PUT') || $this->isMethod('PATCH');
         return [
-            
-        'Name'        => 'required|string|max:255',
-        'Description' => 'nullable|string',
-        'Price'       => 'required|numeric|min:0',
-        'ImageUrl'    => 'nullable|string|max:500',
-        'IsAvailable' => 'required|boolean',
-        'Status' => 'required|in:Active,Inactive,OutOfStock',
+
+            'Name'        => 'required|string|max:255',
+            'Description' => 'nullable|string',
+            'Price'       => 'required|numeric|min:0',
+            // ImageUrl: bắt buộc khi tạo mới, nullable khi update
+            'ImageUrl'  => $isUpdate
+                ? 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
+                : 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'IsAvailable' => 'required|boolean',
+            'Status' => 'required|in:Active,Inactive,OutOfStock',
         ];
     }
 }

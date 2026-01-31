@@ -21,12 +21,17 @@ class StoreNewsRequest extends FormRequest
      */
     public function rules(): array
     {
+          // Kiểm tra xem đây là request tạo mới hay cập nhật
+        $isUpdate = $this->isMethod('PUT') || $this->isMethod('PATCH');
         return [
             'UserId'     => 'required|exists:users,UserId',
             'Title'      => 'required|string|max:255',
             'Slug' => 'nullable|string|unique:news,Slug',
             'Content'    => 'required|string',
-            'ImageUrl'   => 'nullable|string|max:255',
+            // ImageUrl: bắt buộc khi tạo mới, nullable khi update
+            'ImageUrl'  => $isUpdate 
+                ? 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
+                : 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'Status'    => 'required|string|max:20',
         ];
     }
