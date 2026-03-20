@@ -26,13 +26,18 @@ class ContactService
 
     public function create(array $data)
     {
-        $data['CreatedBy'] = Auth::user()->UserId;
+        $user = Auth::user();
+        $data['CreatedBy'] = $user ? $user->UserId : $data['UserId'];
+        $data['CreatedAt'] = now();
+        $data['UpdatedAt'] = now();
         return $this->contactRepository->create($data);
     }
 
     public function update($id, array $data)
     {
-        $data['UpdatedBy'] = Auth::user()->UserId;
+        $user = Auth::user();
+        $data['UpdatedBy'] = $user ? $user->UserId : null;
+        $data['UpdatedAt'] = now();
         return $this->contactRepository->update($id, $data);
     }
 

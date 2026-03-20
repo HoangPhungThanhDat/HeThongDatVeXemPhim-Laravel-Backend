@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -27,7 +26,7 @@ class StoreContactRequest extends FormRequest
             'Email'  => 'nullable|string|max:255',
             'Phone'   => 'nullable|string|max:11',
             'Message'  => 'required|string|max:100',
-            'Status'    => 'required|string|max:20',
+            'Status'    => 'required|string|max:100',
         ];
     }
 }

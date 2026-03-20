@@ -27,8 +27,16 @@ class ContactController extends Controller
 
     public function store(StoreContactRequest $request)
     {
-        $contact = $this->contactService->create($request->validated());
-        return new ContactResource($contact);
+        try {
+            $contact = $this->contactService->create($request->validated());
+            return new ContactResource($contact);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ], 500);
+        }
     }
 
     public function show($ContactId)
