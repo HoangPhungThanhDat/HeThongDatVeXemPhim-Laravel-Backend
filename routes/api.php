@@ -467,6 +467,9 @@ Route::get('/reviews/{ReviewId}', [ReviewController::class, 'show']);
 // Showtimes
 Route::get('/showtimes', [ShowtimeController::class, 'index']);
 Route::get('/showtimes/{ShowtimeId}', [ShowtimeController::class, 'show']);
+Route::get('showtimes/{showtimeId}/seats', [ShowtimeseatController::class, 'getSeatsByShowtime']);
+Route::post('showtimes/{showtimeId}/generate-seats', [ShowtimeseatController::class, 'generateSeats']);
+
 
 // Staffs
 Route::get('/staffs', [StaffController::class, 'index']);

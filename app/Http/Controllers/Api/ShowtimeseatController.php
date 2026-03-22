@@ -1,9 +1,10 @@
 <?php
-
 namespace App\Http\Controllers\Api;
 
 use App\Models\Showtimeseat;
+use App\Models\Showtime; // ✅ THÊM
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;  // ✅ THÊM
 use App\Http\Requests\StoreShowtimeseatRequest;
 use App\Http\Resources\ShowtimeseatResource;
 use App\Http\Controllers\Controller;
@@ -46,5 +47,32 @@ class ShowtimeseatController extends Controller
     {
         $this->showtimeseatService->delete($ShowtimeSeatId);
         return response()->json(['message' => 'showtimeseat deleted successfully']);
+    }
+
+    // GET /api/showtimes/{showtimeId}/seats
+    public function getSeatsByShowtime($showtimeId)
+    {
+        $seats = $this->showtimeseatService->getSeatsByShowtimeId($showtimeId);
+
+        return response()->json([
+            'success' => true,
+            'data'    => $seats,
+        ]);
+    }
+
+    // ✅ THÊM MỚI: POST /api/showtimes/{showtimeId}/generate-seats
+    public function generateSeats($showtimeId): JsonResponse
+    {
+        $showtime = Showtime::findOrFail($showtimeId);
+
+        $this->showtimeseatService->generateSeatsForShowtime(
+            $showtime->ShowtimeId,
+            $showtime->RoomId
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tạo ghế tự động thành công!',
+        ]);
     }
 }

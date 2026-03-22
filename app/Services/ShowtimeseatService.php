@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Repositories\ShowtimeseatRepository;
@@ -39,5 +38,18 @@ class ShowtimeseatService
     public function delete($id)
     {
         return $this->showtimeseatRepository->delete($id);
+    }
+
+    // ✅ THÊM MỚI: Lấy ghế theo ShowtimeId
+    public function getSeatsByShowtimeId($showtimeId)
+    {
+        return $this->showtimeseatRepository->getSeatsByShowtimeId($showtimeId);
+    }
+
+    // ✅ THÊM MỚI: Auto-generate ghế khi tạo showtime
+    public function generateSeatsForShowtime($showtimeId, $roomId)
+    {
+        $createdBy = Auth::check() ? Auth::user()->UserId : null;
+        $this->showtimeseatRepository->generateSeatsForShowtime($showtimeId, $roomId, $createdBy);
     }
 }
