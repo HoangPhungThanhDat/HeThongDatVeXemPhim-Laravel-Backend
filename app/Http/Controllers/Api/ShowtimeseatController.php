@@ -1,10 +1,11 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Models\Showtimeseat;
-use App\Models\Showtime; // ✅ THÊM
+use App\Models\Showtime;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;  // ✅ THÊM
+use Illuminate\Http\JsonResponse;
 use App\Http\Requests\StoreShowtimeseatRequest;
 use App\Http\Resources\ShowtimeseatResource;
 use App\Http\Controllers\Controller;
@@ -23,6 +24,40 @@ class ShowtimeseatController extends Controller
     {
         $showtimeseats = $this->showtimeseatService->getAll();
         return ShowtimeseatResource::collection($showtimeseats);
+    }
+
+    // ✅ Phân trang server-side
+    public function getPaged(Request $request): JsonResponse
+    {
+        $page       = max(1, (int) $request->query('page',  1));
+        $limit      = min(100, max(1, (int) $request->query('limit', 20)));
+        $showtimeId = $request->query('showtime_id', '');
+        $status     = $request->query('status', '');
+
+        $query = Showtimeseat::with(['seat', 'showtime.movie', 'showtime.room']);
+
+        if ($showtimeId) {
+            $query->where('ShowtimeId', $showtimeId);
+        }
+
+        if ($status) {
+            $query->where('Status', $status);
+        }
+
+        $total      = $query->count();
+        $totalPages = (int) ceil($total / $limit);
+        $items      = $query->orderBy('ShowtimeSeatId', 'asc')
+                            ->skip(($page - 1) * $limit)
+                            ->take($limit)
+                            ->get();
+
+        return response()->json([
+            'data'       => ShowtimeseatResource::collection($items),
+            'total'      => $total,
+            'page'       => $page,
+            'limit'      => $limit,
+            'totalPages' => $totalPages,
+        ]);
     }
 
     public function store(StoreShowtimeseatRequest $request)
@@ -60,7 +95,7 @@ class ShowtimeseatController extends Controller
         ]);
     }
 
-    // ✅ THÊM MỚI: POST /api/showtimes/{showtimeId}/generate-seats
+    // POST /api/showtimes/{showtimeId}/generate-seats
     public function generateSeats($showtimeId): JsonResponse
     {
         $showtime = Showtime::findOrFail($showtimeId);

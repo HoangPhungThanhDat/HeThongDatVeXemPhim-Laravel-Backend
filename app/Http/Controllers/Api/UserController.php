@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Resources\UserResource;
 use App\Services\UserService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
@@ -17,24 +18,62 @@ class UserController extends Controller
     public function __construct(UserService $service)
     {
         $this->service = $service;
-        $this->middleware(['auth:api','checkrole:Admin'])->only(['store','update','destroy']);
+        $this->middleware(['auth:api', 'checkrole:Admin'])->only(['store', 'update', 'destroy']);
         $this->middleware('auth:api')->only(['updateProfile', 'getProfile']);
     }
 
-    //lấy tất cả 
+    // Lấy tất cả
     public function index()
     {
         return UserResource::collection($this->service->getAll());
     }
 
-    //thêm
+    // ✅ Phân trang server-side
+    public function getPaged(Request $request)
+    {
+        $page   = max(1, (int) $request->query('page',  1));
+        $limit  = min(100, max(1, (int) $request->query('limit', 10)));
+        $search = $request->query('search', '');
+        $status = $request->query('status', '');
+
+        $query = \App\Models\User::with('role');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('FullName',      'like', "%{$search}%")
+                  ->orWhere('Email',       'like', "%{$search}%")
+                  ->orWhere('PhoneNumber', 'like', "%{$search}%");
+            });
+        }
+
+        if ($status) {
+            $query->where('Status', $status);
+        }
+
+        $total      = $query->count();
+        $totalPages = (int) ceil($total / $limit);
+        $items      = $query->orderBy('UserId', 'desc')
+                            ->skip(($page - 1) * $limit)
+                            ->take($limit)
+                            ->get();
+
+        return response()->json([
+            'data'       => UserResource::collection($items),
+            'total'      => $total,
+            'page'       => $page,
+            'limit'      => $limit,
+            'totalPages' => $totalPages,
+        ]);
+    }
+
+    // Thêm
     public function store(StoreUserRequest $request)
     {
         $user = $this->service->create($request->validated());
         return new UserResource($user);
     }
 
-    //hiện 1
+    // Hiện 1
     public function show($UserId)
     {
         $user = $this->service->find($UserId);
@@ -44,7 +83,7 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-    //cập nhật (Admin only)
+    // Cập nhật (Admin only)
     public function update(StoreUserRequest $request, $UserId)
     {
         $user = $this->service->update($UserId, $request->validated());
@@ -54,7 +93,7 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-    //xoá
+    // Xoá
     public function destroy($UserId)
     {
         $deleted = $this->service->delete($UserId);
@@ -65,75 +104,64 @@ class UserController extends Controller
     }
 
     // ===== API CHO KHÁCH HÀNG =====
-    
-    /**
-     * Lấy thông tin cá nhân của user đang đăng nhập
-     */
+
     public function getProfile()
     {
         $user = Auth::user();
         return new UserResource($user);
     }
 
-    /**
-     * Cập nhật thông tin cá nhân của user đang đăng nhập
-     */
     public function updateProfile(UpdateProfileRequest $request)
     {
         try {
             $user = Auth::guard('api')->user();
-            
+
             if (!$user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Không tìm thấy thông tin đăng nhập'
                 ], 401);
             }
-            
+
             $userId = $user->UserId;
-            
-            // Validate unique
+
             $existingEmail = \App\Models\User::where('Email', $request->Email)
                 ->where('UserId', '!=', $userId)
                 ->first();
-                
+
             if ($existingEmail) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Email đã được sử dụng',
-                    'errors' => ['Email' => ['Email đã được sử dụng']]
+                    'errors'  => ['Email' => ['Email đã được sử dụng']]
                 ], 422);
             }
-            
+
             $existingPhone = \App\Models\User::where('PhoneNumber', $request->PhoneNumber)
                 ->where('UserId', '!=', $userId)
                 ->first();
-                
+
             if ($existingPhone) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Số điện thoại đã được sử dụng',
-                    'errors' => ['PhoneNumber' => ['Số điện thoại đã được sử dụng']]
+                    'errors'  => ['PhoneNumber' => ['Số điện thoại đã được sử dụng']]
                 ], 422);
             }
-            
+
             $data = $request->only([
-                'FullName',
-                'Email', 
-                'PhoneNumber',
-                'Address',
-                'DateOfBirth',
-                'Gender'
+                'FullName', 'Email', 'PhoneNumber',
+                'Address', 'DateOfBirth', 'Gender'
             ]);
-    
+
             $updatedUser = $this->service->updateProfile($userId, $data);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Cập nhật thông tin thành công',
-                'data' => new UserResource($updatedUser)
+                'data'    => new UserResource($updatedUser)
             ], 200);
-    
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -142,16 +170,11 @@ class UserController extends Controller
         }
     }
 
-
-
-      /**
-     * Đổi mật khẩu cho user đang đăng nhập
-     */
     public function changePassword(ChangePasswordRequest $request)
     {
         try {
             $user = Auth::guard('api')->user();
-            
+
             if (!$user) {
                 return response()->json([
                     'success' => false,

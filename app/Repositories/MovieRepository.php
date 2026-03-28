@@ -116,45 +116,44 @@ class MovieRepository
      * Lấy chi tiết một phim theo ID với đầy đủ thông tin
      */
     public function getMovieDetailById($movieId)
-    {
-        $movie = $this->movie
-            ->where('MovieId', $movieId)
-            ->with(['genre', 'directors', 'actors'])
-            ->first();
+{
+    // ✅ Tìm theo MovieId (số) HOẶC Slug (chuỗi)
+    $movie = $this->movie
+        ->where('MovieId', $movieId)
+        ->orWhere('Slug', $movieId)
+        ->with(['genre', 'directors', 'actors'])
+        ->first();
 
-        if (!$movie) {
-            return null;
-        }
-
-        return [
-            'MovieId' => $movie->MovieId,
-            'Title' => $movie->Title,
-            'Slug' => $movie->Slug,
-            'Description' => $movie->Description,
-            'Duration' => $movie->Duration,
-            'ReleaseDate' => $movie->ReleaseDate?->format('Y-m-d'),
-            'PosterUrl' => $movie->PosterUrl,
-            'TrailerUrl' => $movie->TrailerUrl,
-            'Language' => $movie->Language,
-            'Rated' => $movie->Rated,
-            'Status' => $movie->Status,
-            
-            'genre' => $movie->genre ? [
-                'GenreId' => $movie->genre->GenreId,
-                'Name' => $movie->genre->Name
-            ] : null,
-            
-            'directors' => $movie->directors->map(fn($d) => [
-                'CastId' => $d->CastId,
-                'Name' => $d->Name
-            ]),
-            
-            'actors' => $movie->actors->map(fn($a) => [
-                'CastId' => $a->CastId,
-                'Name' => $a->Name
-            ])
-        ];
+    if (!$movie) {
+        return null;
     }
+
+    return [
+        'MovieId'     => $movie->MovieId,
+        'Title'       => $movie->Title,
+        'Slug'        => $movie->Slug,
+        'Description' => $movie->Description,
+        'Duration'    => $movie->Duration,
+        'ReleaseDate' => $movie->ReleaseDate?->format('Y-m-d'),
+        'PosterUrl'   => $movie->PosterUrl,
+        'TrailerUrl'  => $movie->TrailerUrl,
+        'Language'    => $movie->Language,
+        'Rated'       => $movie->Rated,
+        'Status'      => $movie->Status,
+        'genre'       => $movie->genre ? [
+            'GenreId' => $movie->genre->GenreId,
+            'Name'    => $movie->genre->Name
+        ] : null,
+        'directors'   => $movie->directors->map(fn($d) => [
+            'CastId' => $d->CastId,
+            'Name'   => $d->Name
+        ]),
+        'actors'      => $movie->actors->map(fn($a) => [
+            'CastId' => $a->CastId,
+            'Name'   => $a->Name
+        ])
+    ];
+}
 
     /**
      * Lấy phim đang chiếu theo thể loại

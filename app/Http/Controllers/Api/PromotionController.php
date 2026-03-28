@@ -7,6 +7,7 @@ use App\Http\Requests\StorePromotionRequest;
 use App\Http\Resources\PromotionResource;
 use App\Services\PromotionService;
 use App\Models\Promotion;
+use Illuminate\Http\Request;
 
 class PromotionController extends Controller
 {
@@ -15,13 +16,50 @@ class PromotionController extends Controller
     public function __construct(PromotionService $service)
     {
         $this->service = $service;
-        $this->middleware(['auth:api','checkrole:Admin'])->only(['store','update','destroy']);
+        $this->middleware(['auth:api', 'checkrole:Admin'])->only(['store', 'update', 'destroy']);
     }
 
-    // Lấy tất cả 
+    // Lấy tất cả
     public function index()
     {
         return PromotionResource::collection($this->service->getAll());
+    }
+
+    // ✅ Phân trang server-side
+    public function getPaged(Request $request)
+    {
+        $page   = max(1, (int) $request->query('page',  1));
+        $limit  = min(100, max(1, (int) $request->query('limit', 10)));
+        $search = $request->query('search', '');
+        $status = $request->query('status', '');
+
+        $query = Promotion::query();
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('Title', 'like', "%{$search}%")
+                  ->orWhere('Code', 'like', "%{$search}%");
+            });
+        }
+
+        if ($status) {
+            $query->where('Status', $status);
+        }
+
+        $total      = $query->count();
+        $totalPages = (int) ceil($total / $limit);
+        $items      = $query->orderBy('PromotionId', 'desc')
+                            ->skip(($page - 1) * $limit)
+                            ->take($limit)
+                            ->get();
+
+        return response()->json([
+            'data'       => PromotionResource::collection($items),
+            'total'      => $total,
+            'page'       => $page,
+            'limit'      => $limit,
+            'totalPages' => $totalPages,
+        ]);
     }
 
     // Thêm
@@ -29,12 +67,11 @@ class PromotionController extends Controller
     {
         $data = $request->validated();
 
-        // Xử lý upload ảnh giống BannerController
         if ($request->hasFile('ImageUrl')) {
-            $file = $request->file('ImageUrl');
-            $hash = md5_file($file->getRealPath());
+            $file      = $request->file('ImageUrl');
+            $hash      = md5_file($file->getRealPath());
             $extension = $file->getClientOriginalExtension();
-            $fileName = $hash . '.' . $extension;
+            $fileName  = $hash . '.' . $extension;
 
             $folderPath = storage_path('app/public/uploads/promotions');
             if (!file_exists($folderPath)) {
@@ -49,7 +86,6 @@ class PromotionController extends Controller
         }
 
         $promotion = $this->service->create($data);
-
         return new PromotionResource($promotion);
     }
 
@@ -67,13 +103,13 @@ class PromotionController extends Controller
     public function update(StorePromotionRequest $request, $PromotionId)
     {
         $promotion = Promotion::findOrFail($PromotionId);
-        $data = $request->validated();
+        $data      = $request->validated();
 
         if ($request->hasFile('ImageUrl')) {
-            $file = $request->file('ImageUrl');
-            $hash = md5_file($file->getRealPath());
+            $file      = $request->file('ImageUrl');
+            $hash      = md5_file($file->getRealPath());
             $extension = $file->getClientOriginalExtension();
-            $fileName = $hash . '.' . $extension;
+            $fileName  = $hash . '.' . $extension;
 
             $folderPath = storage_path('app/public/uploads/promotions');
             if (!file_exists($folderPath)) {
@@ -86,7 +122,6 @@ class PromotionController extends Controller
 
             $data['ImageUrl'] = asset('storage/uploads/promotions/' . $fileName);
         } else {
-            // Nếu không upload mới thì giữ nguyên ảnh cũ
             $data['ImageUrl'] = $promotion->ImageUrl;
         }
 
