@@ -24,7 +24,7 @@ class StoreShowtimeseatRequest extends FormRequest
         return [
             'ShowtimeId' => 'required|integer|exists:showtimes,ShowtimeId',
             'SeatId' => 'required|integer|exists:seats,SeatId',
-            'Status' => 'required|string|in:Available,Reserved,Broken',
+            'Status' => 'required|string|in:Available,Reserved,Held,Broken,Maintenance,Inactive',
         ];
     }
 }

@@ -8,25 +8,26 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckRoleMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-    public function handle(Request $request, Closure $next, $role): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         $user = $request->user();
 
-        // Nếu chưa đăng nhập
         if (!$user) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        // Lấy role từ quan hệ
         $userRole = $user->role ? $user->role->RoleName : null;
 
-        if ($userRole !== $role) {
-            return response()->json(['message' => 'Forbidden - Role required: '.$role], 403);
+        // ✅ So sánh không phân biệt hoa thường
+        $rolesLower    = array_map('strtolower', $roles);
+        $userRoleLower = strtolower($userRole ?? '');
+
+        if (!$userRole || !in_array($userRoleLower, $rolesLower)) {
+            return response()->json([
+                'message'       => 'Forbidden - Role required: ' . implode(' or ', $roles),
+                'your_role'     => $userRole,       // 👈 debug: thấy role thực tế trong DB
+                'required_roles'=> $roles,
+            ], 403);
         }
 
         return $next($request);

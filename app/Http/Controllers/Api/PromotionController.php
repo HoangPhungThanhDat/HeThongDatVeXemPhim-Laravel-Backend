@@ -16,7 +16,6 @@ class PromotionController extends Controller
     public function __construct(PromotionService $service)
     {
         $this->service = $service;
-        $this->middleware(['auth:api', 'checkrole:Admin'])->only(['store', 'update', 'destroy']);
     }
 
     // Lấy tất cả

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
@@ -21,8 +20,8 @@ class UserResource extends JsonResource
             'PhoneNumber' => $this->PhoneNumber,
             'Gender' => $this->Gender,
             'DateOfBirth' => $this->DateOfBirth?->format('d-m-Y'),
-            'role' => new RoleResource($this->whenLoaded('role')),
-            'role' => $this->Role,
+            'RoleId' => $this->RoleId,
+            'RoleName' => $this->role->RoleName ?? null,
             'Status' => $this->Status,
             'CreatedBy' => $this->CreatedBy,
             'UpdatedBy' => $this->UpdatedBy,
