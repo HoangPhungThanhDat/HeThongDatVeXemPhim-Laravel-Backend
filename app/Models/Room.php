@@ -34,53 +34,54 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Room extends Model
 {
-	protected $table = 'rooms';
-	protected $primaryKey = 'RoomId';
-	public $timestamps = false;
+    protected $table = 'rooms';
+    protected $primaryKey = 'RoomId';
+    public $timestamps = false;
 
-	protected $casts = [
-		'CinemaId' => 'int',
-		'SeatCount' => 'int',
-		'CreatedAt' => 'datetime',
-		'UpdatedAt' => 'datetime',
-		'CreatedBy' => 'int',
-		'UpdatedBy' => 'int'
-	];
+    protected $casts = [
+        'CinemaId' => 'int',
+        'SeatCount' => 'int',
+        'CreatedAt' => 'datetime',
+        'UpdatedAt' => 'datetime',
+        'CreatedBy' => 'int',
+        'UpdatedBy' => 'int'
+    ];
 
-	protected $fillable = [
-		'CinemaId',
-		'Name',
-		'SeatCount',
-		'RoomType',
-		'Status',
-		'CreatedAt',
-		'UpdatedAt',
-		'CreatedBy',
-		'UpdatedBy'
-	];
+    protected $fillable = [
+        'CinemaId',
+        'Name',
+        'SeatCount',
+        'RoomType',
+        'Status',
+        'CreatedAt',
+        'UpdatedAt',
+        'CreatedBy',
+        'UpdatedBy'
+    ];
 
-	public function cinema()
-	{
-		return $this->belongsTo(Cinema::class, 'CinemaId');
-	}
+    public function cinema()
+    {
+        return $this->belongsTo(Cinema::class, 'CinemaId');
+    }
 
-	public function user()
-	{
-		return $this->belongsTo(User::class, 'UpdatedBy');
-	}
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'UpdatedBy');
+    }
 
-	public function schedules()
-	{
-		return $this->hasMany(Schedule::class, 'RoomId');
-	}
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class, 'RoomId');
+    }
 
-	public function seats()
-	{
-		return $this->hasMany(Seat::class, 'RoomId');
-	}
+    // ✅ Đã có relationship với seats
+    public function seats()
+    {
+        return $this->hasMany(Seat::class, 'RoomId');
+    }
 
-	public function showtimes()
-	{
-		return $this->hasMany(Showtime::class, 'RoomId');
-	}
+    public function showtimes()
+    {
+        return $this->hasMany(Showtime::class, 'RoomId');
+    }
 }

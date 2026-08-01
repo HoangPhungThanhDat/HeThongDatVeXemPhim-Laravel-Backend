@@ -23,47 +23,75 @@ use Illuminate\Database\Eloquent\Model;
  * 
  * @property Showtime $showtime
  * @property Seat $seat
- * @property User|null $user
  *
  * @package App\Models
  */
 class Showtimeseat extends Model
 {
-	protected $table = 'showtimeseats';
-	protected $primaryKey = 'ShowtimeSeatId';
-	public $timestamps = false;
+    protected $table = 'showtimeseats';
+    protected $primaryKey = 'ShowtimeSeatId';
+    public $incrementing = true;  // ✅ INT auto-increment
+    protected $keyType = 'int';   // ✅ INT
+    public $timestamps = false;
 
-	protected $casts = [
-		'ShowtimeId' => 'int',
-		'SeatId' => 'int',
-		'CreatedAt' => 'datetime',
-		'UpdatedAt' => 'datetime',
-		'CreatedBy' => 'int',
-		'UpdatedBy' => 'int'
-	];
+    protected $casts = [
+        'ShowtimeId' => 'int',
+        'SeatId' => 'int',
+        'CreatedAt' => 'datetime',
+        'UpdatedAt' => 'datetime',
+        'CreatedBy' => 'int',
+        'UpdatedBy' => 'int'
+    ];
 
-	protected $fillable = [
-		'ShowtimeId',
-		'SeatId',
-		'Status',
-		'CreatedAt',
-		'UpdatedAt',
-		'CreatedBy',
-		'UpdatedBy'
-	];
+    protected $fillable = [
+        'ShowtimeId',
+        'SeatId',
+        'Status',
+        'CreatedAt',
+        'UpdatedAt',
+        'CreatedBy',
+        'UpdatedBy'
+    ];
 
-	public function showtime()
-	{
-		return $this->belongsTo(Showtime::class, 'ShowtimeId');
-	}
+    /**
+     * Quan hệ với Showtime
+     */
+    public function showtime()
+    {
+        return $this->belongsTo(Showtime::class, 'ShowtimeId', 'ShowtimeId');
+    }
 
-	public function seat()
-	{
-		return $this->belongsTo(Seat::class, 'SeatId');
-	}
+    /**
+     * Quan hệ với Seat
+     */
+    public function seat()
+    {
+        return $this->belongsTo(Seat::class, 'SeatId', 'SeatId');
+    }
 
-	public function user()
-	{
-		return $this->belongsTo(User::class, 'UpdatedBy');
-	}
+    /**
+     * Quan hệ với Ticket (thông qua SeatId và ShowtimeId)
+     * Lấy vé đã đặt cho ghế này trong suất chiếu này
+     */
+    public function ticket()
+    {
+        return $this->hasOne(Ticket::class, 'SeatId', 'SeatId')
+            ->where('ShowtimeId', $this->ShowtimeId)
+            ->whereIn('Status', ['Paid', 'Pending']);
+    }
+
+    /**
+     * Quan hệ với User thông qua Ticket (người đặt vé)
+     */
+    public function user()
+    {
+        return $this->hasOneThrough(
+            User::class,
+            Ticket::class,
+            'SeatId',      // Foreign key on Ticket table
+            'UserId',      // Foreign key on User table
+            'SeatId',      // Local key on ShowtimeSeat table
+            'UserId'       // Local key on Ticket table
+        )->where('Ticket.ShowtimeId', $this->ShowtimeId);
+    }
 }

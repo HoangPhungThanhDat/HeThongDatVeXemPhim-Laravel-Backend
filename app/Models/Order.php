@@ -1,76 +1,58 @@
 <?php
 
-/**
- * Created by Reliese Model.
- */
-
 namespace App\Models;
 
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * Class Order
- * 
- * @property int $OrderId
- * @property int|null $UserId
- * @property Carbon $OrderDate
- * @property float $TotalAmount
- * @property int|null $PromotionId
- * @property string $Status
- * @property Carbon $CreatedAt
- * @property Carbon $UpdatedAt
- * @property int|null $CreatedBy
- * @property int|null $UpdatedBy
- * 
- * @property User|null $user
- * @property Promotion|null $promotion
- * @property Collection|Orderdetail[] $orderdetails
- *
- * @package App\Models
- */
 class Order extends Model
 {
-	protected $table = 'orders';
-	protected $primaryKey = 'OrderId';
-	public $timestamps = false;
+    protected $table = 'orders';
+    protected $primaryKey = 'OrderId';
+    public $incrementing = true;
+    protected $keyType = 'int';
+    public $timestamps = true;
 
-	protected $casts = [
-		'UserId' => 'int',
-		'OrderDate' => 'datetime',
-		'TotalAmount' => 'float',
-		'PromotionId' => 'int',
-		'CreatedAt' => 'datetime',
-		'UpdatedAt' => 'datetime',
-		'CreatedBy' => 'int',
-		'UpdatedBy' => 'int'
-	];
+    const CREATED_AT = 'CreatedAt';
+    const UPDATED_AT = 'UpdatedAt';
 
-	protected $fillable = [
-		'UserId',
-		'OrderDate',
-		'TotalAmount',
-		'PromotionId',
-		'Status',
-		'CreatedAt',
-		'UpdatedAt',
-		'CreatedBy',
-		'UpdatedBy'
-	];
+    protected $casts = [
+        'UserId' => 'int',
+        'OrderDate' => 'datetime',
+        'TotalAmount' => 'float',
+        'PromotionId' => 'int',
+        'CreatedAt' => 'datetime',
+        'UpdatedAt' => 'datetime',
+        'CreatedBy' => 'int',
+        'UpdatedBy' => 'int'
+    ];
 
-	public function user()
-	{
-		return $this->belongsTo(User::class, 'UpdatedBy');
-	}
+    protected $fillable = [
+        'UserId',
+        'OrderDate',
+        'TotalAmount',
+        'PromotionId',
+        'Status',
+        'CreatedBy',
+        'UpdatedBy',
+        'CreatedAt',
+        'UpdatedAt'
+    ];
 
-	public function promotion()
-	{
-		return $this->belongsTo(Promotion::class, 'PromotionId');
-	}
+    // Quan hệ với User (KHÁCH HÀNG)
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'UserId', 'UserId');
+    }
 
-	public function orderdetails()
-	{
-		return $this->hasMany(Orderdetail::class, 'OrderId');
-	}
+    // Quan hệ với Promotion
+    public function promotion()
+    {
+        return $this->belongsTo(Promotion::class, 'PromotionId', 'PromotionId');
+    }
+
+    // Quan hệ với OrderDetails
+    public function orderDetails()
+    {
+        return $this->hasMany(Orderdetail::class, 'OrderId', 'OrderId');
+    }
 }

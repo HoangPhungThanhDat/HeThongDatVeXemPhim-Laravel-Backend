@@ -14,17 +14,23 @@ class RoomResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        // ✅ Lấy số ghế thực tế của phòng
+        $actualSeats = $this->seats->count() ?? 0;
+        
         return [
-            'RoomId'     => $this->RoomId,
-            'CinemaId'             => $this->CinemaId,
-            'Name'          => $this->Name,
-            'SeatCount'        => $this->SeatCount,
-            'RoomType'   => $this->RoomType,
-            'Status'         => $this->Status,
-            'CreatedBy'          => $this->CreatedBy,
-            'UpdatedBy'     => $this->UpdatedBy,
-            'CreatedAt'           => $this->CreatedAt?->format('d-m-Y H:i:s'),
-            'UpdatedAt'      => $this->UpdatedAt?->format('d-m-Y H:i:s'),
+            'RoomId' => $this->RoomId,
+            'CinemaId' => $this->CinemaId,
+            'Name' => $this->Name,
+            'SeatCount' => $this->SeatCount,
+            'ActualSeats' => $actualSeats, // ✅ Số ghế thực tế (từ bảng seats)
+            'RoomType' => $this->RoomType,
+            'Status' => $this->Status,
+            'CreatedBy' => $this->CreatedBy,
+            'UpdatedBy' => $this->UpdatedBy,
+            'CreatedAt' => $this->CreatedAt?->format('d-m-Y H:i:s'),
+            'UpdatedAt' => $this->UpdatedAt?->format('d-m-Y H:i:s'),
+            // ✅ Thêm thông tin ghế chi tiết (nếu cần)
+            'Seats' => SeatResource::collection($this->seats),
         ];
     }
 }

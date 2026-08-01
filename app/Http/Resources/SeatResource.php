@@ -15,27 +15,40 @@ class SeatResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'SeatId'        => $this->SeatId,
-            'RoomId'      => $this->RoomId,
-            'Row'          => $this->Row,
-            'Number'       => $this->Number,
-            'SeatType'      => $this->SeatType,
-            'Status'    => $this->Status,
-            'CreatedAt'           => $this->CreatedAt?->format('d-m-Y H:i:s'),
-            'UpdatedAt'      => $this->UpdatedAt?->format('d-m-Y H:i:s'),
-            'CreatedBy'     => $this->CreatedBy,
-            'UpdatedBy'=> $this->UpdatedBy,
+            // ✅ Thông tin ghế
+            'SeatId' => $this->SeatId,
+            'RoomId' => $this->RoomId,
+            'Row' => $this->Row,
+            'Number' => $this->Number,
+            'SeatType' => $this->SeatType,
+            'Status' => $this->Status,
+            'CreatedAt' => $this->CreatedAt?->format('d-m-Y H:i:s'),
+            'UpdatedAt' => $this->UpdatedAt?->format('d-m-Y H:i:s'),
+            'CreatedBy' => $this->CreatedBy,
+            'UpdatedBy' => $this->UpdatedBy,
 
-            // thông tin phòng
-            'Phong' => $this->whenLoaded('room', function() {
+            // ✅ Thông tin phòng (nếu đã load relationship)
+            'Room' => $this->whenLoaded('room', function() {
                 return [
                     'RoomId' => $this->room->RoomId,
-                    'Name'=> $this->room->Name ?? null,
+                    'Name' => $this->room->Name ?? null,
+                    'RoomType' => $this->room->RoomType ?? null,
+                    'Status' => $this->room->Status ?? null,
                 ];
             }),
 
-            // thông tin showtime liên quan
-            'Lich_Chieu' => ShowtimeSeatResource::collection($this->whenLoaded('showtimes')),
+            // ✅ Thông tin rạp (qua phòng)
+            'Cinema' => $this->whenLoaded('room.cinema', function() {
+                return [
+                    'CinemaId' => $this->room->cinema->CinemaId ?? null,
+                    'Name' => $this->room->cinema->Name ?? null,
+                ];
+            }),
+
+            // ✅ Thông tin ShowtimeSeat (trạng thái ghế theo suất chiếu)
+            'ShowtimeSeats' => ShowtimeSeatResource::collection(
+                $this->whenLoaded('showtimeSeats')
+            ),
         ];
     }
 }

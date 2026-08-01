@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🎬 Hệ Thống Đặt Vé Xem Phim
+# Hệ Thống Đặt Vé Xem Phim
 
 ### API RESTful Cấp Doanh Nghiệp Cho Đặt Vé Xem Phim
 
