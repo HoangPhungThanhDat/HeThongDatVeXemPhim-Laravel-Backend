@@ -1,0 +1,1146 @@
+name: Users
+description: |-
+
+  APIs for managing users.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/users
+    metadata:
+      custom: []
+      groupName: Users
+      groupDescription: |-
+
+        APIs for managing users.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get all users'
+      description: 'Get a list of all users. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          [
+            {
+              "UserId": 1,
+              "FullName": "Nguyễn Văn A",
+              "Email": "admin@gauphim.com",
+              "PhoneNumber": "0987654321",
+              "Status": "Active",
+              "RoleId": 1
+            }
+          ]
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 401
+        content: |-
+          {
+            "message": "Unauthenticated"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 403
+        content: |-
+          {
+            "message": "Forbidden - Admin only"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/users/paged
+    metadata:
+      custom: []
+      groupName: Users
+      groupDescription: |-
+
+        APIs for managing users.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get paginated users'
+      description: 'Get a paginated list of users with search and filter options. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      page:
+        custom: []
+        name: page
+        description: 'The page number. Default: 1.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      limit:
+        custom: []
+        name: limit
+        description: 'Number of items per page. Default: 10. Max: 100.'
+        required: false
+        example: 10
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      search:
+        custom: []
+        name: search
+        description: 'Search by name, email, or phone number.'
+        required: false
+        example: Nguyen
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      status:
+        custom: []
+        name: status
+        description: 'Filter by status.'
+        required: false
+        example: Active
+        type: string
+        enumValues:
+          - Active
+          - Inactive
+          - Banned
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      page: 1
+      limit: 10
+      search: Nguyen
+      status: Active
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "data": [
+              {
+                "UserId": 1,
+                "FullName": "Nguyễn Văn A",
+                "Email": "admin@gauphim.com",
+                "PhoneNumber": "0987654321"
+              }
+            ],
+            "total": 100,
+            "page": 1,
+            "limit": 10,
+            "totalPages": 10
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/users/{UserId}'
+    metadata:
+      custom: []
+      groupName: Users
+      groupDescription: |-
+
+        APIs for managing users.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get a user by ID'
+      description: 'Get detailed information about a specific user. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      UserId:
+        custom: []
+        name: UserId
+        description: 'The ID of the user.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      UserId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "UserId": 1,
+            "FullName": "Nguyễn Văn A",
+            "Email": "admin@gauphim.com",
+            "PhoneNumber": "0987654321",
+            "Gender": "Male",
+            "DateOfBirth": "2000-01-01",
+            "Address": "Hà Nội",
+            "Status": "Active",
+            "RoleId": 1
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "User not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/profile
+    metadata:
+      custom: []
+      groupName: Users
+      groupDescription: |-
+
+        APIs for managing users.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get current user profile'
+      description: 'Get the profile of the authenticated user.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "UserId": 1,
+            "FullName": "Nguyễn Văn A",
+            "Email": "admin@gauphim.com",
+            "PhoneNumber": "0987654321",
+            "Address": "Hà Nội",
+            "Gender": "Male",
+            "DateOfBirth": "2000-01-01",
+            "Status": "Active",
+            "RoleId": 1
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 401
+        content: |-
+          {
+            "message": "Unauthenticated"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: api/profile
+    metadata:
+      custom: []
+      groupName: Users
+      groupDescription: |-
+
+        APIs for managing users.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Update current user profile'
+      description: 'Update the profile of the authenticated user.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      FullName:
+        custom: []
+        name: FullName
+        description: 'The full name.'
+        required: false
+        example: 'Nguyễn Văn A Updated'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Email:
+        custom: []
+        name: Email
+        description: 'The email address.'
+        required: false
+        example: user@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      PhoneNumber:
+        custom: []
+        name: PhoneNumber
+        description: 'The phone number.'
+        required: false
+        example: '0987654321'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Address:
+        custom: []
+        name: Address
+        description: 'The address.'
+        required: false
+        example: 'Hà Nội'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      DateOfBirth:
+        custom: []
+        name: DateOfBirth
+        description: 'The date of birth.'
+        required: false
+        example: '2000-01-01'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      Gender:
+        custom: []
+        name: Gender
+        description: 'The gender.'
+        required: false
+        example: Male
+        type: string
+        enumValues:
+          - Male
+          - Female
+          - Other
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      FullName: 'Nguyễn Văn A Updated'
+      Email: user@example.com
+      PhoneNumber: '0987654321'
+      Address: 'Hà Nội'
+      DateOfBirth: '2000-01-01'
+      Gender: Male
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Cập nhật thông tin thành công",
+            "data": {
+              "UserId": 1,
+              "FullName": "Nguyễn Văn A Updated",
+              "Email": "user@example.com"
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 401
+        content: |-
+          {
+            "message": "Unauthenticated"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "success": false,
+            "message": "Email đã được sử dụng",
+            "errors": {
+              "Email": ["Email đã được sử dụng"]
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/users/{UserId}/profile'
+    metadata:
+      custom: []
+      groupName: Users
+      groupDescription: |-
+
+        APIs for managing users.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Update current user profile'
+      description: 'Update the profile of the authenticated user.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters:
+      UserId:
+        custom: []
+        name: UserId
+        description: ''
+        required: true
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      UserId: consequatur
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      FullName:
+        custom: []
+        name: FullName
+        description: 'The full name.'
+        required: false
+        example: 'Nguyễn Văn A Updated'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Email:
+        custom: []
+        name: Email
+        description: 'The email address.'
+        required: false
+        example: user@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      PhoneNumber:
+        custom: []
+        name: PhoneNumber
+        description: 'The phone number.'
+        required: false
+        example: '0987654321'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Address:
+        custom: []
+        name: Address
+        description: 'The address.'
+        required: false
+        example: 'Hà Nội'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      DateOfBirth:
+        custom: []
+        name: DateOfBirth
+        description: 'The date of birth.'
+        required: false
+        example: '2000-01-01'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      Gender:
+        custom: []
+        name: Gender
+        description: 'The gender.'
+        required: false
+        example: Male
+        type: string
+        enumValues:
+          - Male
+          - Female
+          - Other
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      FullName: 'Nguyễn Văn A Updated'
+      Email: user@example.com
+      PhoneNumber: '0987654321'
+      Address: 'Hà Nội'
+      DateOfBirth: '2000-01-01'
+      Gender: Male
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Cập nhật thông tin thành công",
+            "data": {
+              "UserId": 1,
+              "FullName": "Nguyễn Văn A Updated",
+              "Email": "user@example.com"
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 401
+        content: |-
+          {
+            "message": "Unauthenticated"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "success": false,
+            "message": "Email đã được sử dụng",
+            "errors": {
+              "Email": ["Email đã được sử dụng"]
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: api/change-password
+    metadata:
+      custom: []
+      groupName: Users
+      groupDescription: |-
+
+        APIs for managing users.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Change password'
+      description: 'Change the password of the authenticated user.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      current_password:
+        custom: []
+        name: current_password
+        description: 'The current password.'
+        required: true
+        example: '123456'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      new_password:
+        custom: []
+        name: new_password
+        description: 'The new password. Minimum 6 characters.'
+        required: true
+        example: '12345678'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      new_password_confirmation:
+        custom: []
+        name: new_password_confirmation
+        description: 'The confirmation of the new password.'
+        required: true
+        example: '12345678'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      current_password: '123456'
+      new_password: '12345678'
+      new_password_confirmation: '12345678'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Đổi mật khẩu thành công"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 401
+        content: |-
+          {
+            "message": "Unauthenticated"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "success": false,
+            "message": "Mật khẩu cũ không đúng"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/users
+    metadata:
+      custom: []
+      groupName: Users
+      groupDescription: |-
+
+        APIs for managing users.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Create a new user'
+      description: 'Create a new user with the provided data. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      FullName:
+        custom: []
+        name: FullName
+        description: 'The full name.'
+        required: true
+        example: 'Nguyễn Văn B'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Email:
+        custom: []
+        name: Email
+        description: 'The email address.'
+        required: true
+        example: user2@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      PasswordHash:
+        custom: []
+        name: PasswordHash
+        description: 'Must be at least 8 characters.'
+        required: true
+        example: hfqcoynlazghdtqtqxbajwbpilpmufinllwloauydlsmsjuryvojcybzvrbyickznkygloigmkw
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      PhoneNumber:
+        custom: []
+        name: PhoneNumber
+        description: 'The phone number.'
+        required: true
+        example: '0987654321'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      Gender:
+        custom: []
+        name: Gender
+        description: 'The gender.'
+        required: false
+        example: Male
+        type: string
+        enumValues:
+          - Male
+          - Female
+          - Other
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      DateOfBirth:
+        custom: []
+        name: DateOfBirth
+        description: 'The date of birth.'
+        required: false
+        example: '2000-01-01'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      RoleId:
+        custom: []
+        name: RoleId
+        description: 'The role ID.'
+        required: true
+        example: 2
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: ''
+        required: true
+        example: Banned
+        type: string
+        enumValues:
+          - Active
+          - Inactive
+          - Banned
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      Password:
+        custom: []
+        name: Password
+        description: 'The password.'
+        required: true
+        example: '123456'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Address:
+        custom: []
+        name: Address
+        description: 'The address.'
+        required: false
+        example: 'Hà Nội'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      FullName: 'Nguyễn Văn B'
+      Email: user2@example.com
+      PasswordHash: hfqcoynlazghdtqtqxbajwbpilpmufinllwloauydlsmsjuryvojcybzvrbyickznkygloigmkw
+      PhoneNumber: '0987654321'
+      Gender: Male
+      DateOfBirth: '2000-01-01'
+      RoleId: 2
+      Status: Banned
+      Password: '123456'
+      Address: 'Hà Nội'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+            "UserId": 2,
+            "FullName": "Nguyễn Văn B",
+            "Email": "user2@example.com",
+            "PhoneNumber": "0987654321",
+            "RoleId": 2
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "message": "The given data was invalid.",
+            "errors": {
+              "Email": ["The email has already been taken."]
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/users/{UserId}'
+    metadata:
+      custom: []
+      groupName: Users
+      groupDescription: |-
+
+        APIs for managing users.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Update a user'
+      description: "Update a user's information. (Admin only)"
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters:
+      UserId:
+        custom: []
+        name: UserId
+        description: 'The ID of the user.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      UserId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      FullName:
+        custom: []
+        name: FullName
+        description: 'The full name.'
+        required: false
+        example: 'Nguyễn Văn A Updated'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Email:
+        custom: []
+        name: Email
+        description: 'The email address.'
+        required: false
+        example: admin@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      PasswordHash:
+        custom: []
+        name: PasswordHash
+        description: 'Must be at least 8 characters.'
+        required: true
+        example: hfqcoynlazghdtqtqxbajwbpilpmufinllwloauydlsmsjuryvojcybzvrbyickznkygloigmkw
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      PhoneNumber:
+        custom: []
+        name: PhoneNumber
+        description: 'The phone number.'
+        required: false
+        example: '0987654321'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      Gender:
+        custom: []
+        name: Gender
+        description: ''
+        required: true
+        example: Female
+        type: string
+        enumValues:
+          - Male
+          - Female
+          - Other
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      DateOfBirth:
+        custom: []
+        name: DateOfBirth
+        description: 'Must be a valid date.'
+        required: false
+        example: '2026-08-04T07:14:02'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      RoleId:
+        custom: []
+        name: RoleId
+        description: 'The role ID.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: 'The status.'
+        required: false
+        example: Active
+        type: string
+        enumValues:
+          - Active
+          - Inactive
+          - Banned
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      FullName: 'Nguyễn Văn A Updated'
+      Email: admin@example.com
+      PasswordHash: hfqcoynlazghdtqtqxbajwbpilpmufinllwloauydlsmsjuryvojcybzvrbyickznkygloigmkw
+      PhoneNumber: '0987654321'
+      Gender: Female
+      DateOfBirth: '2026-08-04T07:14:02'
+      RoleId: 1
+      Status: Active
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "UserId": 1,
+            "FullName": "Nguyễn Văn A Updated",
+            "Email": "admin@example.com",
+            "Status": "Active"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "User not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/users/{UserId}'
+    metadata:
+      custom: []
+      groupName: Users
+      groupDescription: |-
+
+        APIs for managing users.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Delete a user'
+      description: 'Delete a user from the system. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      UserId:
+        custom: []
+        name: UserId
+        description: 'The ID of the user.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      UserId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "message": "User deleted successfully"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "User not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null

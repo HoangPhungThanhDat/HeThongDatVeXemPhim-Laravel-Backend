@@ -1,0 +1,764 @@
+name: Seats
+description: |-
+
+  APIs for managing cinema seats.
+  Seats are individual positions in a room where audience members sit.
+  Supports single seat creation, bulk creation, and room-level operations.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/seats
+    metadata:
+      custom: []
+      groupName: Seats
+      groupDescription: |-
+
+        APIs for managing cinema seats.
+        Seats are individual positions in a room where audience members sit.
+        Supports single seat creation, bulk creation, and room-level operations.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get all seats'
+      description: 'Get a list of all seats in the system.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": [
+              {
+                "SeatId": 1,
+                "RoomId": 1,
+                "Row": "A",
+                "Number": 1,
+                "SeatType": "Normal",
+                "Status": "Available",
+                "CreatedAt": "2024-01-01 10:00:00"
+              },
+              {
+                "SeatId": 2,
+                "RoomId": 1,
+                "Row": "A",
+                "Number": 2,
+                "SeatType": "Normal",
+                "Status": "Available",
+                "CreatedAt": "2024-01-01 10:00:00"
+              }
+            ]
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Lỗi khi lấy danh sách ghế",
+            "error": "..."
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/seats/{SeatId}'
+    metadata:
+      custom: []
+      groupName: Seats
+      groupDescription: |-
+
+        APIs for managing cinema seats.
+        Seats are individual positions in a room where audience members sit.
+        Supports single seat creation, bulk creation, and room-level operations.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get a specific seat'
+      description: 'Get detailed information about a specific seat.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters:
+      SeatId:
+        custom: []
+        name: SeatId
+        description: 'The ID of the seat.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      SeatId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": {
+              "SeatId": 1,
+              "RoomId": 1,
+              "Row": "A",
+              "Number": 1,
+              "SeatType": "Normal",
+              "Status": "Available",
+              "CreatedAt": "2024-01-01 10:00:00"
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Không tìm thấy ghế",
+            "error": "..."
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/seats/bulk
+    metadata:
+      custom: []
+      groupName: Seats
+      groupDescription: |-
+
+        APIs for managing cinema seats.
+        Seats are individual positions in a room where audience members sit.
+        Supports single seat creation, bulk creation, and room-level operations.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Bulk create seats'
+      description: 'Create multiple seats at once in a room. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      seats:
+        custom: []
+        name: seats
+        description: 'The list of seats to create.'
+        required: true
+        example:
+          - consequatur
+        type: 'string[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'seats[].RoomId':
+        custom: []
+        name: 'seats[].RoomId'
+        description: 'Must match an existing stored value.'
+        required: true
+        example: 17
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'seats[].Row':
+        custom: []
+        name: 'seats[].Row'
+        description: 'The row letter.'
+        required: true
+        example: A
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      'seats[].Number':
+        custom: []
+        name: 'seats[].Number'
+        description: 'The seat number.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      'seats[].SeatType':
+        custom: []
+        name: 'seats[].SeatType'
+        description: 'The seat type.'
+        required: false
+        example: Normal
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      'seats[].Status':
+        custom: []
+        name: 'seats[].Status'
+        description: 'The seat status.'
+        required: false
+        example: Available
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      seats:
+        - consequatur
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+            "success": true,
+            "message": "Tạo thành công 10 ghế và cập nhật số ghế phòng",
+            "data": [...],
+            "count": 10
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "success": false,
+            "message": "Dữ liệu không hợp lệ",
+            "errors": {...}
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Có lỗi xảy ra khi tạo ghế",
+            "error": "..."
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/seats
+    metadata:
+      custom: []
+      groupName: Seats
+      groupDescription: |-
+
+        APIs for managing cinema seats.
+        Seats are individual positions in a room where audience members sit.
+        Supports single seat creation, bulk creation, and room-level operations.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Create a single seat'
+      description: 'Create a new seat in a room. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      RoomId:
+        custom: []
+        name: RoomId
+        description: 'The ID of the room.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Row:
+        custom: []
+        name: Row
+        description: 'The row letter.'
+        required: true
+        example: A
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Number:
+        custom: []
+        name: Number
+        description: 'The seat number in the row.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      SeatType:
+        custom: []
+        name: SeatType
+        description: 'The seat type.'
+        required: false
+        example: Normal
+        type: string
+        enumValues:
+          - Normal
+          - VIP
+          - Couple
+          - Accessible
+          - Sweetbox
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: 'The seat status.'
+        required: false
+        example: Available
+        type: string
+        enumValues:
+          - Available
+          - Booked
+          - Broken
+          - Inactive
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      RoomId: 1
+      Row: A
+      Number: 1
+      SeatType: Normal
+      Status: Available
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+            "success": true,
+            "message": "Tạo ghế thành công",
+            "data": {
+              "SeatId": 1,
+              "RoomId": 1,
+              "Row": "A",
+              "Number": 1,
+              "SeatType": "Normal",
+              "Status": "Available",
+              "CreatedAt": "2024-01-01 10:00:00"
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "message": "The given data was invalid.",
+            "errors": {
+              "RoomId": ["The room id field is required."],
+              "Row": ["The row field is required."],
+              "Number": ["The number field is required."]
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Lỗi khi tạo ghế",
+            "error": "..."
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/seats/{SeatId}'
+    metadata:
+      custom: []
+      groupName: Seats
+      groupDescription: |-
+
+        APIs for managing cinema seats.
+        Seats are individual positions in a room where audience members sit.
+        Supports single seat creation, bulk creation, and room-level operations.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Update a seat'
+      description: "Update a seat's type or status. (Admin only)"
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters:
+      SeatId:
+        custom: []
+        name: SeatId
+        description: 'The ID of the seat.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      SeatId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      RoomId:
+        custom: []
+        name: RoomId
+        description: 'The ID of the room.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Row:
+        custom: []
+        name: Row
+        description: 'The row letter.'
+        required: false
+        example: A
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Number:
+        custom: []
+        name: Number
+        description: 'The seat number.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      SeatType:
+        custom: []
+        name: SeatType
+        description: 'The seat type.'
+        required: false
+        example: VIP
+        type: string
+        enumValues:
+          - Normal
+          - VIP
+          - Couple
+          - Accessible
+          - Sweetbox
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: 'The seat status.'
+        required: false
+        example: Broken
+        type: string
+        enumValues:
+          - Available
+          - Booked
+          - Broken
+          - Inactive
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      RoomId: 1
+      Row: A
+      Number: 1
+      SeatType: VIP
+      Status: Broken
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Cập nhật ghế thành công",
+            "data": {
+              "SeatId": 1,
+              "SeatType": "VIP",
+              "Status": "Broken"
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Không tìm thấy ghế",
+            "error": "..."
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Lỗi khi cập nhật ghế",
+            "error": "..."
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/seats/{SeatId}'
+    metadata:
+      custom: []
+      groupName: Seats
+      groupDescription: |-
+
+        APIs for managing cinema seats.
+        Seats are individual positions in a room where audience members sit.
+        Supports single seat creation, bulk creation, and room-level operations.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Delete a seat'
+      description: 'Delete a specific seat from the system. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      SeatId:
+        custom: []
+        name: SeatId
+        description: 'The ID of the seat.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      SeatId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Xóa ghế thành công và cập nhật số ghế phòng"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Không tìm thấy ghế",
+            "error": "..."
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Lỗi khi xóa ghế",
+            "error": "..."
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/seats/room/{roomId}'
+    metadata:
+      custom: []
+      groupName: Seats
+      groupDescription: |-
+
+        APIs for managing cinema seats.
+        Seats are individual positions in a room where audience members sit.
+        Supports single seat creation, bulk creation, and room-level operations.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Delete all seats in a room'
+      description: 'Delete all seats belonging to a specific room. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      roomId:
+        custom: []
+        name: roomId
+        description: 'The ID of the room.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      roomId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Đã xóa toàn bộ ghế trong phòng và cập nhật số ghế về 0"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Không tìm thấy phòng",
+            "error": "..."
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Lỗi khi xóa ghế",
+            "error": "..."
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null

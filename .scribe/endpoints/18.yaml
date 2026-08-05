@@ -1,0 +1,461 @@
+name: 'Movie Genres'
+description: |-
+
+  APIs for managing movie-genre relationships.
+  This allows assigning genres to movies (many-to-many relationship).
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/moviegenres
+    metadata:
+      custom: []
+      groupName: 'Movie Genres'
+      groupDescription: |-
+
+        APIs for managing movie-genre relationships.
+        This allows assigning genres to movies (many-to-many relationship).
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get all movie-genre relationships'
+      description: 'Get a list of all movie-genre assignments in the system. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          [
+            {
+              "MovieGenreId": 1,
+              "MovieId": 1,
+              "GenreId": 1,
+              "MovieTitle": "Avengers: Endgame",
+              "GenreName": "Action",
+              "CreatedAt": "2024-01-01 10:00:00"
+            },
+            {
+              "MovieGenreId": 2,
+              "MovieId": 1,
+              "GenreId": 2,
+              "MovieTitle": "Avengers: Endgame",
+              "GenreName": "Adventure",
+              "CreatedAt": "2024-01-01 10:01:00"
+            },
+            {
+              "MovieGenreId": 3,
+              "MovieId": 2,
+              "GenreId": 3,
+              "MovieTitle": "The Dark Knight",
+              "GenreName": "Drama",
+              "CreatedAt": "2024-01-01 10:02:00"
+            }
+          ]
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 401
+        content: |-
+          {
+            "message": "Unauthenticated"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 403
+        content: |-
+          {
+            "message": "Forbidden - Admin only"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/moviegenres/{MovieGenreId}'
+    metadata:
+      custom: []
+      groupName: 'Movie Genres'
+      groupDescription: |-
+
+        APIs for managing movie-genre relationships.
+        This allows assigning genres to movies (many-to-many relationship).
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get a specific movie-genre relationship'
+      description: 'Get detailed information about a specific movie-genre assignment. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      MovieGenreId:
+        custom: []
+        name: MovieGenreId
+        description: 'The ID of the movie-genre relationship.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      MovieGenreId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "MovieGenreId": 1,
+            "MovieId": 1,
+            "GenreId": 1,
+            "MovieTitle": "Avengers: Endgame",
+            "GenreName": "Action",
+            "CreatedAt": "2024-01-01 10:00:00"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Movie genre not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/moviegenres
+    metadata:
+      custom: []
+      groupName: 'Movie Genres'
+      groupDescription: |-
+
+        APIs for managing movie-genre relationships.
+        This allows assigning genres to movies (many-to-many relationship).
+      subgroup: null
+      subgroupDescription: null
+      title: 'Create a new movie-genre relationship'
+      description: 'Assign a genre to a movie. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      MovieId:
+        custom: []
+        name: MovieId
+        description: 'The ID of the movie.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      GenreId:
+        custom: []
+        name: GenreId
+        description: 'The ID of the genre.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: ''
+        required: true
+        example: Inactive
+        type: string
+        enumValues:
+          - Active
+          - Inactive
+          - Banned
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      MovieId: 1
+      GenreId: 1
+      Status: Inactive
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+            "MovieGenreId": 1,
+            "MovieId": 1,
+            "GenreId": 1,
+            "MovieTitle": "Avengers: Endgame",
+            "GenreName": "Action",
+            "CreatedAt": "2024-01-01 10:00:00"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 409
+        content: |-
+          {
+            "message": "This genre is already assigned to this movie."
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "message": "The given data was invalid.",
+            "errors": {
+              "MovieId": ["The movie id field is required."],
+              "GenreId": ["The genre id field is required."]
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/moviegenres/{MovieGenreId}'
+    metadata:
+      custom: []
+      groupName: 'Movie Genres'
+      groupDescription: |-
+
+        APIs for managing movie-genre relationships.
+        This allows assigning genres to movies (many-to-many relationship).
+      subgroup: null
+      subgroupDescription: null
+      title: 'Update a movie-genre relationship'
+      description: 'Update an existing movie-genre assignment (change genre or movie). (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters:
+      MovieGenreId:
+        custom: []
+        name: MovieGenreId
+        description: 'The ID of the movie-genre relationship.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      MovieGenreId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      MovieId:
+        custom: []
+        name: MovieId
+        description: 'The ID of the movie.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      GenreId:
+        custom: []
+        name: GenreId
+        description: 'The ID of the genre.'
+        required: false
+        example: 2
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: ''
+        required: true
+        example: Inactive
+        type: string
+        enumValues:
+          - Active
+          - Inactive
+          - Banned
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      MovieId: 1
+      GenreId: 2
+      Status: Inactive
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "MovieGenreId": 1,
+            "MovieId": 1,
+            "GenreId": 2,
+            "MovieTitle": "Avengers: Endgame",
+            "GenreName": "Adventure",
+            "CreatedAt": "2024-01-01 10:00:00"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Movie genre not found"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 409
+        content: |-
+          {
+            "message": "This genre is already assigned to this movie."
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/moviegenres/{MovieGenreId}'
+    metadata:
+      custom: []
+      groupName: 'Movie Genres'
+      groupDescription: |-
+
+        APIs for managing movie-genre relationships.
+        This allows assigning genres to movies (many-to-many relationship).
+      subgroup: null
+      subgroupDescription: null
+      title: 'Delete a movie-genre relationship'
+      description: 'Remove a genre assignment from a movie. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      MovieGenreId:
+        custom: []
+        name: MovieGenreId
+        description: 'The ID of the movie-genre relationship.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      MovieGenreId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "message": "Movie genre deleted successfully"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Movie genre not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null

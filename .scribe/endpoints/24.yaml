@@ -1,0 +1,600 @@
+name: Tickets
+description: |-
+
+  APIs for managing movie tickets.
+  Tickets are generated when a user books a seat for a showtime.
+  Each ticket is associated with a specific seat, showtime, and user.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/tickets
+    metadata:
+      custom: []
+      groupName: Tickets
+      groupDescription: |-
+
+        APIs for managing movie tickets.
+        Tickets are generated when a user books a seat for a showtime.
+        Each ticket is associated with a specific seat, showtime, and user.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get all tickets'
+      description: 'Get a list of all tickets in the system. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          [
+            {
+              "TicketId": 1,
+              "OrderDetailId": 1,
+              "ShowtimeId": 1,
+              "SeatId": 1,
+              "UserId": 1,
+              "FullName": "Nguyễn Văn A",
+              "Email": "user@example.com",
+              "TicketCode": "TKT-2024-001",
+              "Price": 120000,
+              "Status": "Active",
+              "BookingTime": "2024-01-01 10:00:00",
+              "MovieTitle": "Avengers: Endgame",
+              "ShowtimeStart": "2024-01-01 10:00:00",
+              "RoomName": "Room 1",
+              "SeatLabel": "A1",
+              "SeatType": "Normal",
+              "CreatedAt": "2024-01-01 10:00:00"
+            },
+            {
+              "TicketId": 2,
+              "OrderDetailId": 2,
+              "ShowtimeId": 1,
+              "SeatId": 2,
+              "UserId": 2,
+              "FullName": "Trần Thị B",
+              "Email": "user2@example.com",
+              "TicketCode": "TKT-2024-002",
+              "Price": 120000,
+              "Status": "Used",
+              "BookingTime": "2024-01-01 10:30:00",
+              "MovieTitle": "Avengers: Endgame",
+              "ShowtimeStart": "2024-01-01 10:00:00",
+              "RoomName": "Room 1",
+              "SeatLabel": "A2",
+              "SeatType": "Normal",
+              "CreatedAt": "2024-01-01 10:30:00"
+            }
+          ]
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 401
+        content: |-
+          {
+            "message": "Unauthenticated"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 403
+        content: |-
+          {
+            "message": "Forbidden - Admin only"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/tickets/{TicketId}'
+    metadata:
+      custom: []
+      groupName: Tickets
+      groupDescription: |-
+
+        APIs for managing movie tickets.
+        Tickets are generated when a user books a seat for a showtime.
+        Each ticket is associated with a specific seat, showtime, and user.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get a specific ticket'
+      description: 'Get detailed information about a specific ticket. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      TicketId:
+        custom: []
+        name: TicketId
+        description: 'The ID of the ticket.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      TicketId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "TicketId": 1,
+            "OrderDetailId": 1,
+            "ShowtimeId": 1,
+            "SeatId": 1,
+            "UserId": 1,
+            "FullName": "Nguyễn Văn A",
+            "Email": "user@example.com",
+            "TicketCode": "TKT-2024-001",
+            "Price": 120000,
+            "Status": "Active",
+            "BookingTime": "2024-01-01 10:00:00",
+            "MovieTitle": "Avengers: Endgame",
+            "ShowtimeStart": "2024-01-01 10:00:00",
+            "RoomName": "Room 1",
+            "SeatLabel": "A1",
+            "SeatType": "Normal",
+            "CreatedAt": "2024-01-01 10:00:00"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Ticket not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/tickets
+    metadata:
+      custom: []
+      groupName: Tickets
+      groupDescription: |-
+
+        APIs for managing movie tickets.
+        Tickets are generated when a user books a seat for a showtime.
+        Each ticket is associated with a specific seat, showtime, and user.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Create a new ticket'
+      description: 'Create a new ticket for a booking. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      ShowtimeId:
+        custom: []
+        name: ShowtimeId
+        description: 'The ID of the showtime.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      SeatId:
+        custom: []
+        name: SeatId
+        description: 'The ID of the seat.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      UserId:
+        custom: []
+        name: UserId
+        description: 'The ID of the user.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: 'The ticket status.'
+        required: false
+        example: Active
+        type: string
+        enumValues:
+          - Active
+          - Used
+          - Cancelled
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      OrderDetailId:
+        custom: []
+        name: OrderDetailId
+        description: 'The ID of the order detail.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      TicketCode:
+        custom: []
+        name: TicketCode
+        description: 'The unique ticket code.'
+        required: true
+        example: TKT-2024-001
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Price:
+        custom: []
+        name: Price
+        description: 'The ticket price.'
+        required: true
+        example: '120000'
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      BookingTime:
+        custom: []
+        name: BookingTime
+        description: 'The booking time.'
+        required: false
+        example: '2024-01-01 10:00:00'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      ShowtimeId: 1
+      SeatId: 1
+      UserId: 1
+      Status: Active
+      OrderDetailId: 1
+      TicketCode: TKT-2024-001
+      Price: '120000'
+      BookingTime: '2024-01-01 10:00:00'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+            "TicketId": 1,
+            "OrderDetailId": 1,
+            "ShowtimeId": 1,
+            "SeatId": 1,
+            "UserId": 1,
+            "TicketCode": "TKT-2024-001",
+            "Price": 120000,
+            "Status": "Active",
+            "BookingTime": "2024-01-01 10:00:00",
+            "CreatedAt": "2024-01-01 10:00:00"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "message": "The given data was invalid.",
+            "errors": {
+              "OrderDetailId": ["The order detail id field is required."],
+              "ShowtimeId": ["The showtime id field is required."],
+              "SeatId": ["The seat id field is required."],
+              "UserId": ["The user id field is required."],
+              "TicketCode": ["The ticket code field is required."],
+              "Price": ["The price field is required."]
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/tickets/{TicketId}'
+    metadata:
+      custom: []
+      groupName: Tickets
+      groupDescription: |-
+
+        APIs for managing movie tickets.
+        Tickets are generated when a user books a seat for a showtime.
+        Each ticket is associated with a specific seat, showtime, and user.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Update a ticket'
+      description: 'Update an existing ticket. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters:
+      TicketId:
+        custom: []
+        name: TicketId
+        description: 'The ID of the ticket.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      TicketId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      ShowtimeId:
+        custom: []
+        name: ShowtimeId
+        description: 'The ID of the showtime.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      SeatId:
+        custom: []
+        name: SeatId
+        description: 'The ID of the seat.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      UserId:
+        custom: []
+        name: UserId
+        description: 'The ID of the user.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: 'The ticket status.'
+        required: false
+        example: Used
+        type: string
+        enumValues:
+          - Active
+          - Used
+          - Cancelled
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      OrderDetailId:
+        custom: []
+        name: OrderDetailId
+        description: 'The ID of the order detail.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      TicketCode:
+        custom: []
+        name: TicketCode
+        description: 'The ticket code.'
+        required: false
+        example: TKT-2024-001-UPDATED
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Price:
+        custom: []
+        name: Price
+        description: 'The ticket price.'
+        required: false
+        example: '130000'
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      BookingTime:
+        custom: []
+        name: BookingTime
+        description: 'The booking time.'
+        required: false
+        example: '2024-01-01 10:00:00'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      ShowtimeId: 1
+      SeatId: 1
+      UserId: 1
+      Status: Used
+      OrderDetailId: 1
+      TicketCode: TKT-2024-001-UPDATED
+      Price: '130000'
+      BookingTime: '2024-01-01 10:00:00'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "TicketId": 1,
+            "TicketCode": "TKT-2024-001-UPDATED",
+            "Price": 130000,
+            "Status": "Used"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Ticket not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/tickets/{TicketId}'
+    metadata:
+      custom: []
+      groupName: Tickets
+      groupDescription: |-
+
+        APIs for managing movie tickets.
+        Tickets are generated when a user books a seat for a showtime.
+        Each ticket is associated with a specific seat, showtime, and user.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Delete a ticket'
+      description: 'Delete a ticket from the system. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      TicketId:
+        custom: []
+        name: TicketId
+        description: 'The ID of the ticket.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      TicketId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "message": "Ticket deleted successfully"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Ticket not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null

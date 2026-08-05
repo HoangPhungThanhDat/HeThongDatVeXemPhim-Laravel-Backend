@@ -1,0 +1,640 @@
+name: Payments
+description: |-
+
+  APIs for managing payment transactions.
+  Payments are associated with orders and can be made via various methods
+  (credit card, bank transfer, e-wallet, etc.).
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/payments
+    metadata:
+      custom: []
+      groupName: Payments
+      groupDescription: |-
+
+        APIs for managing payment transactions.
+        Payments are associated with orders and can be made via various methods
+        (credit card, bank transfer, e-wallet, etc.).
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get all payments'
+      description: 'Get a list of all payment transactions. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          [
+            {
+              "PaymentId": 1,
+              "OrderId": 1,
+              "UserId": 1,
+              "Amount": 150000,
+              "PaymentMethod": "Credit Card",
+              "Status": "Completed",
+              "TransactionId": "TXN-2024-001",
+              "PaymentDate": "2024-01-01 10:00:00",
+              "CreatedAt": "2024-01-01 10:00:00"
+            },
+            {
+              "PaymentId": 2,
+              "OrderId": 2,
+              "UserId": 2,
+              "Amount": 250000,
+              "PaymentMethod": "Bank Transfer",
+              "Status": "Pending",
+              "TransactionId": "TXN-2024-002",
+              "PaymentDate": null,
+              "CreatedAt": "2024-01-01 10:30:00"
+            }
+          ]
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 401
+        content: |-
+          {
+            "message": "Unauthenticated"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 403
+        content: |-
+          {
+            "message": "Forbidden - Admin only"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/payments/{PaymentId}'
+    metadata:
+      custom: []
+      groupName: Payments
+      groupDescription: |-
+
+        APIs for managing payment transactions.
+        Payments are associated with orders and can be made via various methods
+        (credit card, bank transfer, e-wallet, etc.).
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get a specific payment'
+      description: 'Get detailed information about a specific payment transaction. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      PaymentId:
+        custom: []
+        name: PaymentId
+        description: 'The ID of the payment.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      PaymentId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "PaymentId": 1,
+            "OrderId": 1,
+            "UserId": 1,
+            "Amount": 150000,
+            "PaymentMethod": "Credit Card",
+            "Status": "Completed",
+            "TransactionId": "TXN-2024-001",
+            "PaymentDate": "2024-01-01 10:00:00",
+            "CreatedAt": "2024-01-01 10:00:00"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Payment not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/payments
+    metadata:
+      custom: []
+      groupName: Payments
+      groupDescription: |-
+
+        APIs for managing payment transactions.
+        Payments are associated with orders and can be made via various methods
+        (credit card, bank transfer, e-wallet, etc.).
+      subgroup: null
+      subgroupDescription: null
+      title: 'Create a new payment'
+      description: 'Create a new payment transaction. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      TicketId:
+        custom: []
+        name: TicketId
+        description: 'Must match an existing stored value.'
+        required: true
+        example: 17
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      Amount:
+        custom: []
+        name: Amount
+        description: 'The payment amount.'
+        required: true
+        example: '150000'
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      PaymentMethod:
+        custom: []
+        name: PaymentMethod
+        description: 'The payment method.'
+        required: true
+        example: 'Credit Card'
+        type: string
+        enumValues:
+          - 'Credit Card'
+          - 'Bank Transfer'
+          - E-Wallet
+          - Cash
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      PaymentStatus:
+        custom: []
+        name: PaymentStatus
+        description: ''
+        required: true
+        example: failed
+        type: string
+        enumValues:
+          - pending
+          - completed
+          - failed
+          - cancelled
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: 'The payment status.'
+        required: false
+        example: Completed
+        type: string
+        enumValues:
+          - Pending
+          - Completed
+          - Failed
+          - Refunded
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      OrderId:
+        custom: []
+        name: OrderId
+        description: 'The ID of the order being paid.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      UserId:
+        custom: []
+        name: UserId
+        description: 'The ID of the user making payment.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      TransactionId:
+        custom: []
+        name: TransactionId
+        description: 'The transaction ID from payment gateway.'
+        required: false
+        example: TXN-2024-001
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      PaymentDate:
+        custom: []
+        name: PaymentDate
+        description: 'The payment date and time.'
+        required: false
+        example: '2024-01-01 10:00:00'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      TicketId: 17
+      Amount: '150000'
+      PaymentMethod: 'Credit Card'
+      PaymentStatus: failed
+      Status: Completed
+      OrderId: 1
+      UserId: 1
+      TransactionId: TXN-2024-001
+      PaymentDate: '2024-01-01 10:00:00'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+            "PaymentId": 1,
+            "OrderId": 1,
+            "UserId": 1,
+            "Amount": 150000,
+            "PaymentMethod": "Credit Card",
+            "Status": "Completed",
+            "TransactionId": "TXN-2024-001",
+            "PaymentDate": "2024-01-01 10:00:00",
+            "CreatedAt": "2024-01-01 10:00:00"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "message": "The given data was invalid.",
+            "errors": {
+              "OrderId": ["The order id field is required."],
+              "UserId": ["The user id field is required."],
+              "Amount": ["The amount field is required."],
+              "PaymentMethod": ["The payment method field is required."]
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/payments/{PaymentId}'
+    metadata:
+      custom: []
+      groupName: Payments
+      groupDescription: |-
+
+        APIs for managing payment transactions.
+        Payments are associated with orders and can be made via various methods
+        (credit card, bank transfer, e-wallet, etc.).
+      subgroup: null
+      subgroupDescription: null
+      title: 'Update a payment'
+      description: 'Update an existing payment transaction. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters:
+      PaymentId:
+        custom: []
+        name: PaymentId
+        description: 'The ID of the payment.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      PaymentId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      UserId:
+        custom: []
+        name: UserId
+        description: 'The ID of the user.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      FullName:
+        custom: []
+        name: FullName
+        description: 'Must not be greater than 255 characters.'
+        required: true
+        example: mqeopfuudtdsufvyvddqa
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      Email:
+        custom: []
+        name: Email
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: eloisa.harber@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      Phone:
+        custom: []
+        name: Phone
+        description: 'Must not be greater than 11 characters.'
+        required: false
+        example: fqcoynlaz
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      Message:
+        custom: []
+        name: Message
+        description: 'Must not be greater than 100 characters.'
+        required: true
+        example: ghdtqtqxbajwbpilpmufi
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: 'The payment status.'
+        required: false
+        example: Refunded
+        type: string
+        enumValues:
+          - Pending
+          - Completed
+          - Failed
+          - Refunded
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      OrderId:
+        custom: []
+        name: OrderId
+        description: 'The ID of the order.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Amount:
+        custom: []
+        name: Amount
+        description: 'The payment amount.'
+        required: false
+        example: '150000'
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      PaymentMethod:
+        custom: []
+        name: PaymentMethod
+        description: 'The payment method.'
+        required: false
+        example: 'Bank Transfer'
+        type: string
+        enumValues:
+          - 'Credit Card'
+          - 'Bank Transfer'
+          - E-Wallet
+          - Cash
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      TransactionId:
+        custom: []
+        name: TransactionId
+        description: 'The transaction ID.'
+        required: false
+        example: TXN-2024-001-UPDATED
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      PaymentDate:
+        custom: []
+        name: PaymentDate
+        description: 'The payment date and time.'
+        required: false
+        example: '2024-01-01 10:00:00'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      UserId: 1
+      FullName: mqeopfuudtdsufvyvddqa
+      Email: eloisa.harber@example.com
+      Phone: fqcoynlaz
+      Message: ghdtqtqxbajwbpilpmufi
+      Status: Refunded
+      OrderId: 1
+      Amount: '150000'
+      PaymentMethod: 'Bank Transfer'
+      TransactionId: TXN-2024-001-UPDATED
+      PaymentDate: '2024-01-01 10:00:00'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "PaymentId": 1,
+            "OrderId": 1,
+            "UserId": 1,
+            "Amount": 150000,
+            "PaymentMethod": "Bank Transfer",
+            "Status": "Refunded",
+            "TransactionId": "TXN-2024-001-UPDATED",
+            "PaymentDate": "2024-01-01 10:00:00",
+            "CreatedAt": "2024-01-01 10:00:00"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Payment not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/payments/{PaymentId}'
+    metadata:
+      custom: []
+      groupName: Payments
+      groupDescription: |-
+
+        APIs for managing payment transactions.
+        Payments are associated with orders and can be made via various methods
+        (credit card, bank transfer, e-wallet, etc.).
+      subgroup: null
+      subgroupDescription: null
+      title: 'Delete a payment'
+      description: 'Delete a payment transaction from the system. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      PaymentId:
+        custom: []
+        name: PaymentId
+        description: 'The ID of the payment.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      PaymentId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "message": "Payment deleted successfully"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Payment not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null

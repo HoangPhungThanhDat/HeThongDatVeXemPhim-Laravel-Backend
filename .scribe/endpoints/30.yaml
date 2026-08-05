@@ -1,0 +1,894 @@
+name: 'Room Seats'
+description: |-
+
+  APIs for managing room seat layouts.
+  This includes viewing, adding, updating, and deleting seats in cinema rooms.
+  These endpoints are used for seat management in the admin panel.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/room-seat/cinemas
+    metadata:
+      custom: []
+      groupName: 'Room Seats'
+      groupDescription: |-
+
+        APIs for managing room seat layouts.
+        This includes viewing, adding, updating, and deleting seats in cinema rooms.
+        These endpoints are used for seat management in the admin panel.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get all cinemas'
+      description: 'Get a list of all active cinemas for seat management.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": [
+              {
+                "id": 1,
+                "name": "CGV Vincom Center",
+                "address": "72 Nguyễn Trãi, P. Bến Nghé, Q.1, TP.HCM",
+                "city": "Hồ Chí Minh"
+              }
+            ]
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 401
+        content: |-
+          {
+            "message": "Unauthenticated"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 403
+        content: |-
+          {
+            "message": "Forbidden - Admin only"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/room-seat/rooms
+    metadata:
+      custom: []
+      groupName: 'Room Seats'
+      groupDescription: |-
+
+        APIs for managing room seat layouts.
+        This includes viewing, adding, updating, and deleting seats in cinema rooms.
+        These endpoints are used for seat management in the admin panel.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get rooms by cinema'
+      description: 'Get a list of rooms for a specific cinema with seat statistics.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      cinema_id:
+        custom: []
+        name: cinema_id
+        description: 'The ID of the cinema.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      cinema_id: 1
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": [
+              {
+                "id": 1,
+                "name": "Room 1 - VIP",
+                "cinema_id": 1,
+                "room_type": "2D",
+                "seat_count": 100,
+                "status": "Active",
+                "stats": {
+                  "total": 100,
+                  "available": 80,
+                  "booked": 15,
+                  "broken": 3,
+                  "inactive": 2
+                }
+              }
+            ]
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 401
+        content: |-
+          {
+            "message": "Unauthenticated"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 403
+        content: |-
+          {
+            "message": "Forbidden - Admin only"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/room-seat/room/{roomId}/seats'
+    metadata:
+      custom: []
+      groupName: 'Room Seats'
+      groupDescription: |-
+
+        APIs for managing room seat layouts.
+        This includes viewing, adding, updating, and deleting seats in cinema rooms.
+        These endpoints are used for seat management in the admin panel.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get seat layout of a room'
+      description: |-
+        Get the complete seat layout of a room including grouped seats by row,
+        statistics, and seat details.
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      roomId:
+        custom: []
+        name: roomId
+        description: 'The ID of the room.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      roomId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": {
+              "room": {
+                "id": 1,
+                "name": "Room 1 - VIP",
+                "room_type": "2D",
+                "seat_count": 100,
+                "status": "Active"
+              },
+              "seats": [...],
+              "grouped_seats": {
+                "A": [...],
+                "B": [...]
+              },
+              "stats": {
+                "total": 100,
+                "available": 80,
+                "booked": 15,
+                "broken": 3,
+                "inactive": 2
+              },
+              "rows": ["A", "B", "C"],
+              "cols": [1, 2, 3, 4, 5]
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Không tìm thấy phòng chiếu"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/room-seat/room/{roomId}/add-rows'
+    metadata:
+      custom: []
+      groupName: 'Room Seats'
+      groupDescription: |-
+
+        APIs for managing room seat layouts.
+        This includes viewing, adding, updating, and deleting seats in cinema rooms.
+        These endpoints are used for seat management in the admin panel.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Add new rows to a room'
+      description: 'Add new rows of seats to a room. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters:
+      roomId:
+        custom: []
+        name: roomId
+        description: 'The ID of the room.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      roomId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      row_count:
+        custom: []
+        name: row_count
+        description: 'The number of rows to add. Max: 10.'
+        required: true
+        example: 2
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      position:
+        custom: []
+        name: position
+        description: 'The position to add rows.'
+        required: false
+        example: end
+        type: string
+        enumValues:
+          - start
+          - 'end. Default: end'
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      row_count: 2
+      position: end
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Đã thêm 20 ghế (2 hàng × 10 cột)",
+            "data": {
+              "rows_added": ["D", "E"],
+              "total_seats_added": 20,
+              "new_seat_count": 120
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 400
+        content: |-
+          {
+            "success": false,
+            "message": "Không có hàng mới để thêm (đã đạt giới hạn A-Z)"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 401
+        content: |-
+          {
+            "message": "Unauthenticated"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 403
+        content: |-
+          {
+            "message": "Forbidden - Admin only"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/room-seat/room/{roomId}/add-cols'
+    metadata:
+      custom: []
+      groupName: 'Room Seats'
+      groupDescription: |-
+
+        APIs for managing room seat layouts.
+        This includes viewing, adding, updating, and deleting seats in cinema rooms.
+        These endpoints are used for seat management in the admin panel.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Add new columns to a room'
+      description: 'Add new columns of seats to a room. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters:
+      roomId:
+        custom: []
+        name: roomId
+        description: 'The ID of the room.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      roomId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      col_count:
+        custom: []
+        name: col_count
+        description: 'The number of columns to add. Max: 20.'
+        required: true
+        example: 2
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      position:
+        custom: []
+        name: position
+        description: 'The position to add columns.'
+        required: false
+        example: end
+        type: string
+        enumValues:
+          - start
+          - 'end. Default: end'
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      col_count: 2
+      position: end
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Đã thêm 10 ghế (5 hàng × 2 cột)",
+            "data": {
+              "cols_added": [6, 7],
+              "total_seats_added": 10,
+              "new_seat_count": 110
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/room-seat/seat/{seatId}'
+    metadata:
+      custom: []
+      groupName: 'Room Seats'
+      groupDescription: |-
+
+        APIs for managing room seat layouts.
+        This includes viewing, adding, updating, and deleting seats in cinema rooms.
+        These endpoints are used for seat management in the admin panel.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Update a seat'
+      description: 'Update seat type or status. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters:
+      seatId:
+        custom: []
+        name: seatId
+        description: 'The ID of the seat.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      seatId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      seat_type:
+        custom: []
+        name: seat_type
+        description: 'The seat type.'
+        required: false
+        example: VIP
+        type: string
+        enumValues:
+          - Normal
+          - VIP
+          - Couple
+          - Accessible
+          - Sweetbox
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      status:
+        custom: []
+        name: status
+        description: 'The seat status.'
+        required: false
+        example: Broken
+        type: string
+        enumValues:
+          - Available
+          - Booked
+          - Broken
+          - Inactive
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      seat_type: VIP
+      status: Broken
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Cập nhật ghế thành công",
+            "data": {
+              "id": 1,
+              "row": "A",
+              "number": 1,
+              "seat_type": "VIP",
+              "status": "Broken"
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Không tìm thấy ghế"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/room-seat/room/{roomId}/row/{row}'
+    metadata:
+      custom: []
+      groupName: 'Room Seats'
+      groupDescription: |-
+
+        APIs for managing room seat layouts.
+        This includes viewing, adding, updating, and deleting seats in cinema rooms.
+        These endpoints are used for seat management in the admin panel.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Delete a row of seats'
+      description: 'Delete all seats in a specific row. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      roomId:
+        custom: []
+        name: roomId
+        description: 'The ID of the room.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      row:
+        custom: []
+        name: row
+        description: 'The row letter.'
+        required: true
+        example: A
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      roomId: 1
+      row: A
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Đã xóa hàng A với 10 ghế",
+            "data": {
+              "row": "A",
+              "deleted_count": 10,
+              "remaining_seats": 90
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Không tìm thấy hàng ghế để xóa"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/room-seat/room/{roomId}/col/{col}'
+    metadata:
+      custom: []
+      groupName: 'Room Seats'
+      groupDescription: |-
+
+        APIs for managing room seat layouts.
+        This includes viewing, adding, updating, and deleting seats in cinema rooms.
+        These endpoints are used for seat management in the admin panel.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Delete a column of seats'
+      description: 'Delete all seats in a specific column. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      roomId:
+        custom: []
+        name: roomId
+        description: 'The ID of the room.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      col:
+        custom: []
+        name: col
+        description: 'The column number.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      roomId: 1
+      col: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Đã xóa cột 1 với 10 ghế",
+            "data": {
+              "col": 1,
+              "deleted_count": 10,
+              "remaining_seats": 90
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Không tìm thấy cột ghế để xóa"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/room-seat/seat/{seatId}'
+    metadata:
+      custom: []
+      groupName: 'Room Seats'
+      groupDescription: |-
+
+        APIs for managing room seat layouts.
+        This includes viewing, adding, updating, and deleting seats in cinema rooms.
+        These endpoints are used for seat management in the admin panel.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Delete a single seat'
+      description: 'Delete a specific seat from the room. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      seatId:
+        custom: []
+        name: seatId
+        description: 'The ID of the seat.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      seatId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Đã xóa ghế A1",
+            "data": {
+              "seat_id": 1,
+              "row": "A",
+              "number": 1,
+              "remaining_seats": 99
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Không tìm thấy ghế"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/room-seat/room/{roomId}/reset'
+    metadata:
+      custom: []
+      groupName: 'Room Seats'
+      groupDescription: |-
+
+        APIs for managing room seat layouts.
+        This includes viewing, adding, updating, and deleting seats in cinema rooms.
+        These endpoints are used for seat management in the admin panel.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Reset all seats in a room'
+      description: 'Reset all seats in a room to Available status. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      roomId:
+        custom: []
+        name: roomId
+        description: 'The ID of the room.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      roomId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Đã reset 15 ghế về trạng thái trống",
+            "data": {
+              "reset_count": 15
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null

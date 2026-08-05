@@ -14,21 +14,20 @@ class BannerResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return
-            [
-                'BannerId' => $this->BannerId,
-                'UserId'    => $this->UserId,
-                'User'      => new UserResource($this->whenLoaded('user')),
-                'Title' => $this->Title,
-                'ImageUrl' => $this->ImageUrl,
-                'LinkUrl' => $this->LinkUrl,
-                'Position' => $this->Position,
-                'Status' => $this->Status,
-                'CreatedBy' => $this->CreatedBy,
-                'UpdatedBy' => $this->UpdatedBy,
-                'CreatedAt' => $this->CreatedAt?->format('d-m-Y'),
-                'UpdatedAt' => $this->UpdatedAt?->format('d-m-Y'),
-
-            ];
+        return [
+            'BannerId' => $this->BannerId,
+            'UserId' => $this->UserId,
+            'User' => new UserResource($this->whenLoaded('user')),
+            'Title' => $this->Title,
+            'ImageUrl' => $this->ImageUrl,
+            'LinkUrl' => $this->LinkUrl,
+            'Position' => $this->Position,
+            'Status' => $this->Status,
+            'CreatedBy' => $this->CreatedBy,
+            'UpdatedBy' => $this->UpdatedBy,
+            // ✅ SỬA: Format đầy đủ Y-m-d H:i:s thay vì chỉ d-m-Y
+            'CreatedAt' => $this->CreatedAt?->format('Y-m-d H:i:s'),
+            'UpdatedAt' => $this->UpdatedAt?->format('Y-m-d H:i:s'),
+        ];
     }
 }

@@ -10,11 +10,39 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * @group Room Seats
+ * 
+ * APIs for managing room seat layouts.
+ * This includes viewing, adding, updating, and deleting seats in cinema rooms.
+ * These endpoints are used for seat management in the admin panel.
+ */
 class RoomSeatController extends Controller
 {
     /**
-     * Lấy danh sách rạp chiếu
-     * GET /api/room-seat/cinemas
+     * Get all cinemas
+     * 
+     * Get a list of all active cinemas for seat management.
+     * 
+     * @authenticated
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "data": [
+     *     {
+     *       "id": 1,
+     *       "name": "CGV Vincom Center",
+     *       "address": "72 Nguyễn Trãi, P. Bến Nghé, Q.1, TP.HCM",
+     *       "city": "Hồ Chí Minh"
+     *     }
+     *   ]
+     * }
+     * @response 401 {
+     *   "message": "Unauthenticated"
+     * }
+     * @response 403 {
+     *   "message": "Forbidden - Admin only"
+     * }
      */
     public function getCinemas()
     {
@@ -37,8 +65,40 @@ class RoomSeatController extends Controller
     }
 
     /**
-     * Lấy danh sách phòng theo rạp
-     * GET /api/room-seat/rooms?cinema_id={cinemaId}
+     * Get rooms by cinema
+     * 
+     * Get a list of rooms for a specific cinema with seat statistics.
+     * 
+     * @authenticated
+     * 
+     * @queryParam cinema_id int required The ID of the cinema. Example: 1
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "data": [
+     *     {
+     *       "id": 1,
+     *       "name": "Room 1 - VIP",
+     *       "cinema_id": 1,
+     *       "room_type": "2D",
+     *       "seat_count": 100,
+     *       "status": "Active",
+     *       "stats": {
+     *         "total": 100,
+     *         "available": 80,
+     *         "booked": 15,
+     *         "broken": 3,
+     *         "inactive": 2
+     *       }
+     *     }
+     *   ]
+     * }
+     * @response 401 {
+     *   "message": "Unauthenticated"
+     * }
+     * @response 403 {
+     *   "message": "Forbidden - Admin only"
+     * }
      */
     public function getRooms(Request $request)
     {
@@ -101,8 +161,45 @@ class RoomSeatController extends Controller
     }
 
     /**
-     * Lấy sơ đồ ghế của phòng
-     * GET /api/room-seat/room/{roomId}/seats
+     * Get seat layout of a room
+     * 
+     * Get the complete seat layout of a room including grouped seats by row,
+     * statistics, and seat details.
+     * 
+     * @authenticated
+     * 
+     * @urlParam roomId int required The ID of the room. Example: 1
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "room": {
+     *       "id": 1,
+     *       "name": "Room 1 - VIP",
+     *       "room_type": "2D",
+     *       "seat_count": 100,
+     *       "status": "Active"
+     *     },
+     *     "seats": [...],
+     *     "grouped_seats": {
+     *       "A": [...],
+     *       "B": [...]
+     *     },
+     *     "stats": {
+     *       "total": 100,
+     *       "available": 80,
+     *       "booked": 15,
+     *       "broken": 3,
+     *       "inactive": 2
+     *     },
+     *     "rows": ["A", "B", "C"],
+     *     "cols": [1, 2, 3, 4, 5]
+     *   }
+     * }
+     * @response 404 {
+     *   "success": false,
+     *   "message": "Không tìm thấy phòng chiếu"
+     * }
      */
     public function getSeats($roomId)
     {
@@ -191,8 +288,35 @@ class RoomSeatController extends Controller
     }
 
     /**
-     * Thêm hàng ghế mới
-     * POST /api/room-seat/room/{roomId}/add-rows
+     * Add new rows to a room
+     * 
+     * Add new rows of seats to a room. (Admin only)
+     * 
+     * @authenticated
+     * 
+     * @urlParam roomId int required The ID of the room. Example: 1
+     * @bodyParam row_count int required The number of rows to add. Max: 10. Example: 2
+     * @bodyParam position string The position to add rows. Enum: start, end. Default: end. Example: end
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "message": "Đã thêm 20 ghế (2 hàng × 10 cột)",
+     *   "data": {
+     *     "rows_added": ["D", "E"],
+     *     "total_seats_added": 20,
+     *     "new_seat_count": 120
+     *   }
+     * }
+     * @response 400 {
+     *   "success": false,
+     *   "message": "Không có hàng mới để thêm (đã đạt giới hạn A-Z)"
+     * }
+     * @response 401 {
+     *   "message": "Unauthenticated"
+     * }
+     * @response 403 {
+     *   "message": "Forbidden - Admin only"
+     * }
      */
     public function addRows(Request $request, $roomId)
     {
@@ -296,8 +420,25 @@ class RoomSeatController extends Controller
     }
 
     /**
-     * Thêm cột ghế mới
-     * POST /api/room-seat/room/{roomId}/add-cols
+     * Add new columns to a room
+     * 
+     * Add new columns of seats to a room. (Admin only)
+     * 
+     * @authenticated
+     * 
+     * @urlParam roomId int required The ID of the room. Example: 1
+     * @bodyParam col_count int required The number of columns to add. Max: 20. Example: 2
+     * @bodyParam position string The position to add columns. Enum: start, end. Default: end. Example: end
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "message": "Đã thêm 10 ghế (5 hàng × 2 cột)",
+     *   "data": {
+     *     "cols_added": [6, 7],
+     *     "total_seats_added": 10,
+     *     "new_seat_count": 110
+     *   }
+     * }
      */
     public function addCols(Request $request, $roomId)
     {
@@ -404,8 +545,31 @@ class RoomSeatController extends Controller
     }
 
     /**
-     * Cập nhật ghế (loại ghế, trạng thái)
-     * PUT /api/room-seat/seat/{seatId}
+     * Update a seat
+     * 
+     * Update seat type or status. (Admin only)
+     * 
+     * @authenticated
+     * 
+     * @urlParam seatId int required The ID of the seat. Example: 1
+     * @bodyParam seat_type string The seat type. Enum: Normal, VIP, Couple, Accessible, Sweetbox. Example: VIP
+     * @bodyParam status string The seat status. Enum: Available, Booked, Broken, Inactive. Example: Broken
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "message": "Cập nhật ghế thành công",
+     *   "data": {
+     *     "id": 1,
+     *     "row": "A",
+     *     "number": 1,
+     *     "seat_type": "VIP",
+     *     "status": "Broken"
+     *   }
+     * }
+     * @response 404 {
+     *   "success": false,
+     *   "message": "Không tìm thấy ghế"
+     * }
      */
     public function updateSeat(Request $request, $seatId)
     {
@@ -453,8 +617,28 @@ class RoomSeatController extends Controller
     }
 
     /**
-     * Xóa hàng ghế
-     * DELETE /api/room-seat/room/{roomId}/row/{row}
+     * Delete a row of seats
+     * 
+     * Delete all seats in a specific row. (Admin only)
+     * 
+     * @authenticated
+     * 
+     * @urlParam roomId int required The ID of the room. Example: 1
+     * @urlParam row string required The row letter. Example: A
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "message": "Đã xóa hàng A với 10 ghế",
+     *   "data": {
+     *     "row": "A",
+     *     "deleted_count": 10,
+     *     "remaining_seats": 90
+     *   }
+     * }
+     * @response 404 {
+     *   "success": false,
+     *   "message": "Không tìm thấy hàng ghế để xóa"
+     * }
      */
     public function deleteRow($roomId, $row)
     {
@@ -498,8 +682,28 @@ class RoomSeatController extends Controller
     }
 
     /**
-     * Xóa cột ghế
-     * DELETE /api/room-seat/room/{roomId}/col/{col}
+     * Delete a column of seats
+     * 
+     * Delete all seats in a specific column. (Admin only)
+     * 
+     * @authenticated
+     * 
+     * @urlParam roomId int required The ID of the room. Example: 1
+     * @urlParam col int required The column number. Example: 1
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "message": "Đã xóa cột 1 với 10 ghế",
+     *   "data": {
+     *     "col": 1,
+     *     "deleted_count": 10,
+     *     "remaining_seats": 90
+     *   }
+     * }
+     * @response 404 {
+     *   "success": false,
+     *   "message": "Không tìm thấy cột ghế để xóa"
+     * }
      */
     public function deleteCol($roomId, $col)
     {
@@ -543,8 +747,28 @@ class RoomSeatController extends Controller
     }
 
     /**
-     * Xóa 1 ghế
-     * DELETE /api/room-seat/seat/{seatId}
+     * Delete a single seat
+     * 
+     * Delete a specific seat from the room. (Admin only)
+     * 
+     * @authenticated
+     * 
+     * @urlParam seatId int required The ID of the seat. Example: 1
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "message": "Đã xóa ghế A1",
+     *   "data": {
+     *     "seat_id": 1,
+     *     "row": "A",
+     *     "number": 1,
+     *     "remaining_seats": 99
+     *   }
+     * }
+     * @response 404 {
+     *   "success": false,
+     *   "message": "Không tìm thấy ghế"
+     * }
      */
     public function deleteSeat($seatId)
     {
@@ -587,8 +811,21 @@ class RoomSeatController extends Controller
     }
 
     /**
-     * Reset tất cả ghế về trạng thái Available
-     * POST /api/room-seat/room/{roomId}/reset
+     * Reset all seats in a room
+     * 
+     * Reset all seats in a room to Available status. (Admin only)
+     * 
+     * @authenticated
+     * 
+     * @urlParam roomId int required The ID of the room. Example: 1
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "message": "Đã reset 15 ghế về trạng thái trống",
+     *   "data": {
+     *     "reset_count": 15
+     *   }
+     * }
      */
     public function resetSeats($roomId)
     {

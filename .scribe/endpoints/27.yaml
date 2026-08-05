@@ -1,0 +1,504 @@
+name: Reviews
+description: |-
+
+  APIs for managing movie reviews and ratings.
+  Users can rate and review movies they have watched.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/reviews
+    metadata:
+      custom: []
+      groupName: Reviews
+      groupDescription: |-
+
+        APIs for managing movie reviews and ratings.
+        Users can rate and review movies they have watched.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get all reviews'
+      description: 'Get a list of all reviews in the system. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          [
+            {
+              "ReviewId": 1,
+              "MovieId": 1,
+              "UserId": 1,
+              "FullName": "Nguyễn Văn A",
+              "Rating": 5,
+              "Comment": "Tuyệt vời! Phim rất hay và hấp dẫn.",
+              "Status": "Published",
+              "CreatedAt": "2024-01-01 10:00:00"
+            },
+            {
+              "ReviewId": 2,
+              "MovieId": 1,
+              "UserId": 2,
+              "FullName": "Trần Thị B",
+              "Rating": 4,
+              "Comment": "Phim hay nhưng hơi dài.",
+              "Status": "Published",
+              "CreatedAt": "2024-01-01 10:30:00"
+            },
+            {
+              "ReviewId": 3,
+              "MovieId": 2,
+              "UserId": 3,
+              "FullName": "Lê Văn C",
+              "Rating": 2,
+              "Comment": "Phim không như kỳ vọng.",
+              "Status": "Pending",
+              "CreatedAt": "2024-01-01 11:00:00"
+            }
+          ]
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 401
+        content: |-
+          {
+            "message": "Unauthenticated"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 403
+        content: |-
+          {
+            "message": "Forbidden - Admin only"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/reviews/{ReviewId}'
+    metadata:
+      custom: []
+      groupName: Reviews
+      groupDescription: |-
+
+        APIs for managing movie reviews and ratings.
+        Users can rate and review movies they have watched.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get a specific review'
+      description: 'Get detailed information about a specific review. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      ReviewId:
+        custom: []
+        name: ReviewId
+        description: 'The ID of the review.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      ReviewId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "ReviewId": 1,
+            "MovieId": 1,
+            "UserId": 1,
+            "FullName": "Nguyễn Văn A",
+            "Rating": 5,
+            "Comment": "Tuyệt vời! Phim rất hay và hấp dẫn.",
+            "Status": "Published",
+            "CreatedAt": "2024-01-01 10:00:00"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Review not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/reviews
+    metadata:
+      custom: []
+      groupName: Reviews
+      groupDescription: |-
+
+        APIs for managing movie reviews and ratings.
+        Users can rate and review movies they have watched.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Create a new review'
+      description: 'Create a new review for a movie. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      UserId:
+        custom: []
+        name: UserId
+        description: 'The ID of the user writing the review.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      MovieId:
+        custom: []
+        name: MovieId
+        description: 'The ID of the movie being reviewed.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Rating:
+        custom: []
+        name: Rating
+        description: 'The rating from 1-5.'
+        required: true
+        example: 5
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Comment:
+        custom: []
+        name: Comment
+        description: 'The review comment.'
+        required: true
+        example: 'Tuyệt vời! Phim rất hay.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: 'The review status.'
+        required: false
+        example: Published
+        type: string
+        enumValues:
+          - Pending
+          - Published
+          - Hidden
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      UserId: 1
+      MovieId: 1
+      Rating: 5
+      Comment: 'Tuyệt vời! Phim rất hay.'
+      Status: Published
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+            "ReviewId": 1,
+            "MovieId": 1,
+            "UserId": 1,
+            "FullName": "Nguyễn Văn A",
+            "Rating": 5,
+            "Comment": "Tuyệt vời! Phim rất hay.",
+            "Status": "Published",
+            "CreatedAt": "2024-01-01 10:00:00"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "message": "The given data was invalid.",
+            "errors": {
+              "MovieId": ["The movie id field is required."],
+              "UserId": ["The user id field is required."],
+              "Rating": ["The rating field is required."],
+              "Comment": ["The comment field is required."]
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/reviews/{ReviewId}'
+    metadata:
+      custom: []
+      groupName: Reviews
+      groupDescription: |-
+
+        APIs for managing movie reviews and ratings.
+        Users can rate and review movies they have watched.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Update a review'
+      description: 'Update an existing review. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters:
+      ReviewId:
+        custom: []
+        name: ReviewId
+        description: 'The ID of the review.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      ReviewId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      UserId:
+        custom: []
+        name: UserId
+        description: 'The ID of the user.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      MovieId:
+        custom: []
+        name: MovieId
+        description: 'The ID of the movie.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Rating:
+        custom: []
+        name: Rating
+        description: 'The rating from 1-5.'
+        required: false
+        example: 4
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Comment:
+        custom: []
+        name: Comment
+        description: 'The review comment.'
+        required: false
+        example: 'Phim hay nhưng hơi dài.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: 'The review status.'
+        required: false
+        example: Hidden
+        type: string
+        enumValues:
+          - Pending
+          - Published
+          - Hidden
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      UserId: 1
+      MovieId: 1
+      Rating: 4
+      Comment: 'Phim hay nhưng hơi dài.'
+      Status: Hidden
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "ReviewId": 1,
+            "MovieId": 1,
+            "UserId": 1,
+            "Rating": 4,
+            "Comment": "Phim hay nhưng hơi dài.",
+            "Status": "Hidden",
+            "CreatedAt": "2024-01-01 10:00:00"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Review not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/reviews/{ReviewId}'
+    metadata:
+      custom: []
+      groupName: Reviews
+      groupDescription: |-
+
+        APIs for managing movie reviews and ratings.
+        Users can rate and review movies they have watched.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Delete a review'
+      description: 'Delete a review from the system. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      ReviewId:
+        custom: []
+        name: ReviewId
+        description: 'The ID of the review.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      ReviewId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "message": "Review deleted successfully"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Review not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null

@@ -1,0 +1,710 @@
+name: Schedules
+description: |-
+
+  APIs for managing movie schedules.
+  A schedule defines when movies are shown in specific rooms.
+  Creating a schedule automatically generates showtimes and seat assignments.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/schedules
+    metadata:
+      custom: []
+      groupName: Schedules
+      groupDescription: |-
+
+        APIs for managing movie schedules.
+        A schedule defines when movies are shown in specific rooms.
+        Creating a schedule automatically generates showtimes and seat assignments.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get all schedules'
+      description: 'Get a list of all movie schedules.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": [
+              {
+                "ScheduleId": 1,
+                "MovieId": 1,
+                "CinemaId": 1,
+                "StartDate": "2024-01-01",
+                "EndDate": "2024-01-31",
+                "Showtimes": [
+                  {
+                    "ShowtimeId": 1,
+                    "StartTime": "10:00:00",
+                    "EndTime": "13:00:00"
+                  }
+                ],
+                "MovieTitle": "Avengers: Endgame",
+                "CinemaName": "CGV Vincom Center",
+                "RoomName": "Room 1",
+                "CreatedAt": "2024-01-01 10:00:00"
+              }
+            ]
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/schedules/{ScheduleId}'
+    metadata:
+      custom: []
+      groupName: Schedules
+      groupDescription: |-
+
+        APIs for managing movie schedules.
+        A schedule defines when movies are shown in specific rooms.
+        Creating a schedule automatically generates showtimes and seat assignments.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get a specific schedule'
+      description: 'Get detailed information about a specific schedule.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters:
+      ScheduleId:
+        custom: []
+        name: ScheduleId
+        description: ''
+        required: true
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the schedule.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      ScheduleId: consequatur
+      id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": {
+              "ScheduleId": 1,
+              "MovieId": 1,
+              "CinemaId": 1,
+              "RoomId": 1,
+              "StartDate": "2024-01-01",
+              "EndDate": "2024-01-31",
+              "MovieTitle": "Avengers: Endgame",
+              "CinemaName": "CGV Vincom Center",
+              "RoomName": "Room 1",
+              "Showtimes": [...]
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Schedule not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/schedules
+    metadata:
+      custom: []
+      groupName: Schedules
+      groupDescription: |-
+
+        APIs for managing movie schedules.
+        A schedule defines when movies are shown in specific rooms.
+        Creating a schedule automatically generates showtimes and seat assignments.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Create a new schedule'
+      description: |-
+        Create a new movie schedule. This will automatically generate showtimes
+        and seat assignments for each showtime. (Admin only)
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      MovieId:
+        custom: []
+        name: MovieId
+        description: 'The ID of the movie.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      RoomId:
+        custom: []
+        name: RoomId
+        description: 'The ID of the room.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      StartDate:
+        custom: []
+        name: StartDate
+        description: 'The start date of the schedule.'
+        required: true
+        example: '2024-01-01'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      EndDate:
+        custom: []
+        name: EndDate
+        description: 'The end date of the schedule.'
+        required: true
+        example: '2024-01-31'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      DaysOfWeek:
+        custom: []
+        name: DaysOfWeek
+        description: ''
+        required: false
+        example:
+          - Sat
+        type: 'string[]'
+        enumValues:
+          - Mon
+          - Tue
+          - Wed
+          - Thu
+          - Fri
+          - Sat
+          - Sun
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      StartTime:
+        custom: []
+        name: StartTime
+        description: 'Must be a valid date in the format <code>H:i</code>.'
+        required: true
+        example: '07:14'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      EndTime:
+        custom: []
+        name: EndTime
+        description: 'Must be a valid date in the format <code>H:i</code>. Must be a date after <code>StartTime</code>.'
+        required: true
+        example: '2107-09-02'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      Price:
+        custom: []
+        name: Price
+        description: 'The ticket price.'
+        required: false
+        example: '120000'
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: ''
+        required: true
+        example: Active
+        type: string
+        enumValues:
+          - Active
+          - Inactive
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      CinemaId:
+        custom: []
+        name: CinemaId
+        description: 'The ID of the cinema.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Showtimes:
+        custom: []
+        name: Showtimes
+        description: 'The list of showtimes.'
+        required: true
+        example:
+          - '10:00'
+          - '13:00'
+          - '16:00'
+        type: 'string[]'
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      MovieId: 1
+      RoomId: 1
+      StartDate: '2024-01-01'
+      EndDate: '2024-01-31'
+      DaysOfWeek:
+        - Sat
+      StartTime: '07:14'
+      EndTime: '2107-09-02'
+      Price: '120000'
+      Status: Active
+      CinemaId: 1
+      Showtimes:
+        - '10:00'
+        - '13:00'
+        - '16:00'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+            "success": true,
+            "message": "Tạo lịch chiếu thành công",
+            "data": {
+              "ScheduleId": 1,
+              "MovieId": 1,
+              "StartDate": "2024-01-01",
+              "EndDate": "2024-01-31"
+            },
+            "meta": {
+              "showtimes_created": 6,
+              "seats_created": 600
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "message": "The given data was invalid.",
+            "errors": {
+              "MovieId": ["The movie id field is required."],
+              "CinemaId": ["The cinema id field is required."],
+              "RoomId": ["The room id field is required."],
+              "StartDate": ["The start date field is required."],
+              "EndDate": ["The end date field is required."],
+              "Showtimes": ["The showtimes field is required."]
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Tạo lịch chiếu thất bại: ..."
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/schedules/{ScheduleId}'
+    metadata:
+      custom: []
+      groupName: Schedules
+      groupDescription: |-
+
+        APIs for managing movie schedules.
+        A schedule defines when movies are shown in specific rooms.
+        Creating a schedule automatically generates showtimes and seat assignments.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Update a schedule'
+      description: 'Update an existing schedule. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters:
+      ScheduleId:
+        custom: []
+        name: ScheduleId
+        description: ''
+        required: true
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the schedule.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      ScheduleId: consequatur
+      id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      MovieId:
+        custom: []
+        name: MovieId
+        description: 'The ID of the movie.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      RoomId:
+        custom: []
+        name: RoomId
+        description: 'The ID of the room.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      StartDate:
+        custom: []
+        name: StartDate
+        description: 'The start date.'
+        required: false
+        example: '2024-01-01'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      EndDate:
+        custom: []
+        name: EndDate
+        description: 'The end date.'
+        required: false
+        example: '2024-02-15'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      DaysOfWeek:
+        custom: []
+        name: DaysOfWeek
+        description: ''
+        required: false
+        example:
+          - Sun
+        type: 'string[]'
+        enumValues:
+          - Mon
+          - Tue
+          - Wed
+          - Thu
+          - Fri
+          - Sat
+          - Sun
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      StartTime:
+        custom: []
+        name: StartTime
+        description: 'Must be a valid date in the format <code>H:i</code>.'
+        required: true
+        example: '07:14'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      EndTime:
+        custom: []
+        name: EndTime
+        description: 'Must be a valid date in the format <code>H:i</code>. Must be a date after <code>StartTime</code>.'
+        required: true
+        example: '2107-09-02'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      Price:
+        custom: []
+        name: Price
+        description: 'The ticket price.'
+        required: false
+        example: '130000'
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: ''
+        required: true
+        example: Active
+        type: string
+        enumValues:
+          - Active
+          - Inactive
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      CinemaId:
+        custom: []
+        name: CinemaId
+        description: 'The ID of the cinema.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Showtimes:
+        custom: []
+        name: Showtimes
+        description: 'The list of showtimes.'
+        required: false
+        example:
+          - '10:00'
+          - '14:00'
+          - '18:00'
+        type: 'string[]'
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      MovieId: 1
+      RoomId: 1
+      StartDate: '2024-01-01'
+      EndDate: '2024-02-15'
+      DaysOfWeek:
+        - Sun
+      StartTime: '07:14'
+      EndTime: '2107-09-02'
+      Price: '130000'
+      Status: Active
+      CinemaId: 1
+      Showtimes:
+        - '10:00'
+        - '14:00'
+        - '18:00'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Cập nhật lịch chiếu thành công",
+            "data": {
+              "ScheduleId": 1,
+              "StartDate": "2024-01-01",
+              "EndDate": "2024-02-15"
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Schedule not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/schedules/{ScheduleId}'
+    metadata:
+      custom: []
+      groupName: Schedules
+      groupDescription: |-
+
+        APIs for managing movie schedules.
+        A schedule defines when movies are shown in specific rooms.
+        Creating a schedule automatically generates showtimes and seat assignments.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Delete a schedule'
+      description: 'Delete a schedule and all its associated showtimes and seats. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      ScheduleId:
+        custom: []
+        name: ScheduleId
+        description: ''
+        required: true
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the schedule.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      ScheduleId: consequatur
+      id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Xóa lịch chiếu thành công"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Schedule not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null

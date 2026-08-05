@@ -22,16 +22,19 @@ class PromotionResource extends JsonResource
             'ImageUrl' => $this->ImageUrl,
             'DiscountType' => $this->DiscountType,
             'DiscountValue' => $this->DiscountValue,
+            
             'StartDate' => $this->StartDate?->format('d-m-Y'),
             'EndDate' => $this->EndDate?->format('d-m-Y'),
             'IsActive' => $this->IsActive,
             'Status' => $this->Status,
             'CreatedBy' => $this->CreatedBy,
             'UpdatedBy' => $this->UpdatedBy,
-            'CreatedAt' => $this->CreatedAt?->format('d-m-Y'),
-            'UpdatedAt' => $this->UpdatedAt?->format('d-m-Y'),
-
+            
+            'CreatedAt' => $this->CreatedAt?->format('Y-m-d H:i:s'),
+            'UpdatedAt' => $this->UpdatedAt?->format('Y-m-d H:i:s'),
+           
+            'CreatedAtVN' => $this->CreatedAt?->format('H:i:s d-m-Y'),
+            'UpdatedAtVN' => $this->UpdatedAt?->format('H:i:s d-m-Y'),
         ];
-
     }
 }

@@ -9,6 +9,12 @@ use App\Http\Resources\OrderResource;
 use App\Http\Controllers\Controller;
 use App\Services\OrderService;
 
+/**
+ * @group Orders
+ * 
+ * APIs for managing orders (ticket and food bookings).
+ * Orders contain tickets, seats, showtime information, and food & drinks.
+ */
 class OrderController extends Controller
 {
     protected $orderService;
@@ -19,35 +25,143 @@ class OrderController extends Controller
         $this->middleware(['auth:api','checkrole:Admin'])->only(['store', 'update', 'destroy']);
     }
 
-    // Lấy danh sách đơn hàng
+    /**
+     * Get all orders
+     * 
+     * Get a list of all orders. (Admin only)
+     * 
+     * @authenticated
+     * 
+     * @response 200 [
+     *   {
+     *     "OrderId": 1,
+     *     "UserId": 1,
+     *     "OrderDate": "2024-01-01 10:00:00",
+     *     "TotalAmount": 150000,
+     *     "Status": "Paid",
+     *     "User": {
+     *       "FullName": "Nguyễn Văn A",
+     *       "Email": "admin@gauphim.com"
+     *     }
+     *   }
+     * ]
+     * @response 401 {
+     *   "message": "Unauthenticated"
+     * }
+     * @response 403 {
+     *   "message": "Forbidden - Admin only"
+     * }
+     */
     public function index()
     {
         $orders = $this->orderService->getAll();
         return OrderResource::collection($orders);
     }
 
-    // Tạo đơn hàng
+    /**
+     * Create a new order
+     * 
+     * Create a new order with tickets and food items. (Admin only)
+     * 
+     * @authenticated
+     * 
+     * @bodyParam UserId int required The ID of the user. Example: 1
+     * @bodyParam PromotionId int The promotion ID if applied. Example: 1
+     * @bodyParam TotalAmount numeric required The total amount. Example: 150000
+     * @bodyParam Status string The order status. Enum: Pending, Paid, Cancelled. Example: Paid
+     * @bodyParam OrderDate string The order date. Example: 2024-01-01 10:00:00
+     * 
+     * @response 201 {
+     *   "OrderId": 1,
+     *   "UserId": 1,
+     *   "OrderDate": "2024-01-01 10:00:00",
+     *   "TotalAmount": 150000,
+     *   "Status": "Paid"
+     * }
+     * @response 422 {
+     *   "message": "The given data was invalid.",
+     *   "errors": {
+     *     "UserId": ["The user id field is required."],
+     *     "TotalAmount": ["The total amount field is required."]
+     *   }
+     * }
+     */
     public function store(StoreOrderRequest $request)
     {
         $order = $this->orderService->create($request->validated());
         return new OrderResource($order);
     }
 
-    // Lấy chi tiết 1 đơn hàng
+    /**
+     * Get a specific order
+     * 
+     * Get detailed information about a specific order. (Admin only)
+     * 
+     * @authenticated
+     * 
+     * @urlParam OrderId int required The ID of the order. Example: 1
+     * 
+     * @response 200 {
+     *   "OrderId": 1,
+     *   "UserId": 1,
+     *   "OrderDate": "2024-01-01 10:00:00",
+     *   "TotalAmount": 150000,
+     *   "Status": "Paid"
+     * }
+     * @response 404 {
+     *   "message": "Order not found"
+     * }
+     */
     public function show($OrderId)
     {
         $order = $this->orderService->getById($OrderId);
         return new OrderResource($order);
     }
 
-    // Cập nhật đơn hàng
+    /**
+     * Update an order
+     * 
+     * Update an existing order. (Admin only)
+     * 
+     * @authenticated
+     * 
+     * @urlParam OrderId int required The ID of the order. Example: 1
+     * @bodyParam UserId int The ID of the user. Example: 1
+     * @bodyParam TotalAmount numeric The total amount. Example: 150000
+     * @bodyParam Status string The order status. Enum: Pending, Paid, Cancelled. Example: Cancelled
+     * 
+     * @response 200 {
+     *   "OrderId": 1,
+     *   "UserId": 1,
+     *   "TotalAmount": 150000,
+     *   "Status": "Cancelled"
+     * }
+     * @response 404 {
+     *   "message": "Order not found"
+     * }
+     */
     public function update(StoreOrderRequest $request, $OrderId)
     {
         $order = $this->orderService->update($OrderId, $request->validated());
         return new OrderResource($order);
     }
 
-    // Xóa đơn hàng
+    /**
+     * Delete an order
+     * 
+     * Delete an order from the system. (Admin only)
+     * 
+     * @authenticated
+     * 
+     * @urlParam OrderId int required The ID of the order. Example: 1
+     * 
+     * @response 200 {
+     *   "message": "Order deleted successfully"
+     * }
+     * @response 404 {
+     *   "message": "Order not found"
+     * }
+     */
     public function destroy($OrderId)
     {
         $this->orderService->delete($OrderId);
@@ -55,8 +169,73 @@ class OrderController extends Controller
     }
 
     /**
-     * API LẤY CHI TIẾT ĐƠN HÀNG - Quan trọng nhất
-     * Lấy thông tin: tên khách hàng, rạp, phòng, suất chiếu, vé, ghế, đồ uống
+     * Get order details with full information
+     * 
+     * Get comprehensive order details including customer info, cinema, room,
+     * showtime, tickets, seats, and food & drinks.
+     * 
+     * @authenticated
+     * 
+     * @urlParam OrderId int required The ID of the order. Example: 1
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "OrderId": 1,
+     *     "OrderDate": "2024-01-01 10:00:00",
+     *     "TotalAmount": 150000,
+     *     "Status": "Paid",
+     *     "customer": {
+     *       "UserId": 1,
+     *       "FullName": "Nguyễn Văn A",
+     *       "Email": "admin@gauphim.com",
+     *       "PhoneNumber": "0987654321"
+     *     },
+     *     "tickets": [
+     *       {
+     *         "TicketId": 1,
+     *         "Price": 120000,
+     *         "showtime": {
+     *           "StartTime": "2024-01-01 10:00:00",
+     *           "EndTime": "2024-01-01 13:00:00"
+     *         },
+     *         "movie": {
+     *           "MovieId": 1,
+     *           "Title": "Avengers: Endgame"
+     *         },
+     *         "seat": {
+     *           "SeatId": 1,
+     *           "Row": "A",
+     *           "Number": 1
+     *         },
+     *         "cinema": {
+     *           "CinemaId": 1,
+     *           "Name": "CGV Vincom Center"
+     *         }
+     *       }
+     *     ],
+     *     "food_and_drinks": [
+     *       {
+     *         "ItemId": 1,
+     *         "Name": "Bắp rang bơ",
+     *         "Price": 30000,
+     *         "Quantity": 1,
+     *         "TotalPrice": 30000
+     *       }
+     *     ],
+     *     "summary": {
+     *       "sub_total": 150000,
+     *       "discount": 0,
+     *       "final_total": 150000,
+     *       "total_tickets": 1,
+     *       "total_food_items": 1
+     *     }
+     *   }
+     * }
+     * @response 404 {
+     *   "success": false,
+     *   "message": "Không tìm thấy đơn hàng"
+     * }
      */
     public function getOrderDetails($OrderId)
     {
@@ -207,7 +386,32 @@ class OrderController extends Controller
     }
 
     /**
-     * API Lấy danh sách đơn hàng của user hiện tại
+     * Get current user's orders
+     * 
+     * Get all orders of the authenticated user.
+     * 
+     * @authenticated
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "data": [
+     *     {
+     *       "OrderId": 1,
+     *       "OrderDate": "2024-01-01 10:00:00",
+     *       "TotalAmount": 150000,
+     *       "Status": "Paid",
+     *       "customer": {
+     *         "FullName": "Nguyễn Văn A"
+     *       },
+     *       "total_tickets": 2,
+     *       "total_food_items": 1
+     *     }
+     *   ]
+     * }
+     * @response 401 {
+     *   "success": false,
+     *   "message": "Vui lòng đăng nhập"
+     * }
      */
     public function getMyOrders()
     {
@@ -253,7 +457,26 @@ class OrderController extends Controller
     }
 
     /**
-     * API Lấy chi tiết đơn hàng của user hiện tại
+     * Get current user's order details
+     * 
+     * Get detailed information of a specific order belonging to the authenticated user.
+     * 
+     * @authenticated
+     * 
+     * @urlParam OrderId int required The ID of the order. Example: 1
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "data": { ... full order details ... }
+     * }
+     * @response 401 {
+     *   "success": false,
+     *   "message": "Vui lòng đăng nhập"
+     * }
+     * @response 404 {
+     *   "success": false,
+     *   "message": "Không tìm thấy đơn hàng"
+     * }
      */
     public function getMyOrderDetails($OrderId)
     {
@@ -289,7 +512,22 @@ class OrderController extends Controller
     }
 
     /**
-     * API Lấy danh sách đơn hàng của user (Admin)
+     * Get orders by user ID
+     * 
+     * Get all orders of a specific user. (Admin only)
+     * 
+     * @authenticated
+     * 
+     * @urlParam UserId int required The ID of the user. Example: 1
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "data": [...]
+     * }
+     * @response 404 {
+     *   "success": false,
+     *   "message": "Không tìm thấy đơn hàng"
+     * }
      */
     public function getUserOrders($UserId)
     {

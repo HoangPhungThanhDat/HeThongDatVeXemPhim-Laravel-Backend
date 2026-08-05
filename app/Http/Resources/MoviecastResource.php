@@ -24,8 +24,8 @@ class MoviecastResource extends JsonResource
             'Status' => $this->Status,
             'CreatedBy' => $this->CreatedBy,
             'UpdatedBy' => $this->UpdatedBy,
-            'CreatedAt' => $this->CreatedAt?->format('d-m-Y'),
-            'UpdatedAt' => $this->UpdatedAt?->format('d-m-Y'),
+            'CreatedAt' => $this->CreatedAt?->format('Y-m-d H:i:s'),
+            'UpdatedAt' => $this->UpdatedAt?->format('Y-m-d H:i:s'),
 
         ];
     }

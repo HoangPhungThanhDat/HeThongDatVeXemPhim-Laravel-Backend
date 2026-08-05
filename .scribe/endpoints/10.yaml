@@ -1,0 +1,564 @@
+name: 'Food & Drinks'
+description: |-
+
+  APIs for managing food and drink items available in the cinema.
+  These items can be ordered together with movie tickets.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/foodanddrinks
+    metadata:
+      custom: []
+      groupName: 'Food & Drinks'
+      groupDescription: |-
+
+        APIs for managing food and drink items available in the cinema.
+        These items can be ordered together with movie tickets.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get all food & drink items'
+      description: 'Get a list of all food and drink items available in the cinema.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          [
+            {
+              "ItemId": 1,
+              "Name": "Bắp rang bơ",
+              "Description": "Bắp rang bơ thơm ngon",
+              "Price": 45000,
+              "Category": "Snacks",
+              "ImageUrl": "https://res.cloudinary.com/.../foodanddrinks/popcorn.jpg",
+              "Status": "Available",
+              "CreatedAt": "2024-01-01 10:00:00"
+            },
+            {
+              "ItemId": 2,
+              "Name": "Coca Cola",
+              "Description": "Nước ngọt có gas",
+              "Price": 25000,
+              "Category": "Beverages",
+              "ImageUrl": "https://res.cloudinary.com/.../foodanddrinks/coca.jpg",
+              "Status": "Available",
+              "CreatedAt": "2024-01-01 10:05:00"
+            }
+          ]
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/foodanddrinks/{ItemId}'
+    metadata:
+      custom: []
+      groupName: 'Food & Drinks'
+      groupDescription: |-
+
+        APIs for managing food and drink items available in the cinema.
+        These items can be ordered together with movie tickets.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get a specific food & drink item'
+      description: 'Get detailed information about a specific food or drink item.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters:
+      ItemId:
+        custom: []
+        name: ItemId
+        description: 'The ID of the food/drink item.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      ItemId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "ItemId": 1,
+            "Name": "Bắp rang bơ",
+            "Description": "Bắp rang bơ thơm ngon",
+            "Price": 45000,
+            "Category": "Snacks",
+            "ImageUrl": "https://res.cloudinary.com/.../foodanddrinks/popcorn.jpg",
+            "Status": "Available",
+            "CreatedAt": "2024-01-01 10:00:00"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Food and drink item not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/foodanddrinks
+    metadata:
+      custom: []
+      groupName: 'Food & Drinks'
+      groupDescription: |-
+
+        APIs for managing food and drink items available in the cinema.
+        These items can be ordered together with movie tickets.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Create a new food & drink item'
+      description: 'Create a new food or drink item with image upload to Cloudinary. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: multipart/form-data
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      Name:
+        custom: []
+        name: Name
+        description: 'The item name.'
+        required: true
+        example: 'Bắp rang bơ'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Description:
+        custom: []
+        name: Description
+        description: 'The item description.'
+        required: false
+        example: 'Bắp rang bơ thơm ngon'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      Price:
+        custom: []
+        name: Price
+        description: 'The item price in VND.'
+        required: true
+        example: '45000'
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      IsAvailable:
+        custom: []
+        name: IsAvailable
+        description: ''
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: 'The status.'
+        required: false
+        example: Available
+        type: string
+        enumValues:
+          - Available
+          - Unavailable
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      Category:
+        custom: []
+        name: Category
+        description: 'The item category.'
+        required: false
+        example: Snacks
+        type: string
+        enumValues:
+          - Snacks
+          - Beverages
+          - Combos
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      Items:
+        custom: []
+        name: Items
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example:
+          - ynlazghdtqtqxbajwbpil
+        type: 'string[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      ImageUrl:
+        custom: []
+        name: ImageUrl
+        description: 'The item image (jpg, png, webp). Max 2MB.'
+        required: false
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      Name: 'Bắp rang bơ'
+      Description: 'Bắp rang bơ thơm ngon'
+      Price: '45000'
+      IsAvailable: false
+      Status: Available
+      Category: Snacks
+      Items:
+        - ynlazghdtqtqxbajwbpil
+    fileParameters:
+      ImageUrl: null
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+            "ItemId": 1,
+            "Name": "Bắp rang bơ",
+            "Description": "Bắp rang bơ thơm ngon",
+            "Price": 45000,
+            "Category": "Snacks",
+            "ImageUrl": "https://res.cloudinary.com/.../foodanddrinks/popcorn.jpg",
+            "Status": "Available",
+            "CreatedAt": "2024-01-01 10:00:00"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "message": "The given data was invalid.",
+            "errors": {
+              "Name": ["The name field is required."],
+              "Price": ["The price field is required."]
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Upload ảnh thất bại: ..."
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/foodanddrinks/{ItemId}'
+    metadata:
+      custom: []
+      groupName: 'Food & Drinks'
+      groupDescription: |-
+
+        APIs for managing food and drink items available in the cinema.
+        These items can be ordered together with movie tickets.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Update a food & drink item'
+      description: 'Update an existing food or drink item. Image upload is optional. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: multipart/form-data
+    urlParameters:
+      ItemId:
+        custom: []
+        name: ItemId
+        description: 'The ID of the food/drink item.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      ItemId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      Name:
+        custom: []
+        name: Name
+        description: 'The item name.'
+        required: false
+        example: 'Bắp rang bơ lớn'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Description:
+        custom: []
+        name: Description
+        description: 'The item description.'
+        required: false
+        example: 'Bắp rang bơ thơm ngon, giòn rụm'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      Price:
+        custom: []
+        name: Price
+        description: 'The price in VND.'
+        required: false
+        example: '55000'
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      IsAvailable:
+        custom: []
+        name: IsAvailable
+        description: ''
+        required: false
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: 'The status.'
+        required: false
+        example: Unavailable
+        type: string
+        enumValues:
+          - Available
+          - Unavailable
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      Category:
+        custom: []
+        name: Category
+        description: 'The category.'
+        required: false
+        example: Snacks
+        type: string
+        enumValues:
+          - Snacks
+          - Beverages
+          - Combos
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      Items:
+        custom: []
+        name: Items
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example:
+          - ynlazghdtqtqxbajwbpil
+        type: 'string[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      ImageUrl:
+        custom: []
+        name: ImageUrl
+        description: 'The item image (jpg, png, webp). Max 2MB.'
+        required: false
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      Name: 'Bắp rang bơ lớn'
+      Description: 'Bắp rang bơ thơm ngon, giòn rụm'
+      Price: '55000'
+      IsAvailable: false
+      Status: Unavailable
+      Category: Snacks
+      Items:
+        - ynlazghdtqtqxbajwbpil
+    fileParameters:
+      ImageUrl: null
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "ItemId": 1,
+            "Name": "Bắp rang bơ lớn",
+            "Description": "Bắp rang bơ thơm ngon, giòn rụm",
+            "Price": 55000,
+            "Status": "Unavailable"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Food and drink item not found"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Upload ảnh thất bại: ..."
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/foodanddrinks/{ItemId}'
+    metadata:
+      custom: []
+      groupName: 'Food & Drinks'
+      groupDescription: |-
+
+        APIs for managing food and drink items available in the cinema.
+        These items can be ordered together with movie tickets.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Delete a food & drink item'
+      description: 'Delete a food or drink item and remove its image from Cloudinary. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      ItemId:
+        custom: []
+        name: ItemId
+        description: 'The ID of the food/drink item.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      ItemId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "message": "Food and drink item deleted successfully"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Food and drink item not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null

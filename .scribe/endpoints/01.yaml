@@ -1,0 +1,1480 @@
+name: Movies
+description: |-
+
+  APIs for managing movies. Includes CRUD operations, 
+  filtering by status (Now Showing, Coming Soon, Ended),
+  search, and statistics.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/movies/now-showing/all
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get now showing movies'
+      description: 'Get all movies currently showing in cinemas.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": [
+              {
+                "MovieId": 1,
+                "Title": "Avengers: Endgame",
+                "PosterUrl": "https://...",
+                "Status": "NowShowing"
+              }
+            ]
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/movies/now-showing/filters
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get now showing filters'
+      description: 'Get available filter options for now showing movies (genres, directors, etc.).'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": {
+              "genres": ["Action", "Comedy", "Drama"],
+              "directors": ["Anthony Russo", "Christopher Nolan"],
+              "languages": ["English", "Vietnamese"],
+              "rated": ["PG", "PG-13", "R"]
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/movies/now-showing/filter
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Filter now showing movies'
+      description: 'Filter now showing movies by genre, director, actor, language, or rating.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      genre_id:
+        custom: []
+        name: genre_id
+        description: 'Filter by genre ID.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      director_name:
+        custom: []
+        name: director_name
+        description: 'Filter by director name.'
+        required: false
+        example: 'Christopher Nolan'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      actor_name:
+        custom: []
+        name: actor_name
+        description: 'Filter by actor name.'
+        required: false
+        example: 'Robert Downey Jr.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      language:
+        custom: []
+        name: language
+        description: 'Filter by language.'
+        required: false
+        example: English
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      rated:
+        custom: []
+        name: rated
+        description: 'Filter by rating.'
+        required: false
+        example: PG-13
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      genre_id: 1
+      director_name: 'Christopher Nolan'
+      actor_name: 'Robert Downey Jr.'
+      language: English
+      rated: PG-13
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": [...]
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/movies/now-showing/search
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Search now showing movies'
+      description: 'Search for now showing movies by keyword.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      keyword:
+        custom: []
+        name: keyword
+        description: 'The search keyword.'
+        required: true
+        example: Avengers
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      keyword: Avengers
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": [...]
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 400
+        content: |-
+          {
+            "success": false,
+            "message": "Vui lòng nhập từ khóa tìm kiếm"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/movies/now-showing/genre/{genreId}'
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get now showing movies by genre'
+      description: 'Get all now showing movies filtered by genre.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters:
+      genreId:
+        custom: []
+        name: genreId
+        description: 'The ID of the genre.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      genreId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": [...]
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Không tìm thấy thể loại phim"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/movies/coming-soon
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get coming soon movies'
+      description: 'Get all movies that are coming soon to cinemas.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": [
+              {
+                "MovieId": 2,
+                "Title": "Dune: Part Two",
+                "PosterUrl": "https://...",
+                "ReleaseDate": "2024-03-01",
+                "Status": "ComingSoon"
+              }
+            ]
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/movies/hot
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get hot movies'
+      description: 'Get the most popular/hot movies based on ticket sales or views.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      limit:
+        custom: []
+        name: limit
+        description: 'Number of movies to return. Default: 10.'
+        required: false
+        example: 10
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      limit: 10
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": [...]
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/movies/latest
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get latest movies'
+      description: 'Get the most recently added movies.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      limit:
+        custom: []
+        name: limit
+        description: 'Number of movies to return. Default: 10.'
+        required: false
+        example: 10
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      limit: 10
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": [...]
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/movies/statistics/overview
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get movie statistics'
+      description: 'Get statistics about movies including total count, by status, etc.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": {
+              "total": 50,
+              "now_showing": 10,
+              "coming_soon": 15,
+              "ended": 25,
+              "total_showtimes": 120,
+              "total_reviews": 500,
+              "average_rating": 4.5
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/movies/by-status/{status}'
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get movies by status'
+      description: 'Get movies filtered by status.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters:
+      status:
+        custom: []
+        name: status
+        description: 'The movie status.'
+        required: true
+        example: NowShowing
+        type: string
+        enumValues:
+          - NowShowing
+          - ComingSoon
+          - Ended
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      status: NowShowing
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": [...]
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 400
+        content: |-
+          {
+            "success": false,
+            "message": "Trạng thái không hợp lệ. Chỉ chấp nhận: NowShowing, ComingSoon, Ended"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/movies/{id}/detail'
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get movie detail'
+      description: 'Get detailed information about a specific movie with additional data.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the movie.'
+        required: true
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      movieId:
+        custom: []
+        name: movieId
+        description: 'The ID of the movie.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: consequatur
+      movieId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": {
+              "MovieId": 1,
+              "Title": "Avengers: Endgame",
+              "Description": "...",
+              "PosterUrl": "https://...",
+              "Genres": ["Action", "Adventure"],
+              "Cast": ["Robert Downey Jr.", "Chris Evans"],
+              "Showtimes": [...]
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Không tìm thấy phim"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/movies
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get all movies'
+      description: 'Get a list of all movies in the system.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          [
+            {
+              "MovieId": 1,
+              "Title": "Avengers: Endgame",
+              "Description": "After the devastating events of Infinity War...",
+              "PosterUrl": "https://res.cloudinary.com/.../movies/posters/avengers.jpg",
+              "ReleaseDate": "2019-04-26",
+              "Duration": 180,
+              "Language": "English",
+              "Rated": "PG-13",
+              "Status": "NowShowing",
+              "CreatedAt": "2024-01-01 10:00:00"
+            }
+          ]
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/movies/paged
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get paginated movies'
+      description: 'Get a paginated list of movies with search and filter options.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      page:
+        custom: []
+        name: page
+        description: 'The page number. Default: 1.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      limit:
+        custom: []
+        name: limit
+        description: 'Number of items per page. Default: 10. Max: 100.'
+        required: false
+        example: 10
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      search:
+        custom: []
+        name: search
+        description: 'Search by title or description.'
+        required: false
+        example: Avengers
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      status:
+        custom: []
+        name: status
+        description: 'Filter by status.'
+        required: false
+        example: NowShowing
+        type: string
+        enumValues:
+          - NowShowing
+          - ComingSoon
+          - Ended
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      page: 1
+      limit: 10
+      search: Avengers
+      status: NowShowing
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "data": [
+              {
+                "MovieId": 1,
+                "Title": "Avengers: Endgame",
+                "PosterUrl": "https://...",
+                "Status": "NowShowing"
+              }
+            ],
+            "total": 100,
+            "page": 1,
+            "limit": 10,
+            "totalPages": 10
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/movies/{MovieId}'
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get a specific movie'
+      description: 'Get detailed information about a specific movie.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters:
+      MovieId:
+        custom: []
+        name: MovieId
+        description: ''
+        required: true
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      movieId:
+        custom: []
+        name: movieId
+        description: 'The ID of the movie.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      MovieId: consequatur
+      movieId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "MovieId": 1,
+            "Title": "Avengers: Endgame",
+            "Description": "After the devastating events of Infinity War...",
+            "PosterUrl": "https://...",
+            "ReleaseDate": "2019-04-26",
+            "Duration": 180,
+            "Language": "English",
+            "Rated": "PG-13",
+            "Status": "NowShowing"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Không tìm thấy phim"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/movies
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Create a new movie'
+      description: 'Create a new movie with poster upload to Cloudinary. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: multipart/form-data
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      Title:
+        custom: []
+        name: Title
+        description: 'The movie title.'
+        required: true
+        example: 'Avengers: Endgame'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Description:
+        custom: []
+        name: Description
+        description: 'The movie description.'
+        required: false
+        example: 'After the devastating events of Infinity War...'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      GenreId:
+        custom: []
+        name: GenreId
+        description: 'Must match an existing stored value.'
+        required: true
+        example: 17
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      Duration:
+        custom: []
+        name: Duration
+        description: 'The duration in minutes.'
+        required: true
+        example: 180
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      ReleaseDate:
+        custom: []
+        name: ReleaseDate
+        description: 'The release date.'
+        required: true
+        example: '2019-04-26'
+        type: date
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      PosterUrl:
+        custom: []
+        name: PosterUrl
+        description: 'The movie poster (jpg, png, webp). Max 2MB.'
+        required: false
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      TrailerUrl:
+        custom: []
+        name: TrailerUrl
+        description: 'Must not be greater than 500 characters.'
+        required: false
+        example: 'http://dibbert.com/eius-est-dolor-dolores-minus-voluptatem-quisquam'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      Language:
+        custom: []
+        name: Language
+        description: 'The language.'
+        required: false
+        example: English
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Rated:
+        custom: []
+        name: Rated
+        description: 'The rating.'
+        required: false
+        example: PG-13
+        type: string
+        enumValues:
+          - G
+          - PG
+          - PG-13
+          - R
+          - NC-17
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: ''
+        required: false
+        example: Ended
+        type: string
+        enumValues:
+          - NowShowing
+          - Ended
+          - ComingSoon
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      Director:
+        custom: []
+        name: Director
+        description: 'The director name.'
+        required: false
+        example: 'Anthony Russo'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Cast:
+        custom: []
+        name: Cast
+        description: 'The cast members.'
+        required: false
+        example: 'Robert Downey Jr., Chris Evans'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      Title: 'Avengers: Endgame'
+      Description: 'After the devastating events of Infinity War...'
+      GenreId: 17
+      Duration: 180
+      ReleaseDate: '2019-04-26'
+      TrailerUrl: 'http://dibbert.com/eius-est-dolor-dolores-minus-voluptatem-quisquam'
+      Language: English
+      Rated: PG-13
+      Status: Ended
+      Director: 'Anthony Russo'
+      Cast: 'Robert Downey Jr., Chris Evans'
+    fileParameters:
+      PosterUrl: null
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+            "MovieId": 1,
+            "Title": "Avengers: Endgame",
+            "Description": "After the devastating events of Infinity War...",
+            "PosterUrl": "https://res.cloudinary.com/.../movies/posters/avengers.jpg",
+            "ReleaseDate": "2019-04-26",
+            "Duration": 180,
+            "Status": "NowShowing"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "message": "The given data was invalid.",
+            "errors": {
+              "Title": ["The title field is required."],
+              "ReleaseDate": ["The release date field is required."],
+              "Duration": ["The duration field is required."]
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Upload ảnh thất bại: ..."
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/movies/{MovieId}'
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Update a movie'
+      description: 'Update an existing movie. Poster upload is optional. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: multipart/form-data
+    urlParameters:
+      MovieId:
+        custom: []
+        name: MovieId
+        description: ''
+        required: true
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      movieId:
+        custom: []
+        name: movieId
+        description: 'The ID of the movie.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      MovieId: consequatur
+      movieId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      Title:
+        custom: []
+        name: Title
+        description: 'The movie title.'
+        required: false
+        example: "Avengers: Endgame - Director's Cut"
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Description:
+        custom: []
+        name: Description
+        description: 'The movie description.'
+        required: false
+        example: 'Dolores dolorum amet iste laborum eius est dolor.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      GenreId:
+        custom: []
+        name: GenreId
+        description: 'Must match an existing stored value.'
+        required: true
+        example: 17
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      Duration:
+        custom: []
+        name: Duration
+        description: 'The duration in minutes.'
+        required: false
+        example: 180
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      ReleaseDate:
+        custom: []
+        name: ReleaseDate
+        description: 'The release date.'
+        required: false
+        example: '2019-04-26'
+        type: date
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      PosterUrl:
+        custom: []
+        name: PosterUrl
+        description: 'The movie poster (jpg, png, webp). Max 2MB.'
+        required: false
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      TrailerUrl:
+        custom: []
+        name: TrailerUrl
+        description: 'Must not be greater than 500 characters.'
+        required: false
+        example: 'http://dibbert.com/eius-est-dolor-dolores-minus-voluptatem-quisquam'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      Language:
+        custom: []
+        name: Language
+        description: 'The language.'
+        required: false
+        example: English
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Rated:
+        custom: []
+        name: Rated
+        description: 'The rating.'
+        required: false
+        example: PG-13
+        type: string
+        enumValues:
+          - G
+          - PG
+          - PG-13
+          - R
+          - NC-17
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: 'The status.'
+        required: false
+        example: NowShowing
+        type: string
+        enumValues:
+          - NowShowing
+          - ComingSoon
+          - Ended
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      Title: "Avengers: Endgame - Director's Cut"
+      Description: 'Dolores dolorum amet iste laborum eius est dolor.'
+      GenreId: 17
+      Duration: 180
+      ReleaseDate: '2019-04-26'
+      TrailerUrl: 'http://dibbert.com/eius-est-dolor-dolores-minus-voluptatem-quisquam'
+      Language: English
+      Rated: PG-13
+      Status: NowShowing
+    fileParameters:
+      PosterUrl: null
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "MovieId": 1,
+            "Title": "Avengers: Endgame - Director's Cut",
+            "Status": "NowShowing"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Không tìm thấy phim"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Upload ảnh thất bại: ..."
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/movies/{MovieId}'
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Delete a movie'
+      description: 'Delete a movie and remove its poster from Cloudinary. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      MovieId:
+        custom: []
+        name: MovieId
+        description: ''
+        required: true
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      movieId:
+        custom: []
+        name: movieId
+        description: 'The ID of the movie.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      MovieId: consequatur
+      movieId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Xóa phim thành công"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Không tìm thấy phim"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null

@@ -1,0 +1,617 @@
+name: 'Login History'
+description: |-
+
+  APIs for managing user login history.
+  Tracks all user login activities including timestamps, IP addresses, and device information.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/loginhistorys
+    metadata:
+      custom: []
+      groupName: 'Login History'
+      groupDescription: |-
+
+        APIs for managing user login history.
+        Tracks all user login activities including timestamps, IP addresses, and device information.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get all login history records'
+      description: 'Get a list of all user login history records. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          [
+            {
+              "LoginId": 1,
+              "UserId": 1,
+              "FullName": "Nguyễn Văn A",
+              "Email": "admin@gauphim.com",
+              "LoginAt": "2024-01-01 10:00:00",
+              "LogoutAt": "2024-01-01 12:00:00",
+              "IPAddress": "192.168.1.1",
+              "UserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+              "Device": "Windows Desktop",
+              "Status": "Success"
+            },
+            {
+              "LoginId": 2,
+              "UserId": 2,
+              "FullName": "Trần Thị B",
+              "Email": "user@example.com",
+              "LoginAt": "2024-01-01 10:30:00",
+              "LogoutAt": null,
+              "IPAddress": "192.168.1.2",
+              "UserAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15",
+              "Device": "iPhone",
+              "Status": "Success"
+            }
+          ]
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 401
+        content: |-
+          {
+            "message": "Unauthenticated"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 403
+        content: |-
+          {
+            "message": "Forbidden - Admin only"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/loginhistorys/{LoginId}'
+    metadata:
+      custom: []
+      groupName: 'Login History'
+      groupDescription: |-
+
+        APIs for managing user login history.
+        Tracks all user login activities including timestamps, IP addresses, and device information.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get a specific login history record'
+      description: 'Get detailed information about a specific login history record. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      LoginId:
+        custom: []
+        name: LoginId
+        description: 'The ID of the login history record.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      LoginId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "LoginId": 1,
+            "UserId": 1,
+            "FullName": "Nguyễn Văn A",
+            "Email": "admin@gauphim.com",
+            "LoginAt": "2024-01-01 10:00:00",
+            "LogoutAt": "2024-01-01 12:00:00",
+            "IPAddress": "192.168.1.1",
+            "UserAgent": "Mozilla/5.0...",
+            "Device": "Windows Desktop",
+            "Status": "Success"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Login history record not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/loginhistorys
+    metadata:
+      custom: []
+      groupName: 'Login History'
+      groupDescription: |-
+
+        APIs for managing user login history.
+        Tracks all user login activities including timestamps, IP addresses, and device information.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Create a new login history record'
+      description: 'Create a new login history entry. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      UserId:
+        custom: []
+        name: UserId
+        description: 'The ID of the user.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      LoginTime:
+        custom: []
+        name: LoginTime
+        description: 'Must be a valid date in the format <code>Y-m-d H:i:s</code>.'
+        required: true
+        example: '2026-08-04 07:14:01'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      IpAddress:
+        custom: []
+        name: IpAddress
+        description: 'Must not be greater than 255 characters.'
+        required: true
+        example: mqeopfuudtdsufvyvddqa
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      DeviceInfo:
+        custom: []
+        name: DeviceInfo
+        description: 'Must not be greater than 255 characters.'
+        required: true
+        example: mniihfqcoynlazghdtqtq
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: 'The login status.'
+        required: false
+        example: Success
+        type: string
+        enumValues:
+          - Success
+          - Failed
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      LoginAt:
+        custom: []
+        name: LoginAt
+        description: 'The login timestamp.'
+        required: true
+        example: '2024-01-01 10:00:00'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      LogoutAt:
+        custom: []
+        name: LogoutAt
+        description: 'The logout timestamp.'
+        required: false
+        example: '2024-01-01 12:00:00'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      IPAddress:
+        custom: []
+        name: IPAddress
+        description: 'The IP address.'
+        required: false
+        example: 192.168.1.1
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      UserAgent:
+        custom: []
+        name: UserAgent
+        description: 'The user agent string.'
+        required: false
+        example: Mozilla/5.0...
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Device:
+        custom: []
+        name: Device
+        description: 'The device name.'
+        required: false
+        example: 'Windows Desktop'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      UserId: 1
+      LoginTime: '2026-08-04 07:14:01'
+      IpAddress: mqeopfuudtdsufvyvddqa
+      DeviceInfo: mniihfqcoynlazghdtqtq
+      Status: Success
+      LoginAt: '2024-01-01 10:00:00'
+      LogoutAt: '2024-01-01 12:00:00'
+      IPAddress: 192.168.1.1
+      UserAgent: Mozilla/5.0...
+      Device: 'Windows Desktop'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+            "LoginId": 1,
+            "UserId": 1,
+            "LoginAt": "2024-01-01 10:00:00",
+            "LogoutAt": "2024-01-01 12:00:00",
+            "IPAddress": "192.168.1.1",
+            "UserAgent": "Mozilla/5.0...",
+            "Device": "Windows Desktop",
+            "Status": "Success"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "message": "The given data was invalid.",
+            "errors": {
+              "UserId": ["The user id field is required."],
+              "LoginAt": ["The login at field is required."]
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/loginhistorys/{LoginId}'
+    metadata:
+      custom: []
+      groupName: 'Login History'
+      groupDescription: |-
+
+        APIs for managing user login history.
+        Tracks all user login activities including timestamps, IP addresses, and device information.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Update a login history record'
+      description: 'Update an existing login history record. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: application/json
+    urlParameters:
+      LoginId:
+        custom: []
+        name: LoginId
+        description: 'The ID of the login history record.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      LoginId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      UserId:
+        custom: []
+        name: UserId
+        description: 'The ID of the user.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      LoginTime:
+        custom: []
+        name: LoginTime
+        description: 'Must be a valid date in the format <code>Y-m-d H:i:s</code>.'
+        required: true
+        example: '2026-08-04 07:14:01'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      IpAddress:
+        custom: []
+        name: IpAddress
+        description: 'Must not be greater than 255 characters.'
+        required: true
+        example: mqeopfuudtdsufvyvddqa
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      DeviceInfo:
+        custom: []
+        name: DeviceInfo
+        description: 'Must not be greater than 255 characters.'
+        required: true
+        example: mniihfqcoynlazghdtqtq
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: 'The login status.'
+        required: false
+        example: Failed
+        type: string
+        enumValues:
+          - Success
+          - Failed
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      LoginAt:
+        custom: []
+        name: LoginAt
+        description: 'The login timestamp.'
+        required: false
+        example: '2024-01-01 10:00:00'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      LogoutAt:
+        custom: []
+        name: LogoutAt
+        description: 'The logout timestamp.'
+        required: false
+        example: '2024-01-01 12:00:00'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      IPAddress:
+        custom: []
+        name: IPAddress
+        description: 'The IP address.'
+        required: false
+        example: 192.168.1.1
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      UserAgent:
+        custom: []
+        name: UserAgent
+        description: 'The user agent.'
+        required: false
+        example: Mozilla/5.0...
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Device:
+        custom: []
+        name: Device
+        description: 'The device name.'
+        required: false
+        example: 'Windows Desktop'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      UserId: 1
+      LoginTime: '2026-08-04 07:14:01'
+      IpAddress: mqeopfuudtdsufvyvddqa
+      DeviceInfo: mniihfqcoynlazghdtqtq
+      Status: Failed
+      LoginAt: '2024-01-01 10:00:00'
+      LogoutAt: '2024-01-01 12:00:00'
+      IPAddress: 192.168.1.1
+      UserAgent: Mozilla/5.0...
+      Device: 'Windows Desktop'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "LoginId": 1,
+            "UserId": 1,
+            "LoginAt": "2024-01-01 10:00:00",
+            "LogoutAt": "2024-01-01 12:00:00",
+            "IPAddress": "192.168.1.1",
+            "UserAgent": "Mozilla/5.0...",
+            "Device": "Windows Desktop",
+            "Status": "Failed"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Login history record not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/loginhistorys/{LoginId}'
+    metadata:
+      custom: []
+      groupName: 'Login History'
+      groupDescription: |-
+
+        APIs for managing user login history.
+        Tracks all user login activities including timestamps, IP addresses, and device information.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Delete a login history record'
+      description: 'Delete a login history record from the system. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      LoginId:
+        custom: []
+        name: LoginId
+        description: 'The ID of the login history record.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      LoginId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "message": "Login history record deleted successfully"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Login history record not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null

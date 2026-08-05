@@ -1,0 +1,798 @@
+name: Promotions
+description: |-
+
+  APIs for managing promotions and discount campaigns.
+  Promotions can be applied to orders to provide discounts via percentage or fixed amount.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/promotions
+    metadata:
+      custom: []
+      groupName: Promotions
+      groupDescription: |-
+
+        APIs for managing promotions and discount campaigns.
+        Promotions can be applied to orders to provide discounts via percentage or fixed amount.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get all promotions'
+      description: 'Get a list of all promotions in the system.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          [
+            {
+              "PromotionId": 1,
+              "Title": "Summer Sale 2024",
+              "Code": "SUMMER20",
+              "Description": "Get 20% off on all tickets this summer",
+              "DiscountType": "Percentage",
+              "DiscountValue": 20,
+              "MinOrderAmount": 100000,
+              "StartDate": "2024-06-01 00:00:00",
+              "EndDate": "2024-08-31 23:59:59",
+              "ImageUrl": "https://res.cloudinary.com/.../promotions/summer.jpg",
+              "Status": "Active",
+              "UsageLimit": 1000,
+              "UsedCount": 150,
+              "CreatedAt": "2024-06-01 10:00:00"
+            },
+            {
+              "PromotionId": 2,
+              "Title": "New User Discount",
+              "Code": "NEWUSER50",
+              "Description": "Get 50,000 VND off for new users",
+              "DiscountType": "Fixed",
+              "DiscountValue": 50000,
+              "MinOrderAmount": 0,
+              "StartDate": "2024-01-01 00:00:00",
+              "EndDate": "2024-12-31 23:59:59",
+              "ImageUrl": null,
+              "Status": "Active",
+              "UsageLimit": 500,
+              "UsedCount": 320,
+              "CreatedAt": "2024-01-01 10:00:00"
+            }
+          ]
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/promotions/paged
+    metadata:
+      custom: []
+      groupName: Promotions
+      groupDescription: |-
+
+        APIs for managing promotions and discount campaigns.
+        Promotions can be applied to orders to provide discounts via percentage or fixed amount.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get paginated promotions'
+      description: 'Get a paginated list of promotions with search and filter options. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      page:
+        custom: []
+        name: page
+        description: 'The page number. Default: 1.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      limit:
+        custom: []
+        name: limit
+        description: 'Number of items per page. Default: 10. Max: 100.'
+        required: false
+        example: 10
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      search:
+        custom: []
+        name: search
+        description: 'Search by title or code.'
+        required: false
+        example: Summer
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      status:
+        custom: []
+        name: status
+        description: 'Filter by status.'
+        required: false
+        example: Active
+        type: string
+        enumValues:
+          - Active
+          - Inactive
+          - Expired
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      page: 1
+      limit: 10
+      search: Summer
+      status: Active
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "data": [
+              {
+                "PromotionId": 1,
+                "Title": "Summer Sale 2024",
+                "Code": "SUMMER20",
+                "DiscountValue": 20,
+                "Status": "Active"
+              }
+            ],
+            "total": 100,
+            "page": 1,
+            "limit": 10,
+            "totalPages": 10
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 401
+        content: |-
+          {
+            "message": "Unauthenticated"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 403
+        content: |-
+          {
+            "message": "Forbidden - Admin only"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/promotions/{PromotionId}'
+    metadata:
+      custom: []
+      groupName: Promotions
+      groupDescription: |-
+
+        APIs for managing promotions and discount campaigns.
+        Promotions can be applied to orders to provide discounts via percentage or fixed amount.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Get a specific promotion'
+      description: 'Get detailed information about a specific promotion.'
+      authenticated: false
+      deprecated: false
+    headers: []
+    urlParameters:
+      PromotionId:
+        custom: []
+        name: PromotionId
+        description: 'The ID of the promotion.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      PromotionId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "PromotionId": 1,
+            "Title": "Summer Sale 2024",
+            "Code": "SUMMER20",
+            "Description": "Get 20% off on all tickets this summer",
+            "DiscountType": "Percentage",
+            "DiscountValue": 20,
+            "MinOrderAmount": 100000,
+            "StartDate": "2024-06-01 00:00:00",
+            "EndDate": "2024-08-31 23:59:59",
+            "ImageUrl": "https://res.cloudinary.com/.../promotions/summer.jpg",
+            "Status": "Active",
+            "UsageLimit": 1000,
+            "UsedCount": 150
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Promotion not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/promotions
+    metadata:
+      custom: []
+      groupName: Promotions
+      groupDescription: |-
+
+        APIs for managing promotions and discount campaigns.
+        Promotions can be applied to orders to provide discounts via percentage or fixed amount.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Create a new promotion'
+      description: 'Create a new promotion with image upload to Cloudinary. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: multipart/form-data
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      Title:
+        custom: []
+        name: Title
+        description: 'The promotion title.'
+        required: true
+        example: 'Summer Sale 2024'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Code:
+        custom: []
+        name: Code
+        description: 'The promotion code (unique).'
+        required: true
+        example: SUMMER20
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Description:
+        custom: []
+        name: Description
+        description: 'The promotion description.'
+        required: false
+        example: 'Get 20% off on all tickets'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      ImageUrl:
+        custom: []
+        name: ImageUrl
+        description: 'The promotion image (jpg, png, webp). Max 2MB.'
+        required: false
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      DiscountType:
+        custom: []
+        name: DiscountType
+        description: 'The discount type.'
+        required: true
+        example: Percentage
+        type: string
+        enumValues:
+          - Percentage
+          - Fixed
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      DiscountValue:
+        custom: []
+        name: DiscountValue
+        description: 'The discount value.'
+        required: true
+        example: '20'
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      StartDate:
+        custom: []
+        name: StartDate
+        description: 'The start date.'
+        required: true
+        example: '2024-06-01 00:00:00'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      EndDate:
+        custom: []
+        name: EndDate
+        description: 'The end date.'
+        required: true
+        example: '2024-08-31 23:59:59'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      IsActive:
+        custom: []
+        name: IsActive
+        description: ''
+        required: true
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: 'The status.'
+        required: false
+        example: Active
+        type: string
+        enumValues:
+          - Active
+          - Inactive
+          - Expired
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      MinOrderAmount:
+        custom: []
+        name: MinOrderAmount
+        description: 'The minimum order amount to apply.'
+        required: false
+        example: '100000'
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      UsageLimit:
+        custom: []
+        name: UsageLimit
+        description: 'The maximum number of uses.'
+        required: false
+        example: 1000
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      Title: 'Summer Sale 2024'
+      Code: SUMMER20
+      Description: 'Get 20% off on all tickets'
+      DiscountType: Percentage
+      DiscountValue: '20'
+      StartDate: '2024-06-01 00:00:00'
+      EndDate: '2024-08-31 23:59:59'
+      IsActive: false
+      Status: Active
+      MinOrderAmount: '100000'
+      UsageLimit: 1000
+    fileParameters:
+      ImageUrl: null
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+            "PromotionId": 1,
+            "Title": "Summer Sale 2024",
+            "Code": "SUMMER20",
+            "DiscountType": "Percentage",
+            "DiscountValue": 20,
+            "Status": "Active",
+            "ImageUrl": "https://res.cloudinary.com/.../promotions/summer.jpg"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "message": "The given data was invalid.",
+            "errors": {
+              "Title": ["The title field is required."],
+              "Code": ["The code field is required."],
+              "DiscountType": ["The discount type field is required."],
+              "DiscountValue": ["The discount value field is required."]
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 500
+        content: |-
+          {
+            "message": "Upload ảnh thất bại: ..."
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: 'api/promotions/{PromotionId}'
+    metadata:
+      custom: []
+      groupName: Promotions
+      groupDescription: |-
+
+        APIs for managing promotions and discount campaigns.
+        Promotions can be applied to orders to provide discounts via percentage or fixed amount.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Update a promotion'
+      description: 'Update an existing promotion. Image upload is optional. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+      Content-Type: multipart/form-data
+    urlParameters:
+      PromotionId:
+        custom: []
+        name: PromotionId
+        description: 'The ID of the promotion.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      PromotionId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      Title:
+        custom: []
+        name: Title
+        description: 'The promotion title.'
+        required: false
+        example: 'Summer Sale 2024 - Extended'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Code:
+        custom: []
+        name: Code
+        description: 'The promotion code.'
+        required: false
+        example: SUMMER25
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      Description:
+        custom: []
+        name: Description
+        description: 'The promotion description.'
+        required: false
+        example: 'Dolores dolorum amet iste laborum eius est dolor.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      ImageUrl:
+        custom: []
+        name: ImageUrl
+        description: 'The promotion image (jpg, png, webp). Max 2MB.'
+        required: false
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      DiscountType:
+        custom: []
+        name: DiscountType
+        description: 'The discount type.'
+        required: false
+        example: Fixed
+        type: string
+        enumValues:
+          - Percentage
+          - Fixed
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      DiscountValue:
+        custom: []
+        name: DiscountValue
+        description: 'The discount value.'
+        required: false
+        example: consequatur
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      StartDate:
+        custom: []
+        name: StartDate
+        description: 'The start date.'
+        required: false
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      EndDate:
+        custom: []
+        name: EndDate
+        description: 'The end date.'
+        required: false
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      IsActive:
+        custom: []
+        name: IsActive
+        description: ''
+        required: true
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      Status:
+        custom: []
+        name: Status
+        description: 'The status.'
+        required: false
+        example: Inactive
+        type: string
+        enumValues:
+          - Active
+          - Inactive
+          - Expired
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      MinOrderAmount:
+        custom: []
+        name: MinOrderAmount
+        description: 'The minimum order amount.'
+        required: false
+        example: consequatur
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      UsageLimit:
+        custom: []
+        name: UsageLimit
+        description: 'The maximum number of uses.'
+        required: false
+        example: 17
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      Title: 'Summer Sale 2024 - Extended'
+      Code: SUMMER25
+      Description: 'Dolores dolorum amet iste laborum eius est dolor.'
+      DiscountType: Fixed
+      DiscountValue: consequatur
+      StartDate: consequatur
+      EndDate: consequatur
+      IsActive: false
+      Status: Inactive
+      MinOrderAmount: consequatur
+      UsageLimit: 17
+    fileParameters:
+      ImageUrl: null
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "PromotionId": 1,
+            "Title": "Summer Sale 2024 - Extended",
+            "Code": "SUMMER25",
+            "DiscountValue": 25,
+            "Status": "Active"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Promotion not found"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 500
+        content: |-
+          {
+            "message": "Upload ảnh thất bại: ..."
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/promotions/{PromotionId}'
+    metadata:
+      custom: []
+      groupName: Promotions
+      groupDescription: |-
+
+        APIs for managing promotions and discount campaigns.
+        Promotions can be applied to orders to provide discounts via percentage or fixed amount.
+      subgroup: null
+      subgroupDescription: null
+      title: 'Delete a promotion'
+      description: 'Delete a promotion and remove its image from Cloudinary. (Admin only)'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      PromotionId:
+        custom: []
+        name: PromotionId
+        description: 'The ID of the promotion.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      PromotionId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "message": "Promotion deleted successfully"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "Promotion not found"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null

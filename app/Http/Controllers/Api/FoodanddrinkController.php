@@ -7,47 +7,139 @@ use App\Http\Requests\StoreFoodanddrinkRequest;
 use App\Http\Resources\FoodanddrinkResource;
 use App\Services\FoodanddrinkService;
 use App\Models\Foodanddrink;
+use Cloudinary\Cloudinary;
+use Illuminate\Support\Facades\Log;
 
+/**
+ * @group Food & Drinks
+ * 
+ * APIs for managing food and drink items available in the cinema.
+ * These items can be ordered together with movie tickets.
+ */
 class FoodanddrinkController extends Controller
 {
     protected $service;
+    protected $cloudinary;
 
     public function __construct(FoodanddrinkService $service)
     {
         $this->service = $service;
         $this->middleware(['auth:api', 'checkrole:Admin'])->only(['store', 'update', 'destroy']);
+        
+        // Khởi tạo Cloudinary
+        $this->cloudinary = new Cloudinary([
+            'cloud' => [
+                'cloud_name' => config('cloudinary.cloud_name'),
+                'api_key' => config('cloudinary.api_key'),
+                'api_secret' => config('cloudinary.api_secret'),
+            ],
+            'url' => [
+                'secure' => config('cloudinary.secure', true),
+            ],
+        ]);
     }
 
-    // lấy tất cả
+    /**
+     * Get all food & drink items
+     * 
+     * Get a list of all food and drink items available in the cinema.
+     * 
+     * @unauthenticated
+     * 
+     * @response 200 [
+     *   {
+     *     "ItemId": 1,
+     *     "Name": "Bắp rang bơ",
+     *     "Description": "Bắp rang bơ thơm ngon",
+     *     "Price": 45000,
+     *     "Category": "Snacks",
+     *     "ImageUrl": "https://res.cloudinary.com/.../foodanddrinks/popcorn.jpg",
+     *     "Status": "Available",
+     *     "CreatedAt": "2024-01-01 10:00:00"
+     *   },
+     *   {
+     *     "ItemId": 2,
+     *     "Name": "Coca Cola",
+     *     "Description": "Nước ngọt có gas",
+     *     "Price": 25000,
+     *     "Category": "Beverages",
+     *     "ImageUrl": "https://res.cloudinary.com/.../foodanddrinks/coca.jpg",
+     *     "Status": "Available",
+     *     "CreatedAt": "2024-01-01 10:05:00"
+     *   }
+     * ]
+     */
     public function index()
     {
         return FoodanddrinkResource::collection($this->service->getAll());
     }
-    // thêm
 
+    /**
+     * Create a new food & drink item
+     * 
+     * Create a new food or drink item with image upload to Cloudinary. (Admin only)
+     * 
+     * @authenticated
+     * 
+     * @bodyParam Name string required The item name. Example: Bắp rang bơ
+     * @bodyParam Description string The item description. Example: Bắp rang bơ thơm ngon
+     * @bodyParam Price numeric required The item price in VND. Example: 45000
+     * @bodyParam Category string The item category. Enum: Snacks, Beverages, Combos. Example: Snacks
+     * @bodyParam ImageUrl file The item image (jpg, png, webp). Max 2MB.
+     * @bodyParam Status string The status. Enum: Available, Unavailable. Example: Available
+     * 
+     * @response 201 {
+     *   "ItemId": 1,
+     *   "Name": "Bắp rang bơ",
+     *   "Description": "Bắp rang bơ thơm ngon",
+     *   "Price": 45000,
+     *   "Category": "Snacks",
+     *   "ImageUrl": "https://res.cloudinary.com/.../foodanddrinks/popcorn.jpg",
+     *   "Status": "Available",
+     *   "CreatedAt": "2024-01-01 10:00:00"
+     * }
+     * @response 422 {
+     *   "message": "The given data was invalid.",
+     *   "errors": {
+     *     "Name": ["The name field is required."],
+     *     "Price": ["The price field is required."]
+     *   }
+     * }
+     * @response 500 {
+     *   "success": false,
+     *   "message": "Upload ảnh thất bại: ..."
+     * }
+     */
     public function store(StoreFoodanddrinkRequest $request)
     {
         $data = $request->validated();
 
         if ($request->hasFile('ImageUrl')) {
-            $file = $request->file('ImageUrl');
-            // Tạo hash từ nội dung file
-            $hash = md5_file($file->getRealPath());
-            $extension = $file->getClientOriginalExtension();
-            $fileName = $hash.'.'.$extension;
-            // Tạo folder nếu chưa tồn tại
-            if (! file_exists(storage_path('app/public/uploads/foodanddrinks'))) {
-                mkdir(storage_path('app/public/uploads/foodanddrinks'), 0775, true);
+            try {
+                $file = $request->file('ImageUrl');
+                
+                $result = $this->cloudinary->uploadApi()->upload($file->getRealPath(), [
+                    'folder' => 'foodanddrinks',
+                    'transformation' => [
+                        'width' => 400,
+                        'height' => 400,
+                        'crop' => 'fill',
+                        'quality' => 'auto:best',
+                        'fetch_format' => 'auto'
+                    ]
+                ]);
+                
+                $data['ImageUrl'] = $result['secure_url'];
+            } catch (\Exception $e) {
+                Log::error('Upload ảnh foodanddrink thất bại: ' . $e->getMessage());
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Upload ảnh thất bại: ' . $e->getMessage()
+                ], 500);
             }
-            // Nếu file chưa tồn tại → lưu mới
-            if (! file_exists(storage_path('app/public/uploads/foodanddrinks/'.$fileName))) {
-                $file->storeAs('uploads/foodanddrinks', $fileName, 'public');
-            }
-
-            $data['ImageUrl'] = asset('storage/uploads/foodanddrinks/'.$fileName);
         } else {
-            // Nếu tồn tại thì không đổi ảnh → giữ ảnh cũ
-            $data['ImageUrl'] = $foodanddrink->ImageUrl ?? null;
+            // ✅ Khi tạo mới không có ảnh, để null
+            $data['ImageUrl'] = null;
         }
 
         $foodanddrink = $this->service->create($data);
@@ -55,7 +147,29 @@ class FoodanddrinkController extends Controller
         return new FoodanddrinkResource($foodanddrink);
     }
 
-    // hiện 1
+    /**
+     * Get a specific food & drink item
+     * 
+     * Get detailed information about a specific food or drink item.
+     * 
+     * @unauthenticated
+     * 
+     * @urlParam ItemId int required The ID of the food/drink item. Example: 1
+     * 
+     * @response 200 {
+     *   "ItemId": 1,
+     *   "Name": "Bắp rang bơ",
+     *   "Description": "Bắp rang bơ thơm ngon",
+     *   "Price": 45000,
+     *   "Category": "Snacks",
+     *   "ImageUrl": "https://res.cloudinary.com/.../foodanddrinks/popcorn.jpg",
+     *   "Status": "Available",
+     *   "CreatedAt": "2024-01-01 10:00:00"
+     * }
+     * @response 404 {
+     *   "message": "Food and drink item not found"
+     * }
+     */
     public function show($ItemId)
     {
         $foodanddrink = $this->service->find($ItemId);
@@ -66,31 +180,78 @@ class FoodanddrinkController extends Controller
         return new FoodanddrinkResource($foodanddrink);
     }
 
-    // cập nhật
+    /**
+     * Update a food & drink item
+     * 
+     * Update an existing food or drink item. Image upload is optional. (Admin only)
+     * 
+     * @authenticated
+     * 
+     * @urlParam ItemId int required The ID of the food/drink item. Example: 1
+     * @bodyParam Name string The item name. Example: Bắp rang bơ lớn
+     * @bodyParam Description string The item description. Example: Bắp rang bơ thơm ngon, giòn rụm
+     * @bodyParam Price numeric The price in VND. Example: 55000
+     * @bodyParam Category string The category. Enum: Snacks, Beverages, Combos. Example: Snacks
+     * @bodyParam ImageUrl file The item image (jpg, png, webp). Max 2MB.
+     * @bodyParam Status string The status. Enum: Available, Unavailable. Example: Unavailable
+     * 
+     * @response 200 {
+     *   "ItemId": 1,
+     *   "Name": "Bắp rang bơ lớn",
+     *   "Description": "Bắp rang bơ thơm ngon, giòn rụm",
+     *   "Price": 55000,
+     *   "Status": "Unavailable"
+     * }
+     * @response 404 {
+     *   "message": "Food and drink item not found"
+     * }
+     * @response 500 {
+     *   "success": false,
+     *   "message": "Upload ảnh thất bại: ..."
+     * }
+     */
     public function update(StoreFoodanddrinkRequest $request, $ItemId)
     {
         $data = $request->validated();
         $foodanddrink = Foodanddrink::findOrFail($ItemId);
 
         if ($request->hasFile('ImageUrl')) {
-            $file = $request->file('ImageUrl');
-            $hash = md5_file($file->getRealPath());
-            $extension = $file->getClientOriginalExtension();
-            $fileName = $hash.'.'.$extension;
-
-            $folderPath = storage_path('app/public/uploads/foodanddrinks');
-            if (! file_exists($folderPath)) {
-                mkdir($folderPath, 0775, true);
+            // Xóa ảnh cũ trên Cloudinary
+            if ($foodanddrink->ImageUrl && strpos($foodanddrink->ImageUrl, 'cloudinary.com') !== false) {
+                try {
+                    $publicId = $this->extractPublicId($foodanddrink->ImageUrl);
+                    if ($publicId) {
+                        $this->cloudinary->uploadApi()->destroy($publicId);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Xóa ảnh Cloudinary thất bại: ' . $e->getMessage());
+                }
             }
-
-            if (! file_exists($folderPath.'/'.$fileName)) {
-                $file->storeAs('uploads/foodanddrinks', $fileName, 'public');
+            
+            // Upload ảnh mới
+            try {
+                $file = $request->file('ImageUrl');
+                $result = $this->cloudinary->uploadApi()->upload($file->getRealPath(), [
+                    'folder' => 'foodanddrinks',
+                    'transformation' => [
+                        'width' => 400,
+                        'height' => 400,
+                        'crop' => 'fill',
+                        'quality' => 'auto:best',
+                        'fetch_format' => 'auto'
+                    ]
+                ]);
+                
+                $data['ImageUrl'] = $result['secure_url'];
+            } catch (\Exception $e) {
+                Log::error('Upload ảnh foodanddrink thất bại: ' . $e->getMessage());
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Upload ảnh thất bại: ' . $e->getMessage()
+                ], 500);
             }
-
-            // Ghi đè ImageUrl trong data
-            $data['ImageUrl'] = asset('storage/uploads/foodanddrinks/'.$fileName);
         } else {
-            // Nếu không upload mới, giữ nguyên ảnh cũ
+            // ✅ KHÔNG CÓ FILE MỚI → GIỮ NGUYÊN ẢNH CŨ
             $data['ImageUrl'] = $foodanddrink->ImageUrl;
         }
 
@@ -99,14 +260,55 @@ class FoodanddrinkController extends Controller
         return new FoodanddrinkResource($foodanddrink);
     }
 
-    // xoá
+    /**
+     * Delete a food & drink item
+     * 
+     * Delete a food or drink item and remove its image from Cloudinary. (Admin only)
+     * 
+     * @authenticated
+     * 
+     * @urlParam ItemId int required The ID of the food/drink item. Example: 1
+     * 
+     * @response 200 {
+     *   "message": "Food and drink item deleted successfully"
+     * }
+     * @response 404 {
+     *   "message": "Food and drink item not found"
+     * }
+     */
     public function destroy($ItemId)
     {
+        $foodanddrink = Foodanddrink::find($ItemId);
+        
+        // Xóa ảnh trên Cloudinary
+        if ($foodanddrink && $foodanddrink->ImageUrl && strpos($foodanddrink->ImageUrl, 'cloudinary.com') !== false) {
+            try {
+                $publicId = $this->extractPublicId($foodanddrink->ImageUrl);
+                if ($publicId) {
+                    $this->cloudinary->uploadApi()->destroy($publicId);
+                }
+            } catch (\Exception $e) {
+                Log::error('Xóa ảnh Cloudinary thất bại: ' . $e->getMessage());
+            }
+        }
+        
         $deleted = $this->service->delete($ItemId);
         if (! $deleted) {
-            return response()->json(['message' => 'Audit log not found'], 404);
+            return response()->json(['message' => 'Food and drink item not found'], 404);
         }
 
-        return response()->json(['message' => 'Audit log deleted successfully']);
+        return response()->json(['message' => 'Food and drink item deleted successfully']);
+    }
+
+    /**
+     * Extract public ID from Cloudinary URL
+     * 
+     * @param string $url
+     * @return string|null
+     */
+    private function extractPublicId($url)
+    {
+        preg_match('/\/upload\/v\d+\/(.+)\.\w+$/', $url, $matches);
+        return $matches[1] ?? null;
     }
 }
