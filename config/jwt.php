@@ -1,4 +1,5 @@
 <?php
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -88,7 +89,8 @@ return [
     |
     */
 
-    'ttl' => (int) env('JWT_TTL', 60),
+    // ⭐ SỬA: 60 → 30 phút (access token ngắn hạn an toàn hơn)
+    'ttl' => (int) env('JWT_TTL', 30),
 
     /*
     |--------------------------------------------------------------------------
@@ -222,7 +224,8 @@ return [
     |
     */
 
-    'blacklist_grace_period' => (int) env('JWT_BLACKLIST_GRACE_PERIOD', 0),
+    // ⭐ SỬA: 0 → 30 giây (tránh lỗi 401 khi nhiều request song song)
+    'blacklist_grace_period' => (int) env('JWT_BLACKLIST_GRACE_PERIOD', 30),
 
     /*
     |--------------------------------------------------------------------------
@@ -263,6 +266,20 @@ return [
     */
 
     'cookie_key_name' => 'token',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Refresh Token Cookie Name
+    |--------------------------------------------------------------------------
+    |
+    | ⭐ THÊM MỚI: Tên cookie HttpOnly dùng để lưu refresh token.
+    | Cookie này KHÔNG thể đọc từ JavaScript (HttpOnly) → chống XSS.
+    | Backend set cookie này ở response login/refresh, frontend tự động
+    | gửi kèm khi gọi /api/auth/refresh.
+    |
+    */
+
+    'cookie_name' => env('JWT_COOKIE_NAME', 'refresh_token'),
 
     /*
     |--------------------------------------------------------------------------

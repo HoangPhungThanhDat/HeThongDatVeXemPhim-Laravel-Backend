@@ -833,7 +833,7 @@ endpoints:
         name: Status
         description: ''
         required: true
-        example: Banned
+        example: Active
         type: string
         enumValues:
           - Active
@@ -872,7 +872,7 @@ endpoints:
       Gender: Male
       DateOfBirth: '2000-01-01'
       RoleId: 2
-      Status: Banned
+      Status: Active
       Password: '123456'
       Address: 'Hà Nội'
     fileParameters: []
@@ -1010,7 +1010,7 @@ endpoints:
         name: DateOfBirth
         description: 'Must be a valid date.'
         required: false
-        example: '2026-08-04T07:14:02'
+        example: '2026-08-07T23:21:21'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -1047,7 +1047,7 @@ endpoints:
       PasswordHash: hfqcoynlazghdtqtqxbajwbpilpmufinllwloauydlsmsjuryvojcybzvrbyickznkygloigmkw
       PhoneNumber: '0987654321'
       Gender: Female
-      DateOfBirth: '2026-08-04T07:14:02'
+      DateOfBirth: '2026-08-07T23:21:21'
       RoleId: 1
       Status: Active
     fileParameters: []

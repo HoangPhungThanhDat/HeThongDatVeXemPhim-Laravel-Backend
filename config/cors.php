@@ -30,10 +30,12 @@ return [
 
     'allowed_headers' => ['*'],
 
-    'exposed_headers' => [],
+    // ⭐ Cho phép frontend đọc header Set-Cookie (một số browser cần)
+    'exposed_headers' => ['Set-Cookie'],
 
     'max_age' => 0,
 
+    // ⭐ BẮT BUỘC: cho phép gửi/nhận cookie cross-origin
     'supports_credentials' => true,
 
 ];

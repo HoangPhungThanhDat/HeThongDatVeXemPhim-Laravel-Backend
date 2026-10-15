@@ -31,7 +31,12 @@ class MovieResource extends JsonResource
             'UpdatedBy' => $this->UpdatedBy,
             'CreatedAt' => $this->CreatedAt?->format('Y-m-d H:i:s'),
             'UpdatedAt' => $this->UpdatedAt?->format('Y-m-d H:i:s'),
-
+            
+            // ✅ THÊM: Cast members
+            'castMembers' => MoviecastResource::collection($this->whenLoaded('castMembers')),
+            
+            // ✅ THÊM: Genre name
+            'GenreName' => $this->genre?->Name,
         ];
     }
 }

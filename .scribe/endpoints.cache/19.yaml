@@ -236,7 +236,7 @@ endpoints:
         name: PaymentStatus
         description: ''
         required: true
-        example: failed
+        example: cancelled
         type: string
         enumValues:
           - pending
@@ -309,7 +309,7 @@ endpoints:
       TicketId: 17
       Amount: '150000'
       PaymentMethod: 'Credit Card'
-      PaymentStatus: failed
+      PaymentStatus: cancelled
       Status: Completed
       OrderId: 1
       UserId: 1

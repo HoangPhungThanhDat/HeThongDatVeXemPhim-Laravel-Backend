@@ -230,7 +230,7 @@ endpoints:
         name: Status
         description: ''
         required: true
-        example: Inactive
+        example: Active
         type: string
         enumValues:
           - Active
@@ -252,7 +252,7 @@ endpoints:
     cleanBodyParameters:
       UserId: 1
       MovieId: 1
-      Status: Inactive
+      Status: Active
       AddedAt: '2024-01-01 10:00:00'
     fileParameters: []
     responses:

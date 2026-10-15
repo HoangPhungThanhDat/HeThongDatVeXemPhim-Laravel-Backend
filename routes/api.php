@@ -43,6 +43,12 @@ use App\Http\Controllers\Api\RoomManagementController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);
 
+// ⭐ REFRESH TOKEN - Public, dùng HttpOnly cookie
+Route::prefix('auth')->group(function () {
+    Route::post('/refresh', [AuthController::class, 'refresh'])
+        ->middleware('throttle:20,1');
+});
+
 // ========================================================
 // 🔓 GOOGLE OAUTH ROUTES
 // ========================================================
@@ -56,6 +62,13 @@ Route::prefix('auth')->group(function () {
 // 📽️ MOVIES
 // ========================================================
 Route::prefix('movies')->group(function () {
+     // ✅ AUTO UPDATE STATUS - Thêm 2 routes mới
+     Route::post('/auto-update-status', [MovieController::class, 'autoUpdateStatus'])
+     ->middleware(['auth:api', 'checkrole:Admin']);
+ 
+    Route::post('/update-status/{movieId}', [MovieController::class, 'updateSingleStatus'])
+     ->middleware(['auth:api', 'checkrole:Admin']);
+
     Route::get('/now-showing/all',              [MovieController::class, 'getNowShowing']);
     Route::get('/now-showing/filters',          [MovieController::class, 'getNowShowingFilters']);
     Route::post('/now-showing/filter',          [MovieController::class, 'filterNowShowing']);
@@ -104,6 +117,11 @@ Route::prefix('cinemas')->group(function () {
     Route::get('/',                      [CinemaController::class, 'index']);
     Route::get('/{CinemaId}',            [CinemaController::class, 'show']);
     Route::get('/{cinemaId}/showtimes',  [CinemaController::class, 'showtimes']);
+
+
+    Route::get('/{cinemaId}/movies', [CinemaController::class, 'getMoviesByCinema']);
+    Route::get('/{cinemaId}/movies/{movieId}/dates', [CinemaController::class, 'getDatesByCinemaAndMovie']);
+    Route::get('/{cinemaId}/movies/{movieId}/showtimes', [CinemaController::class, 'getShowtimesByMovieAndDate']);
 });
 
 Route::prefix('movies')->group(function () {
@@ -268,22 +286,11 @@ Route::get('/staffs/{StaffId}', [StaffController::class, 'show']);
 // 🪑 QUẢN LÝ TRẠNG THÁI GHẾ (THEO SUẤT CHIẾU)
 // ========================================================
 Route::prefix('seat-management')->group(function () {
-    // Lấy tất cả dữ liệu cho trang quản lý ghế (1 API duy nhất)
     Route::get('/data', [SeatManagementController::class, 'getData']);
-    
-    // Lấy ghế theo suất chiếu
     Route::get('/showtime/{showtimeId}/seats', [SeatManagementController::class, 'getSeatsByShowtime']);
-    
-    // Tạo ghế tự động
     Route::post('/generate', [SeatManagementController::class, 'generateSeats']);
-    
-    // Cập nhật trạng thái ghế
     Route::put('/seat', [SeatManagementController::class, 'updateSeat']);
-    
-    // Reset ghế
     Route::post('/reset', [SeatManagementController::class, 'resetSeat']);
-    
-    // Xóa ghế
     Route::delete('/seat', [SeatManagementController::class, 'deleteSeat']);
 });
 
@@ -291,34 +298,15 @@ Route::prefix('seat-management')->group(function () {
 // 🪑 QUẢN LÝ GHẾ PHÒNG CHIẾU (ROOM SEAT - MỚI)
 // ========================================================
 Route::prefix('room-seat')->group(function () {
-    // Lấy danh sách rạp
     Route::get('/cinemas', [RoomSeatController::class, 'getCinemas']);
-    
-    // Lấy danh sách phòng theo rạp
     Route::get('/rooms', [RoomSeatController::class, 'getRooms']);
-    
-    // Lấy sơ đồ ghế theo phòng
     Route::get('/room/{roomId}/seats', [RoomSeatController::class, 'getSeats']);
-    
-    // Thêm hàng
     Route::post('/room/{roomId}/add-rows', [RoomSeatController::class, 'addRows']);
-    
-    // Thêm cột
     Route::post('/room/{roomId}/add-cols', [RoomSeatController::class, 'addCols']);
-    
-    // Cập nhật ghế
     Route::put('/seat/{seatId}', [RoomSeatController::class, 'updateSeat']);
-    
-    // Xóa hàng
     Route::delete('/room/{roomId}/row/{row}', [RoomSeatController::class, 'deleteRow']);
-    
-    // Xóa cột
     Route::delete('/room/{roomId}/col/{col}', [RoomSeatController::class, 'deleteCol']);
-    
-    // Xóa 1 ghế
     Route::delete('/seat/{seatId}', [RoomSeatController::class, 'deleteSeat']);
-    
-    // Reset tất cả ghế
     Route::post('/room/{roomId}/reset', [RoomSeatController::class, 'resetSeats']);
 });
 
@@ -326,16 +314,9 @@ Route::prefix('room-seat')->group(function () {
 // 📊 QUẢN LÝ PHÒNG CHIẾU (TỔNG HỢP - MỚI)
 // ========================================================
 Route::prefix('room-management')->middleware(['auth:api', 'checkrole:Admin'])->group(function () {
-    // 📊 Dashboard: Lấy tất cả dữ liệu (1 API duy nhất)
     Route::get('/dashboard', [RoomManagementController::class, 'getDashboardData']);
-    
-    // 📊 Thống kê nhanh
     Route::get('/statistics', [RoomManagementController::class, 'getStatistics']);
-    
-    // 🎯 Chi tiết phòng + sơ đồ ghế
     Route::get('/rooms/{roomId}/detail', [RoomManagementController::class, 'getRoomDetail']);
-    
-    // 🪑 Cập nhật sơ đồ ghế
     Route::put('/rooms/{roomId}/seats', [RoomManagementController::class, 'updateSeats']);
 });
 
@@ -349,6 +330,12 @@ Route::middleware(['auth:api'])->group(function () {
     // 🔑 AUTH
     // ========================================================
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // ⭐ LOGOUT ALL DEVICES + ME
+    Route::prefix('auth')->group(function () {
+        Route::post('/logout-all', [AuthController::class, 'logoutAll']);
+        Route::get('/me',          [AuthController::class, 'me']);
+    });
 
     // ========================================================
     // 👤 PROFILE
@@ -441,9 +428,7 @@ Route::middleware(['auth:api'])->group(function () {
         Route::put('/notifications/{NotificationId}',    [NotificationController::class, 'update']);
         Route::delete('/notifications/{NotificationId}', [NotificationController::class, 'destroy']);
 
-        // ========================================================
-        // 📦 ORDERS - ADMIN
-        // ========================================================
+        // Orders - ADMIN
         Route::prefix('orders')->group(function () {
             Route::post('/',             [OrderController::class, 'store']);
             Route::put('/{OrderId}',     [OrderController::class, 'update']);
@@ -487,9 +472,7 @@ Route::middleware(['auth:api'])->group(function () {
         Route::delete('/seats/{SeatId}',      [SeatController::class, 'destroy']);
         Route::delete('/seats/room/{roomId}', [SeatController::class, 'deleteByRoom']);
 
-        // ========================================================
-        // 🎫 SHOWTIME SEATS - ADMIN
-        // ========================================================
+        // Showtime Seats - ADMIN
         Route::post('/showtimeseats',         [ShowtimeseatController::class, 'store']);
         Route::put('/showtimeseats/{Id}',     [ShowtimeseatController::class, 'update']);
         Route::delete('/showtimeseats/{Id}',  [ShowtimeseatController::class, 'destroy']);

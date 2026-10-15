@@ -590,7 +590,7 @@ endpoints:
         name: DiscountType
         description: 'The discount type.'
         required: false
-        example: Fixed
+        example: Percentage
         type: string
         enumValues:
           - Percentage
@@ -647,7 +647,7 @@ endpoints:
         name: Status
         description: 'The status.'
         required: false
-        example: Inactive
+        example: Active
         type: string
         enumValues:
           - Active
@@ -682,12 +682,12 @@ endpoints:
       Title: 'Summer Sale 2024 - Extended'
       Code: SUMMER25
       Description: 'Dolores dolorum amet iste laborum eius est dolor.'
-      DiscountType: Fixed
+      DiscountType: Percentage
       DiscountValue: consequatur
       StartDate: consequatur
       EndDate: consequatur
       IsActive: false
-      Status: Inactive
+      Status: Active
       MinOrderAmount: consequatur
       UsageLimit: 17
     fileParameters:

@@ -89,7 +89,6 @@ class CinemaController extends Controller
      *   "CinemaId": 1,
      *   "Name": "CGV Vincom Center",
      *   "Address": "72 Nguyễn Trãi, P. Bến Nghé, Q.1, TP.HCM",
-     *   "City": "Hồ Chí Minh",
      *   "Phone": "028 12345678",
      *   "ImageUrl": "https://res.cloudinary.com/.../cinemas/cgv.jpg",
      *   "Status": "Active",
@@ -571,6 +570,197 @@ class CinemaController extends Controller
         return response()->json([
             'MovieId' => $movieId,
             'CinemasByCity' => $data
+        ]);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // 🆕 CÁC METHOD MỚI CHO TIMRAP
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /**
+     * Get movies by cinema
+     * 
+     * Get all movies currently showing at a specific cinema.
+     * 
+     * @unauthenticated
+     * 
+     * @urlParam cinemaId int required The ID of the cinema. Example: 1
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "data": [
+     *     {
+     *       "MovieId": 1,
+     *       "Title": "Avengers: Endgame",
+     *       "PosterUrl": "https://...",
+     *       "Duration": 180,
+     *       "Rated": "T16"
+     *     }
+     *   ]
+     * }
+     */
+    public function getMoviesByCinema($cinemaId)
+    {
+        $cinema = Cinema::find($cinemaId);
+        
+        if (!$cinema) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy rạp'
+            ], 404);
+        }
+
+        // Lấy danh sách phim đang chiếu tại rạp này
+        $movieIds = Showtime::whereHas('room', function($query) use ($cinemaId) {
+                $query->where('CinemaId', $cinemaId);
+            })
+            ->where('StartTime', '>=', now())
+            ->where('Status', 'Scheduled')
+            ->pluck('MovieId')
+            ->unique();
+
+        $movies = Movie::whereIn('MovieId', $movieIds)
+            ->where('Status', 'NowShowing')
+            ->with(['genres', 'directors', 'actors'])
+            ->get()
+            ->map(function($movie) {
+                return [
+                    'MovieId' => $movie->MovieId,
+                    'Title' => $movie->Title,
+                    'Slug' => $movie->Slug,
+                    'PosterUrl' => $movie->PosterUrl,
+                    'Duration' => $movie->Duration,
+                    'Rated' => $movie->Rated,
+                    'Description' => $movie->Description,
+                    'Genre' => $movie->genres->pluck('Name')->implode(', '),
+                    'Directors' => $movie->directors->pluck('Name')->all(),
+                    'Actors' => $movie->actors->pluck('Name')->all(),
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $movies
+        ]);
+    }
+
+    /**
+     * Get available dates by cinema and movie
+     * 
+     * Get all available dates for a specific movie at a specific cinema.
+     * 
+     * @unauthenticated
+     * 
+     * @urlParam cinemaId int required The ID of the cinema. Example: 1
+     * @urlParam movieId int required The ID of the movie. Example: 1
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "data": ["2024-01-01", "2024-01-02", "2024-01-03"]
+     * }
+     */
+    public function getDatesByCinemaAndMovie($cinemaId, $movieId)
+    {
+        $cinema = Cinema::find($cinemaId);
+        $movie = Movie::find($movieId);
+        
+        if (!$cinema || !$movie) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy rạp hoặc phim'
+            ], 404);
+        }
+
+        // Lấy danh sách ngày chiếu từ 7 ngày tới
+        $dates = Showtime::whereHas('room', function($query) use ($cinemaId) {
+                $query->where('CinemaId', $cinemaId);
+            })
+            ->where('MovieId', $movieId)
+            ->where('StartTime', '>=', now())
+            ->where('StartTime', '<=', now()->addDays(7))
+            ->where('Status', 'Scheduled')
+            ->selectRaw('DATE(StartTime) as date')
+            ->distinct()
+            ->orderBy('date', 'asc')
+            ->pluck('date')
+            ->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => $dates
+        ]);
+    }
+
+    /**
+     * Get showtimes by cinema, movie and date
+     * 
+     * Get all showtimes for a specific movie at a specific cinema on a specific date.
+     * 
+     * @unauthenticated
+     * 
+     * @urlParam cinemaId int required The ID of the cinema. Example: 1
+     * @urlParam movieId int required The ID of the movie. Example: 1
+     * @queryParam date string required The date in YYYY-MM-DD format. Example: 2024-01-01
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "data": [
+     *     {
+     *       "ShowtimeId": 1,
+     *       "StartTime": "10:00",
+     *       "EndTime": "13:00",
+     *       "Room": "Room 1",
+     *       "RoomType": "2D",
+     *       "Price": 120000
+     *     }
+     *   ]
+     * }
+     */
+    public function getShowtimesByMovieAndDate($cinemaId, $movieId, Request $request)
+    {
+        $date = $request->get('date');
+        
+        if (!$date) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Thiếu tham số date'
+            ], 400);
+        }
+
+        $cinema = Cinema::find($cinemaId);
+        $movie = Movie::find($movieId);
+        
+        if (!$cinema || !$movie) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy rạp hoặc phim'
+            ], 404);
+        }
+
+        $showtimes = Showtime::where('MovieId', $movieId)
+            ->whereHas('room', function($query) use ($cinemaId) {
+                $query->where('CinemaId', $cinemaId);
+            })
+            ->whereDate('StartTime', $date)
+            ->where('StartTime', '>=', now())
+            ->where('Status', 'Scheduled')
+            ->with(['room'])
+            ->orderBy('StartTime', 'asc')
+            ->get()
+            ->map(function($showtime) {
+                return [
+                    'ShowtimeId' => $showtime->ShowtimeId,
+                    'StartTime' => $showtime->StartTime->format('H:i'),
+                    'EndTime' => $showtime->EndTime->format('H:i'),
+                    'Room' => $showtime->room->Name,
+                    'RoomType' => $showtime->room->RoomType,
+                    'Price' => $showtime->Price,
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $showtimes
         ]);
     }
 

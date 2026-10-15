@@ -16,17 +16,19 @@ class MoviecastResource extends JsonResource
     {
         return [
             'CastId' => $this->CastId,
-            'MovieId' => new MovieResource($this->whenLoaded('movie')),
-            'Name' => $this->Name,
             'MovieId' => $this->MovieId,
-
+            'Name' => $this->Name,
             'Role' => $this->Role,
             'Status' => $this->Status,
             'CreatedBy' => $this->CreatedBy,
             'UpdatedBy' => $this->UpdatedBy,
             'CreatedAt' => $this->CreatedAt?->format('Y-m-d H:i:s'),
             'UpdatedAt' => $this->UpdatedAt?->format('Y-m-d H:i:s'),
-
+            
+            // ✅ THÊM: Role name tiếng Việt
+            'RoleName' => $this->role_name,
+            'IsDirector' => $this->is_director,
+            'IsActor' => $this->is_actor,
         ];
     }
 }

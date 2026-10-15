@@ -661,7 +661,7 @@ endpoints:
         name: OrderDate
         description: 'Must be a valid date.'
         required: true
-        example: '2026-08-04T07:14:02'
+        example: '2026-08-07T23:21:21'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -705,7 +705,7 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       UserId: 1
-      OrderDate: '2026-08-04T07:14:02'
+      OrderDate: '2026-08-07T23:21:21'
       TotalAmount: '150000'
       Status: Cancelled
     fileParameters: []

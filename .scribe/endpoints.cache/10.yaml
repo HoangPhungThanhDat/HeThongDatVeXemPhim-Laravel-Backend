@@ -199,7 +199,7 @@ endpoints:
         name: IsAvailable
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -259,7 +259,7 @@ endpoints:
       Name: 'Bắp rang bơ'
       Description: 'Bắp rang bơ thơm ngon'
       Price: '45000'
-      IsAvailable: false
+      IsAvailable: true
       Status: Available
       Category: Snacks
       Items:
@@ -390,7 +390,7 @@ endpoints:
         name: IsAvailable
         description: ''
         required: false
-        example: false
+        example: true
         type: boolean
         enumValues: []
         exampleWasSpecified: false
@@ -450,7 +450,7 @@ endpoints:
       Name: 'Bắp rang bơ lớn'
       Description: 'Bắp rang bơ thơm ngon, giòn rụm'
       Price: '55000'
-      IsAvailable: false
+      IsAvailable: true
       Status: Unavailable
       Category: Snacks
       Items:

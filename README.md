@@ -12,9 +12,9 @@
 [![Scribe](https://img.shields.io/badge/API%20Docs-Scribe-6E5494?style=flat-square)](https://scribe.knuckles.wtf)
 [![License](https://img.shields.io/badge/License-MIT-success.svg?style=flat-square)](LICENSE)
 
-**API sẵn sàng production cho nền tảng rạp chiếu phim: chọn ghế thời gian thực, đăng nhập Google, thanh toán VNPay/Momo và bộ máy quản trị toàn diện**
+**API sẵn sàng production cho nền tảng rạp chiếu phim: chọn ghế thời gian thực, đăng nhập Google, xác thực Access/Refresh Token qua HttpOnly Cookie, thanh toán VNPay/Momo và bộ máy quản trị toàn diện**
 
-[Tính Năng](#-tính-năng) • [Bắt Đầu Nhanh](#-bắt-đầu-nhanh) • [Tài Liệu API](#-tài-liệu-api-scribe) • [Cấu Trúc Dự Án](#️-cấu-trúc-dự-án) • [Triển Khai](#-triển-khai)
+[Tính Năng](#-tính-năng) • [Xác Thực](#-xác-thực--phiên-đăng-nhập) • [Bắt Đầu Nhanh](#-bắt-đầu-nhanh) • [Tài Liệu API](#-tài-liệu-api-scribe) • [Cấu Trúc Dự Án](#️-cấu-trúc-dự-án) • [Triển Khai](#-triển-khai)
 
 </div>
 
@@ -24,6 +24,7 @@
 
 - [Tổng Quan](#-tổng-quan)
 - [Tính Năng](#-tính-năng)
+- [Xác Thực & Phiên Đăng Nhập](#-xác-thực--phiên-đăng-nhập)
 - [Công Nghệ](#-công-nghệ)
 - [Bắt Đầu Nhanh](#-bắt-đầu-nhanh)
 - [Cấu Hình](#-cấu-hình)
@@ -38,19 +39,22 @@
 
 ## 🎯 Tổng Quan
 
-**Gấu Phim** là API RESTful được xây dựng trên **Laravel 12**, đóng vai trò backend cho một hệ thống quản lý & đặt vé xem phim toàn diện, phục vụ đồng thời 3 nhóm người dùng: **Khách hàng**, **Quản trị viên (Admin)** và **Nhân viên rạp (Staff)**.
+**Gấu Phim** là API RESTful được xây dựng trên **Laravel 12**, đóng vai trò backend cho một hệ thống quản lý & đặt vé xem phim toàn diện, phục vụ đồng thời các nhóm người dùng: **Khách hàng**, **Quản trị viên (Admin)**, **Nhân viên Back-office** và **Nhân viên Rạp (Staff)**.
 
-Dự án tuân theo kiến trúc **Repository – Service – Controller**, tách bạch rõ ràng logic nghiệp vụ khỏi tầng điều phối request, giúp dễ bảo trì và mở rộng khi hệ thống phát triển thêm module mới.
+Dự án tuân theo kiến trúc **Controller – Service – Repository – Model**, tách bạch rõ ràng logic nghiệp vụ khỏi tầng điều phối request, giúp dễ bảo trì và mở rộng khi hệ thống phát triển thêm module mới.
 
 ### Điểm Nổi Bật
 
-- 🔐 **Xác Thực Đa Phương Thức** — JWT (tymon/jwt-auth) kết hợp đăng nhập Google (OAuth)
+- 🔐 **Xác Thực Đa Phương Thức** — JWT (`php-open-source-saver/jwt-auth`) kết hợp đăng nhập Google (OAuth)
+- 🍪 **Access Token + Refresh Token trong HttpOnly Cookie** — token không bao giờ lộ ra JavaScript phía client, giảm rủi ro XSS đánh cắp token
+- ♻️ **Refresh Token Lưu Trong Database** — bảng `refresh_tokens`, cho phép thu hồi phiên và đăng xuất ở mọi thiết bị
 - 💳 **Tích Hợp Thanh Toán** — VNPay & Momo
 - 🔄 **Thời Gian Thực** — Cập nhật trạng thái ghế và thông báo trực tiếp qua Socket.IO/Pusher
 - ☁️ **Lưu Trữ Media Trên Cloud** — Cloudinary cho poster phim, banner, ảnh đại diện
-- 🧱 **Kiến Trúc Rõ Ràng** — Repository – Service – Controller cho từng module nghiệp vụ
+- 🧱 **Kiến Trúc Rõ Ràng** — Controller – Service – Repository – Model cho từng module nghiệp vụ
 - 📖 **Tài Liệu API Tự Sinh** — Scribe, có Try-It-Out ngay trên trình duyệt
 - 🛡️ **Phân Quyền Theo Vai Trò** — Admin, Nhân viên Back-office, Nhân viên Rạp
+- ⏱️ **Tự Động Cập Nhật Trạng Thái Phim** — Artisan command + middleware `AutoUpdateMovieStatus`
 - 🧪 **Kiểm Thử** — PHPUnit (Feature & Unit tests)
 
 ---
@@ -64,8 +68,9 @@ Dự án tuân theo kiến trúc **Repository – Service – Controller**, tác
 <td width="50%">
 
 **Xác Thực & Hồ Sơ**
-- Đăng ký & đăng nhập bằng email/mật khẩu (JWT)
+- Đăng ký & đăng nhập bằng email/mật khẩu (JWT trong HttpOnly Cookie)
 - Đăng nhập bằng **Google (OAuth)**
+- Tự động làm mới phiên bằng **Refresh Token**
 - Quên mật khẩu / đặt lại mật khẩu
 - Quản lý hồ sơ cá nhân, đổi mật khẩu
 - Lịch sử đăng nhập (`Loginhistory`)
@@ -142,11 +147,79 @@ Dự án tuân theo kiến trúc **Repository – Service – Controller**, tác
 </tr>
 </table>
 
-### 🔄 Tính Năng Thời Gian Thực
+### 🔄 Tính Năng Thời Gian Thực & Tự Động Hoá
 
 - **Chọn Ghế Trực Tiếp** — Trạng thái ghế cập nhật tức thời cho mọi người dùng đang xem cùng suất chiếu
-- **Thông Báo Tức Thì** — Đẩy thông báo đặt vé/khuyến mãi qua Socket.IO/Pusher
-- **Đồng Bộ Media** — Ảnh phim/banner/avatar được đồng bộ và tối ưu qua Cloudinary (kèm lệnh migrate `MigrateImagesToCloudinary`)
+- **Thông Báo Tức Thì** — Đẩy thông báo đặt vé/khuyến mãi qua Socket.IO/Pusher (sự kiện `BookingCreated`, listener `SendBookingEmail`)
+- **Đồng Bộ Media** — Ảnh phim/banner/avatar được đồng bộ và tối ưu qua Cloudinary (lệnh `MigrateImagesToCloudinary`)
+- **Tự Cập Nhật Trạng Thái Phim** — Lệnh `UpdateMovieStatus` (theo lịch) và `ForceUpdateMovieStatus` (chạy thủ công), kèm middleware `AutoUpdateMovieStatus`
+
+---
+
+## 🔐 Xác Thực & Phiên Đăng Nhập
+
+Hệ thống dùng cặp **Access Token** (JWT, sống ngắn) và **Refresh Token** (sống dài), cả hai đều được server đặt vào **HttpOnly Cookie**. Client (React) **không đọc, không lưu** token vào `localStorage`/`sessionStorage`.
+
+| Token | Nơi lưu (client) | Nơi lưu (server) | Thời gian sống | Vai trò |
+|---|---|---|---|---|
+| **Access Token** | HttpOnly Cookie | Không lưu (JWT stateless) | `JWT_TTL` (mặc định 60 phút) | Xác thực mỗi request API |
+| **Refresh Token** | HttpOnly Cookie | Bảng `refresh_tokens` (model `RefreshToken`) | `JWT_REFRESH_TTL` (mặc định 14 ngày) | Cấp lại Access Token khi hết hạn |
+
+### Luồng Hoạt Động
+
+```
+ Client (React)                          Laravel API
+      │                                       │
+      │── POST /api/auth/login ──────────────►│  Xác thực email/mật khẩu (hoặc Google OAuth)
+      │◄── Set-Cookie: access_token (HttpOnly)│  Sinh JWT + Refresh Token (lưu DB)
+      │◄── Set-Cookie: refresh_token (HttpOnly)
+      │                                       │
+      │── GET /api/... (cookie tự động gửi) ─►│  Middleware đọc access_token từ cookie
+      │◄── 200 OK ────────────────────────────│
+      │                                       │
+      │── GET /api/... (access_token hết hạn)►│
+      │◄── 401 Unauthorized ──────────────────│
+      │                                       │
+      │── POST /api/auth/refresh ────────────►│  Kiểm tra refresh_token trong DB
+      │◄── Set-Cookie: access_token mới ──────│  (còn hạn, chưa bị thu hồi)
+      │                                       │
+      │── POST /api/auth/logout ─────────────►│  Thu hồi refresh token trong DB
+      │◄── Set-Cookie: xoá 2 cookie ──────────│
+```
+
+### Thuộc Tính Cookie
+
+| Thuộc tính | Giá trị | Ý nghĩa |
+|---|---|---|
+| `HttpOnly` | `true` | JavaScript không truy cập được cookie → chống đánh cắp token qua XSS |
+| `Secure` | `true` ở production | Chỉ gửi cookie qua HTTPS |
+| `SameSite` | `Lax` / `None` (khác domain) | Hạn chế CSRF; dùng `None` + `Secure` nếu frontend và API khác site |
+| `Path` | `/` (access) · `/api/auth` (refresh, khuyến nghị) | Giới hạn phạm vi gửi refresh token |
+
+### Yêu Cầu Phía Frontend
+
+Vì token nằm trong cookie, mọi request từ frontend phải bật gửi kèm credentials:
+
+```js
+// fetch
+fetch(`${API_URL}/auth/me`, { credentials: "include" });
+
+// axios
+axios.create({ baseURL: API_URL, withCredentials: true });
+```
+
+Khuyến nghị thêm một interceptor: khi nhận `401`, gọi `POST /api/auth/refresh` **một lần**, sau đó thử lại request gốc; nếu refresh thất bại thì chuyển về trang đăng nhập.
+
+### Yêu Cầu Phía Backend (CORS)
+
+Khi dùng cookie, CORS **không được** dùng `*`. Trong `config/cors.php`:
+
+```php
+'allowed_origins'      => [env('FRONTEND_URL', 'http://localhost:5173')],
+'supports_credentials' => true,
+```
+
+> ⚠️ Cần khai báo **từng origin cụ thể** cho từng môi trường (frontend người dùng, frontend admin). Origin `*` sẽ bị trình duyệt từ chối khi `credentials: include`.
 
 ---
 
@@ -182,7 +255,7 @@ Dự án tuân theo kiến trúc **Repository – Service – Controller**, tác
 | Thư viện | Phiên bản | Vai trò |
 |---|---|---|
 | `laravel/framework` | ^12.0 | Framework chính |
-| `php-open-source-saver/jwt-auth` | ^2.8 | Xác thực JWT (fork được duy trì của `tymon/jwt-auth`) |
+| `php-open-source-saver/jwt-auth` | ^2.8 | Sinh & xác thực Access Token JWT (fork được duy trì của `tymon/jwt-auth`) |
 | `laravel/socialite` | ^5.29 | Đăng nhập Google (OAuth) |
 | `cloudinary-labs/cloudinary-laravel` | ^3.0 | Lưu trữ & tối ưu media trên Cloudinary |
 | `predis/predis` | ^3.2 | Client Redis (cache, queue, broadcasting) |
@@ -232,10 +305,10 @@ cp .env.example .env
 php artisan key:generate
 php artisan jwt:secret
 
-# 4. Cấu hình database, Redis, Cloudinary, Google, VNPay/Momo trong .env
+# 4. Cấu hình database, Redis, Cloudinary, Google, VNPay/Momo, Cookie trong .env
 #    (xem mục Cấu Hình bên dưới)
 
-# 5. Chạy migrations & seeders
+# 5. Chạy migrations & seeders (bao gồm bảng refresh_tokens)
 php artisan migrate --seed
 
 # 6. Link storage
@@ -290,13 +363,22 @@ SESSION_DRIVER=redis
 </details>
 
 <details>
-<summary><b>Xác Thực (JWT & Google OAuth)</b></summary>
+<summary><b>Xác Thực (JWT, Refresh Token, Cookie & Google OAuth)</b></summary>
 
 ```env
-# JWT
+# JWT (Access Token)
 JWT_SECRET=your_secret_key
-JWT_TTL=60
-JWT_REFRESH_TTL=20160
+JWT_TTL=60                  # Access Token: 60 phút
+JWT_REFRESH_TTL=20160       # Refresh Token: 14 ngày (20160 phút)
+
+# Cookie HttpOnly chứa Access/Refresh Token
+SESSION_DOMAIN=null         # Đặt domain gốc nếu frontend & API dùng subdomain khác nhau
+SESSION_SECURE_COOKIE=false # Đặt true ở production (HTTPS)
+SESSION_SAME_SITE=lax       # Dùng none (kèm Secure) nếu frontend khác site với API
+
+# Frontend được phép gọi API kèm cookie (CORS credentials)
+FRONTEND_URL=http://localhost:5173
+ADMIN_FRONTEND_URL=http://localhost:3000
 
 # Google OAuth (Laravel Socialite)
 GOOGLE_CLIENT_ID=your_google_client_id
@@ -378,12 +460,14 @@ Production:  https://api.gauphim.com/api
 
 ### Xác Thực
 
-Các endpoint yêu cầu đăng nhập cần gửi kèm Bearer token trong header:
+Các endpoint yêu cầu đăng nhập dùng **Access Token nằm trong HttpOnly Cookie** do server tự đặt sau khi gọi `/api/auth/login` (hoặc đăng nhập Google). Trình duyệt sẽ tự gửi cookie theo từng request — client chỉ cần bật `credentials: "include"` / `withCredentials: true`:
 
 ```http
-Authorization: Bearer {access_token}
+Cookie: access_token={jwt}; refresh_token={refresh_token}
 Content-Type: application/json
 ```
+
+> 💡 Cookie HttpOnly không thể gán thủ công từ JavaScript. Khi thử bằng Postman/Insomnia, hãy đăng nhập trước để công cụ lưu cookie tự động.
 
 ### Sinh Lại Tài Liệu
 
@@ -411,12 +495,12 @@ storage/app/private/scribe/collection.json
 
 ```http
 POST   /api/auth/register              # Đăng ký người dùng
-POST   /api/auth/login                 # Đăng nhập
+POST   /api/auth/login                 # Đăng nhập → Set-Cookie: access_token + refresh_token (HttpOnly)
 GET    /api/auth/google/redirect       # Chuyển hướng đăng nhập Google
-GET    /api/auth/google/callback       # Callback đăng nhập Google
-POST   /api/auth/logout                # Đăng xuất
-POST   /api/auth/refresh               # Làm mới token
-GET    /api/auth/me                    # Thông tin người dùng hiện tại
+GET    /api/auth/google/callback       # Callback đăng nhập Google → Set-Cookie (HttpOnly)
+POST   /api/auth/refresh               # Dùng refresh_token (cookie) để cấp lại access_token
+POST   /api/auth/logout                # Thu hồi refresh token & xoá cookie
+GET    /api/auth/me                    # Thông tin người dùng hiện tại [Auth]
 ```
 
 </details>
@@ -462,6 +546,8 @@ php artisan test --testsuite=Feature
 php artisan test --testsuite=Unit
 ```
 
+Các test hiện có: `tests/Feature/MovieTest.php`, `tests/Unit/BookingTest.php` (cùng các `ExampleTest` mặc định).
+
 ### Chất Lượng Code
 
 ```bash
@@ -473,39 +559,67 @@ php artisan test --testsuite=Unit
 
 ## 🗂️ Cấu Trúc Dự Án
 
-Dự án theo kiến trúc **Repository – Service – Controller**: mỗi module nghiệp vụ có đủ bộ `Controller → Service → Repository → Model`, đi kèm `FormRequest` để validate và `Resource` để định dạng response.
+Dự án theo kiến trúc **Controller → Service → Repository → Model**: mỗi module nghiệp vụ có bộ `Controller → Service → Repository → Model`, đi kèm `FormRequest` để validate và `Resource` để định dạng response.
 
 ```
+.scribe/                       # Dữ liệu nguồn của Scribe (endpoints/*.yaml, intro.md, auth.md)
+
 app/
-├── Console/Commands/          # Lệnh Artisan tuỳ chỉnh (vd: MigrateImagesToCloudinary)
-├── Events/                    # Sự kiện (vd: BookingCreated)
-├── Helpers/                   # Hàm hỗ trợ dùng chung
+├── Console/
+│   ├── Commands/              # ForceUpdateMovieStatus, MigrateImagesToCloudinary, UpdateMovieStatus
+│   └── Kernel.php             # Lịch chạy tác vụ định kỳ
+├── Events/                    # BookingCreated
+├── Helpers/                   # FormatHelper
 ├── Http/
 │   ├── Controllers/Api/       # 30+ controller theo từng module nghiệp vụ
-│   ├── Middleware/            # AdminMiddleware, CheckRoleMiddleware
-│   ├── Requests/               # FormRequest validate dữ liệu vào
-│   └── Resources/              # Định dạng response JSON
-├── Listeners/                 # Xử lý sự kiện (vd: gửi email đặt vé)
-├── Models/                    # Eloquent models
-├── Providers/                 # Service Providers
-├── Repositories/              # Tầng truy vấn dữ liệu
-└── Services/                  # Tầng xử lý logic nghiệp vụ
+│   ├── Middleware/            # AdminMiddleware, CheckRoleMiddleware, AutoUpdateMovieStatus
+│   ├── Requests/              # FormRequest validate dữ liệu vào (Store*/Update*/ChangePassword...)
+│   └── Resources/             # Định dạng response JSON
+├── Listeners/                 # SendBookingEmail
+├── Models/                    # Eloquent models (gồm RefreshToken, Session)
+├── Providers/                 # AppServiceProvider
+├── Repositories/              # Tầng truy vấn dữ liệu (AuthRepository, ...)
+└── Services/                  # Tầng xử lý logic nghiệp vụ (AuthService, TokenService, ...)
+
+bootstrap/                     # app.php, providers.php
 
 config/
+├── auth.php                   # Guard xác thực
 ├── cloudinary.php             # Cấu hình Cloudinary
-├── cors.php                   # Cấu hình CORS
+├── cors.php                   # CORS (supports_credentials cho HttpOnly Cookie)
 ├── jwt.php                    # Cấu hình JWT
-└── scribe.php                 # Cấu hình sinh tài liệu API
+├── scribe.php                 # Cấu hình sinh tài liệu API
+├── session.php                # Cấu hình cookie/session
+└── ...                        # app, cache, database, filesystems, logging, mail, models, queue, services
+
+database/
+├── factories/                 # MovieFactory, UserFactory
+├── migrations/                # Toàn bộ bảng + khoá ngoại + bảng refresh_tokens
+└── seeders/                   # DatabaseSeeder, CinemaSeeder, MovieSeeder
+
+public/
+├── css/custom.css
+└── vendor/scribe/             # Asset giao diện tài liệu API
+
+resources/
+├── css/ · js/                 # app.css, app.js, bootstrap.js
+└── views/
+    ├── scribe/                # index.blade.php
+    └── vendor/scribe/         # Template Scribe (themes default/elements)
 
 routes/
 ├── api.php                    # Toàn bộ route API
 ├── console.php
 └── web.php
 
-storage/app/private/scribe/    # Tài liệu API đã sinh (OpenAPI, Postman Collection)
+storage/app/private/scribe/    # Tài liệu API đã sinh (openapi.yaml, collection.json)
+
+tests/
+├── Feature/                   # MovieTest, ExampleTest
+└── Unit/                      # BookingTest, ExampleTest
 ```
 
-Các module nghiệp vụ hiện có: `Auditlog`, `Auth`, `Banner`, `Cinema`, `Contact`, `Dashboard`, `Distributor`, `Foodanddrink`, `Genre`, `Loginhistory`, `Membership`, `Menu`, `Movie`, `Moviecast`, `Moviegenre`, `News`, `Notification`, `Order`, `Orderdetail`, `Payment`, `Promotion`, `Review`, `Role`, `Room` (+ `RoomManagement`, `RoomSeat`), `Schedule`, `Seat` (+ `SeatManagement`), `Showtime`, `Showtimeseat`, `Staff`, `Ticket` (+ `TicketManagement`), `User`, `Wishlist`.
+Các module nghiệp vụ hiện có: `Auditlog`, `Auth` (+ `TokenService`, `RefreshToken`), `Banner`, `Cinema`, `Contact`, `Dashboard`, `Distributor`, `Foodanddrink`, `Genre`, `Loginhistory`, `Membership`, `Menu`, `Movie`, `Moviecast`, `Moviegenre`, `News`, `Notification`, `Order`, `Orderdetail`, `Payment`, `Promotion`, `Review`, `Role`, `Room` (+ `RoomManagement`, `RoomSeat`), `Schedule`, `Seat` (+ `SeatManagement`), `Showtime`, `Showtimeseat`, `Staff`, `Ticket` (+ `TicketManagement`), `User`, `Wishlist`.
 
 ---
 
@@ -517,10 +631,13 @@ Các module nghiệp vụ hiện có: `Auditlog`, `Auth`, `Banner`, `Cinema`, `C
 - [ ] Cấu hình database MySQL production
 - [ ] Cấu hình Redis production (cache/queue/session)
 - [ ] Bật HTTPS/SSL
+- [ ] Đặt cookie `Secure=true` (`SESSION_SECURE_COOKIE=true`) và chọn `SameSite` phù hợp
+- [ ] Khai báo đúng origin frontend (người dùng + admin) trong `config/cors.php`, bật `supports_credentials`
+- [ ] Chạy migration tạo bảng `refresh_tokens`; lên lịch dọn refresh token hết hạn/đã thu hồi
 - [ ] Cấu hình callback URL thật cho Google OAuth, VNPay, Momo
 - [ ] Cấu hình Cloudinary production
 - [ ] Cấu hình server broadcasting (Pusher/Socket.IO) production
-- [ ] Thiết lập queue workers & task scheduler
+- [ ] Thiết lập queue workers & task scheduler (`schedule:run` cho `UpdateMovieStatus`)
 - [ ] Sinh lại tài liệu API (`scribe:generate`) trước khi deploy
 
 ### Lệnh Triển Khai
@@ -553,9 +670,12 @@ sudo systemctl reload php8.2-fpm nginx
 ## 🔒 Bảo Mật
 
 - ✅ Xác thực JWT + Đăng nhập Google (OAuth)
+- ✅ **Access Token & Refresh Token lưu trong HttpOnly Cookie** — chống đánh cắp token qua XSS
+- ✅ **Refresh Token lưu trong database** — có thể thu hồi khi đăng xuất hoặc khi nghi ngờ bị lộ
+- ✅ Cookie `Secure` + `SameSite` — chỉ gửi qua HTTPS, hạn chế CSRF
 - ✅ Kiểm soát truy cập theo vai trò (Admin / Back-office Staff / Staff Rạp)
-- ✅ Cấu hình CORS riêng cho từng môi trường
-- ✅ Nhật ký thao tác hệ thống (Auditlog)
+- ✅ Cấu hình CORS riêng cho từng môi trường (origin cụ thể, `supports_credentials`)
+- ✅ Nhật ký thao tác hệ thống (Auditlog) & lịch sử đăng nhập (Loginhistory)
 - ✅ Ngăn chặn SQL injection, bảo vệ XSS/CSRF
 - ✅ Xác minh chữ ký callback thanh toán (VNPay/Momo)
 

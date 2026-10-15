@@ -7,10 +7,12 @@ use App\Http\Requests\StoreMovieRequest;
 use App\Http\Resources\MovieResource;
 use App\Services\MovieService;
 use App\Models\Movie;
+use App\Models\Moviecast; // ✅ THÊM DÒNG NÀY
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Cloudinary\Cloudinary;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 /**
  * @group Movies
@@ -41,7 +43,158 @@ class MovieController extends Controller
         ]);
 
         $this->middleware(['auth:api', 'checkrole:Admin'])
-            ->only(['store', 'update', 'destroy']);
+            ->only(['store', 'update', 'destroy', 'autoUpdateStatus', 'updateSingleStatus']);
+    }
+
+    // ==================== PHƯƠNG THỨC HỖ TRỢ CAST MEMBERS ====================
+
+    /**
+     * ✅ Lưu danh sách cast members cho một phim
+     */
+    private function saveCastMembers($movieId, array $castMembers): array
+    {
+        if (empty($castMembers)) {
+            return [];
+        }
+
+        $results = [];
+
+        foreach ($castMembers as $member) {
+            if (empty($member['name']) || empty($member['role'])) {
+                continue;
+            }
+
+            try {
+                // Kiểm tra tồn tại
+                $existing = Moviecast::where('MovieId', $movieId)
+                    ->where('Name', trim($member['name']))
+                    ->where('Role', $member['role'])
+                    ->first();
+
+                if ($existing) {
+                    $results[] = $existing;
+                    continue;
+                }
+
+                $data = [
+                    'MovieId' => $movieId,
+                    'Name' => trim($member['name']),
+                    'Role' => $member['role'],
+                    'Status' => 'Active',
+                    'CreatedBy' => null,
+                    'UpdatedBy' => null,
+                ];
+
+                $cast = Moviecast::create($data);
+                $results[] = $cast;
+            } catch (\Exception $e) {
+                Log::error("Lỗi khi lưu cast member '{$member['name']}': " . $e->getMessage());
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * ✅ Xóa tất cả cast members của một phim
+     */
+    private function deleteCastMembers($movieId): int
+    {
+        try {
+            return Moviecast::where('MovieId', $movieId)->delete();
+        } catch (\Exception $e) {
+            Log::error("Lỗi khi xóa cast members của phim {$movieId}: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * ✅ Chuyển đổi Cast string cũ sang format mới
+     */
+    private function parseCastStringToArray(?string $castString, string $defaultRole = 'Actor'): array
+    {
+        if (empty($castString)) {
+            return [];
+        }
+
+        $names = array_filter(array_map('trim', explode(',', $castString)));
+        $result = [];
+        foreach ($names as $name) {
+            $result[] = [
+                'name' => $name,
+                'role' => $defaultRole,
+            ];
+        }
+        return $result;
+    }
+
+    // ==================== AUTO UPDATE STATUS ====================
+
+    /**
+     * ✅ Tự động cập nhật trạng thái cho tất cả phim
+     * 
+     * @authenticated
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "message": "Đã cập nhật trạng thái cho 5 phim",
+     *   "updated_count": 5,
+     *   "updates": [...]
+     * }
+     */
+    public function autoUpdateStatus(): JsonResponse
+    {
+        try {
+            $result = $this->movieService->autoUpdateStatus();
+            
+            if ($result['success']) {
+                return response()->json($result, 200);
+            }
+            
+            return response()->json($result, 500);
+        } catch (\Exception $e) {
+            Log::error('Lỗi autoUpdateStatus: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra khi cập nhật trạng thái phim',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * ✅ Cập nhật trạng thái cho một phim cụ thể
+     * 
+     * @authenticated
+     * 
+     * @urlParam movieId int required ID của phim cần cập nhật
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "data": {...},
+     *   "changed": true,
+     *   "old_status": "ComingSoon",
+     *   "new_status": "NowShowing"
+     * }
+     */
+    public function updateSingleStatus($movieId): JsonResponse
+    {
+        try {
+            $result = $this->movieService->updateSingleStatus((int)$movieId);
+            
+            if ($result['success']) {
+                return response()->json($result, 200);
+            }
+            
+            return response()->json($result, 404);
+        } catch (\Exception $e) {
+            Log::error('Lỗi updateSingleStatus: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     // ==================== CRUD CƠ BẢN ====================
@@ -49,59 +202,44 @@ class MovieController extends Controller
     /**
      * Get all movies
      * 
-     * Get a list of all movies in the system.
-     * 
      * @unauthenticated
      * 
-     * @response 200 [
-     *   {
-     *     "MovieId": 1,
-     *     "Title": "Avengers: Endgame",
-     *     "Description": "After the devastating events of Infinity War...",
-     *     "PosterUrl": "https://res.cloudinary.com/.../movies/posters/avengers.jpg",
-     *     "ReleaseDate": "2019-04-26",
-     *     "Duration": 180,
-     *     "Language": "English",
-     *     "Rated": "PG-13",
-     *     "Status": "NowShowing",
-     *     "CreatedAt": "2024-01-01 10:00:00"
-     *   }
-     * ]
+     * @response 200 [...]
      */
     public function index(Request $request)
     {
         try {
+            $this->movieService->autoUpdateStatus();
+            
             $movies = $this->movieService->getAll();
             if ($movies['success']) {
+                // ✅ Load cast members
+                $movies['data']->load('castMembers');
                 return MovieResource::collection($movies['data']);
             }
             return response()->json($movies, 500);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra', 'error' => $e->getMessage()], 500);
+            Log::error('Error in index: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi lấy danh sách phim', 
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
     /**
      * Get paginated movies
      * 
-     * Get a paginated list of movies with search and filter options.
-     * 
      * @unauthenticated
      * 
-     * @queryParam page int The page number. Default: 1. Example: 1
-     * @queryParam limit int Number of items per page. Default: 10. Max: 100. Example: 10
-     * @queryParam search string Search by title or description. Example: Avengers
-     * @queryParam status string Filter by status. Enum: NowShowing, ComingSoon, Ended. Example: NowShowing
+     * @queryParam page int The page number. Default: 1.
+     * @queryParam limit int Number of items per page. Default: 10. Max: 100.
+     * @queryParam search string Search by title or description.
+     * @queryParam status string Filter by status. Enum: NowShowing, ComingSoon, Ended.
      * 
      * @response 200 {
-     *   "data": [
-     *     {
-     *       "MovieId": 1,
-     *       "Title": "Avengers: Endgame",
-     *       "PosterUrl": "https://...",
-     *       "Status": "NowShowing"
-     *     }
-     *   ],
+     *   "data": [...],
      *   "total": 100,
      *   "page": 1,
      *   "limit": 10,
@@ -115,7 +253,10 @@ class MovieController extends Controller
         $search = $request->query('search', '');
         $status = $request->query('status', '');
 
-        $query = Movie::query();
+        $this->movieService->autoUpdateStatus();
+
+        // ✅ Load cast members
+        $query = Movie::with('castMembers');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -147,40 +288,25 @@ class MovieController extends Controller
     /**
      * Create a new movie
      * 
-     * Create a new movie with poster upload to Cloudinary. (Admin only)
-     * 
      * @authenticated
      * 
-     * @bodyParam Title string required The movie title. Example: Avengers: Endgame
-     * @bodyParam Description string The movie description. Example: After the devastating events of Infinity War...
+     * @bodyParam Title string required The movie title.
+     * @bodyParam Description string The movie description.
      * @bodyParam PosterUrl file The movie poster (jpg, png, webp). Max 2MB.
-     * @bodyParam ReleaseDate date required The release date. Example: 2019-04-26
-     * @bodyParam Duration int required The duration in minutes. Example: 180
-     * @bodyParam Language string The language. Example: English
-     * @bodyParam Rated string The rating. Enum: G, PG, PG-13, R, NC-17. Example: PG-13
-     * @bodyParam Director string The director name. Example: Anthony Russo
-     * @bodyParam Cast string The cast members. Example: Robert Downey Jr., Chris Evans
+     * @bodyParam ReleaseDate date required The release date.
+     * @bodyParam Duration int required The duration in minutes.
+     * @bodyParam Language string The language.
+     * @bodyParam Rated string The rating. Enum: G, PG, PG-13, R, NC-17.
+     * @bodyParam Director string The director name.
+     * @bodyParam Cast string The cast members (comma separated) - Legacy format.
+     * @bodyParam CastMembers array The cast members list (new format).
+     * @bodyParam CastMembers[].name string The cast member name.
+     * @bodyParam CastMembers[].role string The role (Actor, Director, Producer, Writer).
      * 
      * @response 201 {
      *   "MovieId": 1,
      *   "Title": "Avengers: Endgame",
-     *   "Description": "After the devastating events of Infinity War...",
-     *   "PosterUrl": "https://res.cloudinary.com/.../movies/posters/avengers.jpg",
-     *   "ReleaseDate": "2019-04-26",
-     *   "Duration": 180,
-     *   "Status": "NowShowing"
-     * }
-     * @response 422 {
-     *   "message": "The given data was invalid.",
-     *   "errors": {
-     *     "Title": ["The title field is required."],
-     *     "ReleaseDate": ["The release date field is required."],
-     *     "Duration": ["The duration field is required."]
-     *   }
-     * }
-     * @response 500 {
-     *   "success": false,
-     *   "message": "Upload ảnh thất bại: ..."
+     *   "castMembers": [...]
      * }
      */
     public function store(StoreMovieRequest $request)
@@ -188,6 +314,7 @@ class MovieController extends Controller
         try {
             $data = $request->validated();
 
+            // Upload poster to Cloudinary
             if ($request->hasFile('PosterUrl')) {
                 try {
                     $file = $request->file('PosterUrl');
@@ -215,105 +342,127 @@ class MovieController extends Controller
                 $data['PosterUrl'] = null;
             }
 
-            $today       = now()->startOfDay();
-            $releaseDate = \Carbon\Carbon::parse($data['ReleaseDate'])->startOfDay();
-            $data['Status'] = $releaseDate->gt($today) ? 'ComingSoon' : 'NowShowing';
+            // ✅ Lấy danh sách cast members từ request
+            $castMembers = $request->input('CastMembers', []);
+            
+            // ✅ Nếu có Cast string cũ, chuyển đổi
+            if (empty($castMembers) && $request->has('Cast')) {
+                $castMembers = $this->parseCastStringToArray($request->input('Cast', ''));
+            }
 
-            $result = $this->movieService->createWithValidation($data);
-            if (!$result['success']) return response()->json($result, 400);
-
-            $movie = $result['data'];
-            if ($movie && method_exists($movie, 'showtimes')) {
-                $hasShowtime = $movie->showtimes()->where('StartTime', '>=', now())->exists();
-                if (!$hasShowtime && $releaseDate->lt($today)) {
-                    $movie->Status = 'Ended';
-                    $movie->save();
+            // ✅ Thêm Director vào cast members nếu có
+            if ($request->has('Director') && !empty($request->input('Director'))) {
+                $directorName = trim($request->input('Director'));
+                $hasDirector = false;
+                foreach ($castMembers as $member) {
+                    if (isset($member['role']) && $member['role'] === 'Director' && trim($member['name']) === $directorName) {
+                        $hasDirector = true;
+                        break;
+                    }
+                }
+                if (!$hasDirector) {
+                    $castMembers[] = [
+                        'name' => $directorName,
+                        'role' => 'Director',
+                    ];
                 }
             }
 
+            $result = $this->movieService->createWithValidation($data);
+            if (!$result['success']) {
+                return response()->json($result, 400);
+            }
+
+            $movie = $result['data'];
+            
+            if ($movie && method_exists($movie, 'updateStatus')) {
+                $movie->updateStatus();
+            }
+
+            // ✅ Lưu cast members
+            if (!empty($castMembers)) {
+                $this->saveCastMembers($movie->MovieId, $castMembers);
+            }
+
+            // ✅ Load cast members
+            $movie->load('castMembers');
+
             return new MovieResource($movie);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra khi tạo phim', 'error' => $e->getMessage()], 500);
+            Log::error('Error in store: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi tạo phim', 
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
     /**
      * Get a specific movie
      * 
-     * Get detailed information about a specific movie.
-     * 
      * @unauthenticated
      * 
-     * @urlParam movieId int required The ID of the movie. Example: 1
+     * @urlParam movieId int required The ID of the movie.
      * 
      * @response 200 {
      *   "MovieId": 1,
      *   "Title": "Avengers: Endgame",
-     *   "Description": "After the devastating events of Infinity War...",
-     *   "PosterUrl": "https://...",
-     *   "ReleaseDate": "2019-04-26",
-     *   "Duration": 180,
-     *   "Language": "English",
-     *   "Rated": "PG-13",
-     *   "Status": "NowShowing"
-     * }
-     * @response 404 {
-     *   "success": false,
-     *   "message": "Không tìm thấy phim"
+     *   "castMembers": [...]
      * }
      */
     public function show($movieId)
     {
         try {
             $result = $this->movieService->find($movieId);
-            if (!$result['success']) return response()->json($result, 404);
-            return new MovieResource($result['data']);
+            if (!$result['success']) {
+                return response()->json($result, 404);
+            }
+            
+            $movie = $result['data'];
+            // ✅ Load cast members
+            $movie->load('castMembers');
+            
+            return new MovieResource($movie);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra', 'error' => $e->getMessage()], 500);
+            Log::error('Error in show: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi lấy thông tin phim', 
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
     /**
      * Update a movie
      * 
-     * Update an existing movie. Poster upload is optional. (Admin only)
-     * 
      * @authenticated
      * 
-     * @urlParam movieId int required The ID of the movie. Example: 1
-     * @bodyParam Title string The movie title. Example: Avengers: Endgame - Director's Cut
-     * @bodyParam Description string The movie description.
-     * @bodyParam PosterUrl file The movie poster (jpg, png, webp). Max 2MB.
-     * @bodyParam ReleaseDate date The release date. Example: 2019-04-26
-     * @bodyParam Duration int The duration in minutes. Example: 180
-     * @bodyParam Language string The language. Example: English
-     * @bodyParam Rated string The rating. Enum: G, PG, PG-13, R, NC-17. Example: PG-13
-     * @bodyParam Status string The status. Enum: NowShowing, ComingSoon, Ended. Example: NowShowing
+     * @urlParam movieId int required The ID of the movie.
+     * @bodyParam CastMembers array The cast members list.
+     * @bodyParam CastMembers[].name string The cast member name.
+     * @bodyParam CastMembers[].role string The role (Actor, Director, Producer, Writer).
      * 
      * @response 200 {
      *   "MovieId": 1,
      *   "Title": "Avengers: Endgame - Director's Cut",
-     *   "Status": "NowShowing"
-     * }
-     * @response 404 {
-     *   "success": false,
-     *   "message": "Không tìm thấy phim"
-     * }
-     * @response 500 {
-     *   "success": false,
-     *   "message": "Upload ảnh thất bại: ..."
+     *   "castMembers": [...]
      * }
      */
     public function update(StoreMovieRequest $request, $movieId)
     {
         try {
-            $data        = $request->validated();
+            $data = $request->validated();
+            
             $movieResult = $this->movieService->find($movieId);
-            if (!$movieResult['success']) return response()->json($movieResult, 404);
+            if (!$movieResult['success']) {
+                return response()->json($movieResult, 404);
+            }
             $movie = $movieResult['data'];
 
+            // Xử lý upload poster
             if ($request->hasFile('PosterUrl')) {
-                // Xóa ảnh cũ trên Cloudinary
                 if ($movie->PosterUrl && strpos($movie->PosterUrl, 'cloudinary.com') !== false) {
                     try {
                         $publicId = $this->extractPublicId($movie->PosterUrl);
@@ -325,7 +474,6 @@ class MovieController extends Controller
                     }
                 }
                 
-                // Upload ảnh mới
                 try {
                     $file = $request->file('PosterUrl');
                     $result = $this->cloudinary->uploadApi()->upload($file->getRealPath(), [
@@ -338,7 +486,6 @@ class MovieController extends Controller
                             'fetch_format' => 'auto'
                         ]
                     ]);
-                    
                     $data['PosterUrl'] = $result['secure_url'];
                 } catch (\Exception $e) {
                     Log::error('Upload ảnh movie thất bại: ' . $e->getMessage());
@@ -351,44 +498,72 @@ class MovieController extends Controller
                 $data['PosterUrl'] = $movie->PosterUrl;
             }
 
-            $today       = now()->startOfDay();
-            $releaseDate = \Carbon\Carbon::parse($data['ReleaseDate'])->startOfDay();
-            $data['Status'] = $releaseDate->gt($today) ? 'ComingSoon' : 'NowShowing';
+            // ✅ Lấy danh sách cast members từ request
+            $castMembers = $request->input('CastMembers', []);
+            
+            if (empty($castMembers) && $request->has('Cast')) {
+                $castMembers = $this->parseCastStringToArray($request->input('Cast', ''));
+            }
 
-            $result = $this->movieService->updateWithValidation($movieId, $data);
-            if (!$result['success']) return response()->json($result, 400);
-
-            $updatedMovie = $result['data'];
-            if ($updatedMovie && method_exists($updatedMovie, 'showtimes')) {
-                $hasShowtime = $updatedMovie->showtimes()->where('StartTime', '>=', now())->exists();
-                if (!$hasShowtime && $releaseDate->lt($today)) {
-                    $updatedMovie->Status = 'Ended';
-                    $updatedMovie->save();
+            if ($request->has('Director') && !empty($request->input('Director'))) {
+                $directorName = trim($request->input('Director'));
+                $hasDirector = false;
+                foreach ($castMembers as $member) {
+                    if (isset($member['role']) && $member['role'] === 'Director' && trim($member['name']) === $directorName) {
+                        $hasDirector = true;
+                        break;
+                    }
+                }
+                if (!$hasDirector) {
+                    $castMembers[] = [
+                        'name' => $directorName,
+                        'role' => 'Director',
+                    ];
                 }
             }
 
+            $result = $this->movieService->updateWithValidation($movieId, $data);
+            if (!$result['success']) {
+                return response()->json($result, 400);
+            }
+
+            $updatedMovie = $result['data'];
+            
+            if ($updatedMovie && method_exists($updatedMovie, 'updateStatus')) {
+                $updatedMovie->updateStatus();
+            }
+
+            // ✅ Xóa tất cả cast cũ và thêm cast mới
+            $this->deleteCastMembers($movieId);
+            
+            if (!empty($castMembers)) {
+                $this->saveCastMembers($movieId, $castMembers);
+            }
+
+            // ✅ Load cast members
+            $updatedMovie->load('castMembers');
+
             return new MovieResource($updatedMovie);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra khi cập nhật phim', 'error' => $e->getMessage()], 500);
+            Log::error('Error in update: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi cập nhật phim', 
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
     /**
      * Delete a movie
      * 
-     * Delete a movie and remove its poster from Cloudinary. (Admin only)
-     * 
      * @authenticated
      * 
-     * @urlParam movieId int required The ID of the movie. Example: 1
+     * @urlParam movieId int required The ID of the movie.
      * 
      * @response 200 {
      *   "success": true,
-     *   "message": "Xóa phim thành công"
-     * }
-     * @response 404 {
-     *   "success": false,
-     *   "message": "Không tìm thấy phim"
+     *   "message": "Xóa phim và các diễn viên liên quan thành công"
      * }
      */
     public function destroy($movieId)
@@ -396,7 +571,6 @@ class MovieController extends Controller
         try {
             $movie = Movie::find($movieId);
             
-            // Xóa ảnh trên Cloudinary
             if ($movie && $movie->PosterUrl && strpos($movie->PosterUrl, 'cloudinary.com') !== false) {
                 try {
                     $publicId = $this->extractPublicId($movie->PosterUrl);
@@ -408,11 +582,28 @@ class MovieController extends Controller
                 }
             }
             
+            $castCount = 0;
+            if ($movie) {
+                $castCount = $this->deleteCastMembers($movieId);
+                Log::info("Đã xóa {$castCount} cast members của phim {$movieId}");
+            }
+            
             $result = $this->movieService->delete($movieId);
-            if (!$result['success']) return response()->json($result, 404);
-            return response()->json($result, 200);
+            if (!$result['success']) {
+                return response()->json($result, 404);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => "Xóa phim và {$castCount} diễn viên/đạo diễn liên quan thành công"
+            ], 200);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra khi xóa phim', 'error' => $e->getMessage()], 500);
+            Log::error('Error in destroy: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi xóa phim', 
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -421,20 +612,11 @@ class MovieController extends Controller
     /**
      * Get now showing movies
      * 
-     * Get all movies currently showing in cinemas.
-     * 
      * @unauthenticated
      * 
      * @response 200 {
      *   "success": true,
-     *   "data": [
-     *     {
-     *       "MovieId": 1,
-     *       "Title": "Avengers: Endgame",
-     *       "PosterUrl": "https://...",
-     *       "Status": "NowShowing"
-     *     }
-     *   ]
+     *   "data": [...]
      * }
      */
     public function getNowShowing(): JsonResponse
@@ -443,44 +625,50 @@ class MovieController extends Controller
             $result = $this->movieService->getNowShowingMovies();
             return response()->json($result, $result['success'] ? 200 : 500);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra', 'error' => $e->getMessage()], 500);
+            Log::error('Error in getNowShowing: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi lấy danh sách phim đang chiếu', 
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
     /**
      * Get movie detail
      * 
-     * Get detailed information about a specific movie with additional data.
-     * 
      * @unauthenticated
      * 
-     * @urlParam movieId int required The ID of the movie. Example: 1
+     * @urlParam movieId int required The ID of the movie.
      * 
      * @response 200 {
      *   "success": true,
      *   "data": {
      *     "MovieId": 1,
      *     "Title": "Avengers: Endgame",
-     *     "Description": "...",
-     *     "PosterUrl": "https://...",
-     *     "Genres": ["Action", "Adventure"],
-     *     "Cast": ["Robert Downey Jr.", "Chris Evans"],
-     *     "Showtimes": [...]
+     *     "castMembers": [...]
      *   }
-     * }
-     * @response 404 {
-     *   "success": false,
-     *   "message": "Không tìm thấy phim"
      * }
      */
     public function getDetail($movieId): JsonResponse
     {
         try {
-            $result     = $this->movieService->getMovieDetail($movieId);
+            $result = $this->movieService->getMovieDetail($movieId);
             $statusCode = $result['success'] ? 200 : 404;
+            
+            if ($result['success'] && isset($result['data'])) {
+                // ✅ Load cast members
+                $result['data']->load('castMembers');
+            }
+            
             return response()->json($result, $statusCode);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra', 'error' => $e->getMessage()], 500);
+            Log::error('Error in getDetail: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi lấy chi tiết phim', 
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -489,21 +677,11 @@ class MovieController extends Controller
     /**
      * Get coming soon movies
      * 
-     * Get all movies that are coming soon to cinemas.
-     * 
      * @unauthenticated
      * 
      * @response 200 {
      *   "success": true,
-     *   "data": [
-     *     {
-     *       "MovieId": 2,
-     *       "Title": "Dune: Part Two",
-     *       "PosterUrl": "https://...",
-     *       "ReleaseDate": "2024-03-01",
-     *       "Status": "ComingSoon"
-     *     }
-     *   ]
+     *   "data": [...]
      * }
      */
     public function getComingSoon(): JsonResponse
@@ -512,7 +690,12 @@ class MovieController extends Controller
             $result = $this->movieService->getComingSoonMovies();
             return response()->json($result, $result['success'] ? 200 : 500);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra', 'error' => $e->getMessage()], 500);
+            Log::error('Error in getComingSoon: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi lấy danh sách phim sắp chiếu', 
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -521,17 +704,15 @@ class MovieController extends Controller
     /**
      * Get now showing filters
      * 
-     * Get available filter options for now showing movies (genres, directors, etc.).
-     * 
      * @unauthenticated
      * 
      * @response 200 {
      *   "success": true,
      *   "data": {
-     *     "genres": ["Action", "Comedy", "Drama"],
-     *     "directors": ["Anthony Russo", "Christopher Nolan"],
-     *     "languages": ["English", "Vietnamese"],
-     *     "rated": ["PG", "PG-13", "R"]
+     *     "genres": [...],
+     *     "directors": [...],
+     *     "languages": [...],
+     *     "rated": [...]
      *   }
      * }
      */
@@ -541,22 +722,25 @@ class MovieController extends Controller
             $result = $this->movieService->getNowShowingFilters();
             return response()->json($result, $result['success'] ? 200 : 500);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra', 'error' => $e->getMessage()], 500);
+            Log::error('Error in getNowShowingFilters: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi lấy filters', 
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
     /**
      * Filter now showing movies
      * 
-     * Filter now showing movies by genre, director, actor, language, or rating.
-     * 
      * @unauthenticated
      * 
-     * @bodyParam genre_id int Filter by genre ID. Example: 1
-     * @bodyParam director_name string Filter by director name. Example: Christopher Nolan
-     * @bodyParam actor_name string Filter by actor name. Example: Robert Downey Jr.
-     * @bodyParam language string Filter by language. Example: English
-     * @bodyParam rated string Filter by rating. Example: PG-13
+     * @bodyParam genre_id int Filter by genre ID.
+     * @bodyParam director_name string Filter by director name.
+     * @bodyParam actor_name string Filter by actor name.
+     * @bodyParam language string Filter by language.
+     * @bodyParam rated string Filter by rating.
      * 
      * @response 200 {
      *   "success": true,
@@ -570,26 +754,25 @@ class MovieController extends Controller
             $result  = $this->movieService->filterNowShowing($filters);
             return response()->json($result, $result['success'] ? 200 : 500);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra', 'error' => $e->getMessage()], 500);
+            Log::error('Error in filterNowShowing: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi lọc phim', 
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
     /**
      * Get now showing movies by genre
      * 
-     * Get all now showing movies filtered by genre.
-     * 
      * @unauthenticated
      * 
-     * @urlParam genreId int required The ID of the genre. Example: 1
+     * @urlParam genreId int required The ID of the genre.
      * 
      * @response 200 {
      *   "success": true,
      *   "data": [...]
-     * }
-     * @response 404 {
-     *   "success": false,
-     *   "message": "Không tìm thấy thể loại phim"
      * }
      */
     public function getNowShowingByGenre($genreId): JsonResponse
@@ -598,26 +781,25 @@ class MovieController extends Controller
             $result = $this->movieService->getNowShowingByGenre($genreId);
             return response()->json($result, $result['success'] ? 200 : 500);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra', 'error' => $e->getMessage()], 500);
+            Log::error('Error in getNowShowingByGenre: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi lấy phim theo thể loại', 
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
     /**
      * Search now showing movies
      * 
-     * Search for now showing movies by keyword.
-     * 
      * @unauthenticated
      * 
-     * @queryParam keyword string required The search keyword. Example: Avengers
+     * @queryParam keyword string required The search keyword.
      * 
      * @response 200 {
      *   "success": true,
      *   "data": [...]
-     * }
-     * @response 400 {
-     *   "success": false,
-     *   "message": "Vui lòng nhập từ khóa tìm kiếm"
      * }
      */
     public function searchNowShowing(Request $request): JsonResponse
@@ -625,12 +807,20 @@ class MovieController extends Controller
         try {
             $keyword = $request->input('keyword', '');
             if (empty($keyword)) {
-                return response()->json(['success' => false, 'message' => 'Vui lòng nhập từ khóa tìm kiếm'], 400);
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Vui lòng nhập từ khóa tìm kiếm'
+                ], 400);
             }
             $result = $this->movieService->searchNowShowing($keyword);
             return response()->json($result, $result['success'] ? 200 : 500);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra', 'error' => $e->getMessage()], 500);
+            Log::error('Error in searchNowShowing: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi tìm kiếm phim', 
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -639,11 +829,9 @@ class MovieController extends Controller
     /**
      * Get hot movies
      * 
-     * Get the most popular/hot movies based on ticket sales or views.
-     * 
      * @unauthenticated
      * 
-     * @queryParam limit int Number of movies to return. Default: 10. Example: 10
+     * @queryParam limit int Number of movies to return. Default: 10.
      * 
      * @response 200 {
      *   "success": true,
@@ -656,18 +844,21 @@ class MovieController extends Controller
             $result = $this->movieService->getHotMovies($request->input('limit', 10));
             return response()->json($result, $result['success'] ? 200 : 500);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra', 'error' => $e->getMessage()], 500);
+            Log::error('Error in getHotMovies: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi lấy phim hot', 
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
     /**
      * Get latest movies
      * 
-     * Get the most recently added movies.
-     * 
      * @unauthenticated
      * 
-     * @queryParam limit int Number of movies to return. Default: 10. Example: 10
+     * @queryParam limit int Number of movies to return. Default: 10.
      * 
      * @response 200 {
      *   "success": true,
@@ -680,7 +871,12 @@ class MovieController extends Controller
             $result = $this->movieService->getLatestMovies($request->input('limit', 10));
             return response()->json($result, $result['success'] ? 200 : 500);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra', 'error' => $e->getMessage()], 500);
+            Log::error('Error in getLatestMovies: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi lấy phim mới nhất', 
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -688,8 +884,6 @@ class MovieController extends Controller
 
     /**
      * Get movie statistics
-     * 
-     * Get statistics about movies including total count, by status, etc.
      * 
      * @authenticated
      * 
@@ -702,7 +896,8 @@ class MovieController extends Controller
      *     "ended": 25,
      *     "total_showtimes": 120,
      *     "total_reviews": 500,
-     *     "average_rating": 4.5
+     *     "average_rating": 4.5,
+     *     "total_cast_members": 120
      *   }
      * }
      */
@@ -710,28 +905,34 @@ class MovieController extends Controller
     {
         try {
             $result = $this->movieService->getStatistics();
+            
+            // ✅ Thêm thống kê cast members
+            if ($result['success']) {
+                $totalCast = Moviecast::count();
+                $result['data']['total_cast_members'] = $totalCast;
+            }
+            
             return response()->json($result, $result['success'] ? 200 : 500);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra', 'error' => $e->getMessage()], 500);
+            Log::error('Error in getStatistics: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi lấy thống kê', 
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
     /**
      * Get movies by status
      * 
-     * Get movies filtered by status.
-     * 
      * @unauthenticated
      * 
-     * @urlParam status string required The movie status. Enum: NowShowing, ComingSoon, Ended. Example: NowShowing
+     * @urlParam status string required The movie status. Enum: NowShowing, ComingSoon, Ended.
      * 
      * @response 200 {
      *   "success": true,
      *   "data": [...]
-     * }
-     * @response 400 {
-     *   "success": false,
-     *   "message": "Trạng thái không hợp lệ. Chỉ chấp nhận: NowShowing, ComingSoon, Ended"
      * }
      */
     public function getByStatus($status): JsonResponse
@@ -739,14 +940,31 @@ class MovieController extends Controller
         try {
             $validStatuses = ['NowShowing', 'ComingSoon', 'Ended'];
             if (!in_array($status, $validStatuses)) {
-                return response()->json(['success' => false, 'message' => 'Trạng thái không hợp lệ. Chỉ chấp nhận: ' . implode(', ', $validStatuses)], 400);
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Trạng thái không hợp lệ. Chỉ chấp nhận: ' . implode(', ', $validStatuses)
+                ], 400);
             }
+            
             $result = $this->movieService->getByStatus($status);
+            
+            // ✅ Load cast members
+            if ($result['success'] && isset($result['data'])) {
+                $result['data']->load('castMembers');
+            }
+            
             return response()->json($result, $result['success'] ? 200 : 500);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra', 'error' => $e->getMessage()], 500);
+            Log::error('Error in getByStatus: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi lấy phim theo trạng thái', 
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
+
+    // ==================== PRIVATE HELPERS ====================
 
     /**
      * Extract public ID from Cloudinary URL

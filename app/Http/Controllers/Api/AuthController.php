@@ -7,8 +7,10 @@ use App\Http\Requests\StoreRegisterRequest;
 use App\Http\Requests\StoreLoginRequest;
 use App\Http\Resources\UserResource;
 use App\Services\AuthService;
+use App\Services\TokenService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use Laravel\Socialite\Facades\Socialite;
@@ -23,10 +25,12 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 class AuthController extends Controller
 {
     protected $authService;
+    protected $tokenService;
 
-    public function __construct(AuthService $authService)
+    public function __construct(AuthService $authService, TokenService $tokenService)
     {
-        $this->authService = $authService;
+        $this->authService  = $authService;
+        $this->tokenService = $tokenService;
     }
 
     /**
@@ -75,7 +79,9 @@ class AuthController extends Controller
     /**
      * Login to the system
      * 
-     * Authenticate a user and return a JWT token.
+     * Authenticate a user and return a JWT access token.
+     * A refresh token is set as an HttpOnly cookie for security.
+     * Only users with RoleId = 1 (Admin) are allowed.
      * 
      * @unauthenticated
      * 
@@ -83,7 +89,9 @@ class AuthController extends Controller
      * @bodyParam Password string required The password. Example: 123456
      * 
      * @response 200 {
-     *   "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+     *   "success": true,
+     *   "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+     *   "expires_in": 1800,
      *   "user": {
      *     "UserId": 1,
      *     "FullName": "Nguyễn Văn A",
@@ -94,6 +102,10 @@ class AuthController extends Controller
      * }
      * @response 401 {
      *   "error": "Invalid credentials"
+     * }
+     * @response 403 {
+     *   "error": "Tài khoản không có quyền truy cập Admin!",
+     *   "code": "NOT_ADMIN"
      * }
      */
     public function login(StoreLoginRequest $request): JsonResponse
@@ -107,30 +119,188 @@ class AuthController extends Controller
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
-        return response()->json([
-            'token' => $result['token'],
-            'user' => new UserResource($result['user']),
-        ]);
+        $user = $result['user']->load('role');
+
+        // Chỉ Admin (RoleId = 1) mới login được vào admin panel
+        if ($user->RoleId != 1) {
+            return response()->json([
+                'error' => 'Tài khoản không có quyền truy cập Admin!',
+                'code'  => 'NOT_ADMIN',
+            ], 403);
+        }
+
+        if (strtolower($user->Status) !== 'active') {
+            return response()->json([
+                'error' => 'Tài khoản đã bị khóa!',
+                'code'  => 'ACCOUNT_LOCKED',
+            ], 403);
+        }
+
+        // ⭐ Tạo cặp access + refresh token qua TokenService
+        $tokens = $this->tokenService->issueTokens($user);
+
+        return response()
+            ->json([
+                'success'      => true,
+                'access_token' => $tokens['access_token'],
+                'expires_in'   => $tokens['expires_in'],
+                'user'         => new UserResource($user),
+            ])
+            ->cookie($this->refreshCookie($tokens['refresh_token']));
+    }
+
+    /**
+     * Refresh access token
+     * 
+     * Use the refresh token stored in HttpOnly cookie to issue a new
+     * access token + rotate the refresh token (old one is revoked).
+     * 
+     * @unauthenticated
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+     *   "expires_in": 1800,
+     *   "user": {
+     *     "UserId": 1,
+     *     "FullName": "Nguyễn Văn A",
+     *     "Email": "admin@gauphim.com"
+     *   }
+     * }
+     * @response 401 {
+     *   "success": false,
+     *   "message": "Refresh token không hợp lệ hoặc đã hết hạn!",
+     *   "code": "INVALID_REFRESH_TOKEN"
+     * }
+     */
+    public function refresh(Request $request): JsonResponse
+    {
+        $refreshToken = $request->cookie(config('jwt.cookie_name'));
+
+        if (!$refreshToken) {
+            return response()
+                ->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy refresh token!',
+                    'code'    => 'NO_REFRESH_TOKEN',
+                ], 401)
+                ->cookie(Cookie::forget(config('jwt.cookie_name')));
+        }
+
+        $tokens = $this->tokenService->refresh($refreshToken);
+
+        if (!$tokens) {
+            return response()
+                ->json([
+                    'success' => false,
+                    'message' => 'Refresh token không hợp lệ hoặc đã hết hạn!',
+                    'code'    => 'INVALID_REFRESH_TOKEN',
+                ], 401)
+                ->cookie(Cookie::forget(config('jwt.cookie_name')));
+        }
+
+        $user = JWTAuth::setToken($tokens['access_token'])->authenticate();
+        $user->load('role');
+
+        return response()
+            ->json([
+                'success'      => true,
+                'access_token' => $tokens['access_token'],
+                'expires_in'   => $tokens['expires_in'],
+                'user'         => new UserResource($user),
+            ])
+            ->cookie($this->refreshCookie($tokens['refresh_token']));
     }
 
     /**
      * Logout from the system
      * 
-     * Invalidate the current JWT token and logout the user.
+     * Invalidate the current JWT token, revoke the refresh token
+     * and clear the HttpOnly cookie.
      * 
      * @authenticated
      * 
      * @response 200 {
+     *   "success": true,
      *   "message": "Logged out"
      * }
      * @response 401 {
      *   "message": "Unauthenticated"
      * }
      */
-    public function logout(): JsonResponse
+    public function logout(Request $request): JsonResponse
     {
-        $this->authService->logout();
-        return response()->json(['message' => 'Logged out']);
+        $refreshToken = $request->cookie(config('jwt.cookie_name'));
+        if ($refreshToken) {
+            $this->tokenService->revoke($refreshToken);
+        }
+
+        try {
+            JWTAuth::parseToken()->invalidate();
+        } catch (\Throwable $e) {
+            // bỏ qua nếu token không hợp lệ
+        }
+
+        return response()
+            ->json(['success' => true, 'message' => 'Logged out'])
+            ->cookie(Cookie::forget(config('jwt.cookie_name')));
+    }
+
+    /**
+     * Logout from all devices
+     * 
+     * Revoke all refresh tokens of the current user.
+     * 
+     * @authenticated
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "message": "Đã đăng xuất khỏi mọi thiết bị!"
+     * }
+     */
+    public function logoutAll(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $this->tokenService->revokeAllForUser($user->UserId);
+
+        try {
+            JWTAuth::parseToken()->invalidate();
+        } catch (\Throwable $e) {
+            // bỏ qua
+        }
+
+        return response()
+            ->json([
+                'success' => true,
+                'message' => 'Đã đăng xuất khỏi mọi thiết bị!',
+            ])
+            ->cookie(Cookie::forget(config('jwt.cookie_name')));
+    }
+
+    /**
+     * Get current authenticated user
+     * 
+     * Return the profile of the currently authenticated user.
+     * 
+     * @authenticated
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "user": {
+     *     "UserId": 1,
+     *     "FullName": "Nguyễn Văn A",
+     *     "Email": "admin@gauphim.com",
+     *     "RoleId": 1
+     *   }
+     * }
+     */
+    public function me(Request $request): JsonResponse
+    {
+        $user = $request->user()->load('role');
+        return response()->json([
+            'success' => true,
+            'user'    => new UserResource($user),
+        ]);
     }
 
     /**
@@ -153,6 +323,7 @@ class AuthController extends Controller
      * Handle Google OAuth Callback
      * 
      * Handle the callback from Google OAuth. Only allows users with RoleId = 1 (Admin).
+     * Also sets the HttpOnly refresh token cookie.
      * 
      * @unauthenticated
      * 
@@ -209,7 +380,10 @@ class AuthController extends Controller
                 'UpdatedAt' => now(),
             ]);
 
-            $token = JWTAuth::fromUser($user);
+            $user->load('role');
+
+            // ⭐ Dùng TokenService để có cả refresh token
+            $tokens = $this->tokenService->issueTokens($user);
 
             Log::info('Google login success (Admin):', [
                 'user_id' => $user->UserId,
@@ -218,7 +392,10 @@ class AuthController extends Controller
                 'fullname' => $user->FullName
             ]);
 
-            return redirect("http://localhost:3000/login?token={$token}");
+            // Redirect về frontend kèm access token trong query
+            // Cookie refresh_token tự động được set qua response
+            return redirect("http://localhost:3000/login?token={$tokens['access_token']}")
+                ->cookie($this->refreshCookie($tokens['refresh_token']));
 
         } catch (\Exception $e) {
             Log::error('Google login error: ' . $e->getMessage());
@@ -273,5 +450,25 @@ class AuthController extends Controller
             Log::error('Check Google token error: ' . $e->getMessage());
             return response()->json(['error' => 'Invalid token'], 401);
         }
+    }
+
+    // ════════════════════════════════════════════════════════
+    // 🔒 HELPER: Tạo cookie HttpOnly cho refresh token
+    // ════════════════════════════════════════════════════════
+    private function refreshCookie(string $refreshToken): \Symfony\Component\HttpFoundation\Cookie
+    {
+        $isProd = app()->environment('production');
+
+        return cookie(
+            name:     config('jwt.cookie_name'),
+            value:    $refreshToken,
+            minutes:  config('jwt.refresh_ttl'),
+            path:     '/',
+            domain:   null,                          // dev: null; prod: env('SESSION_DOMAIN')
+            secure:   $isProd,                       // dev: false; prod: true
+            httpOnly: true,                          // ⭐ JS không đọc được
+            raw:      false,
+            sameSite: $isProd ? 'none' : 'lax',
+        );
     }
 }

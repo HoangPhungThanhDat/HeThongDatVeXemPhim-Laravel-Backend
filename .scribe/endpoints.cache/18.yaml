@@ -216,7 +216,7 @@ endpoints:
         name: Status
         description: ''
         required: true
-        example: Inactive
+        example: Active
         type: string
         enumValues:
           - Active
@@ -228,7 +228,7 @@ endpoints:
     cleanBodyParameters:
       MovieId: 1
       GenreId: 1
-      Status: Inactive
+      Status: Active
     fileParameters: []
     responses:
       -
@@ -340,7 +340,7 @@ endpoints:
         name: Status
         description: ''
         required: true
-        example: Inactive
+        example: Banned
         type: string
         enumValues:
           - Active
@@ -352,7 +352,7 @@ endpoints:
     cleanBodyParameters:
       MovieId: 1
       GenreId: 2
-      Status: Inactive
+      Status: Banned
     fileParameters: []
     responses:
       -

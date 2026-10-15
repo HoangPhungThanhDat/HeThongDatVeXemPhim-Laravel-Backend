@@ -241,7 +241,7 @@ endpoints:
         name: StartDate
         description: 'Must be a valid date.'
         required: true
-        example: '2026-08-04T07:14:03'
+        example: '2026-08-07T23:21:21'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -252,7 +252,7 @@ endpoints:
         name: EndDate
         description: 'Must be a valid date. Must be a date after or equal to <code>StartDate</code>.'
         required: false
-        example: '2107-09-02'
+        example: '2107-09-06'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -363,8 +363,8 @@ endpoints:
       UserId: consequatur
       Level: mqeopfuudtdsufvyvddqa
       Points: 45
-      StartDate: '2026-08-04T07:14:03'
-      EndDate: '2107-09-02'
+      StartDate: '2026-08-07T23:21:21'
+      EndDate: '2107-09-06'
       Benefits: consequatur
       Status: Active
       Name: Silver
@@ -492,7 +492,7 @@ endpoints:
         name: StartDate
         description: 'Must be a valid date.'
         required: true
-        example: '2026-08-04T07:14:03'
+        example: '2026-08-07T23:21:22'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -503,7 +503,7 @@ endpoints:
         name: EndDate
         description: 'Must be a valid date. Must be a date after or equal to <code>StartDate</code>.'
         required: false
-        example: '2107-09-02'
+        example: '2107-09-06'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -614,8 +614,8 @@ endpoints:
       UserId: consequatur
       Level: mqeopfuudtdsufvyvddqa
       Points: 45
-      StartDate: '2026-08-04T07:14:03'
-      EndDate: '2107-09-02'
+      StartDate: '2026-08-07T23:21:22'
+      EndDate: '2107-09-06'
       Benefits: consequatur
       Status: Inactive
       Name: 'Silver Premium'

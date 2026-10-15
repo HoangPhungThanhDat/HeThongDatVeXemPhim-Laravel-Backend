@@ -1,3 +1,6 @@
+# ═══════════════════════════════════════════════════════════
+# LARAVEL MẶC ĐỊNH
+# ═══════════════════════════════════════════════════════════
 *.log
 .DS_Store
 .env
@@ -22,3 +25,112 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# ═══════════════════════════════════════════════════════════
+# 🚨 BỔ SUNG — QUAN TRỌNG CHO DỰ ÁN
+# ═══════════════════════════════════════════════════════════
+
+# Environment — tất cả các biến thể
+.env.local
+.env.staging
+.env.testing
+.env.*.local
+
+# Database SQLite (chứa user, order, token...)
+/database/database.sqlite
+/database/*.sqlite
+/database/*.sqlite3
+
+# Scribe — auto-generated docs cache
+/.scribe/endpoints.cache/
+/.scribe/.filehashes
+
+# Storage — không commit ảnh/video upload lên Git
+/storage/app/public/uploads/
+/storage/app/private/uploads/
+/storage/framework/cache/
+/storage/framework/sessions/
+/storage/framework/views/
+/storage/logs/
+!/storage/logs/.gitignore
+!/storage/framework/cache/.gitignore
+!/storage/framework/sessions/.gitignore
+!/storage/framework/views/.gitignore
+
+# Build output
+/public/vendor/
+/public/build/
+/public/hot
+
+# ═══════════════════════════════════════════════════════════
+# IDE / EDITOR
+# ═══════════════════════════════════════════════════════════
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ═══════════════════════════════════════════════════════════
+# OS
+# ═══════════════════════════════════════════════════════════
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# ═══════════════════════════════════════════════════════════
+# NODE / NPM
+# ═══════════════════════════════════════════════════════════
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+.yarn/
+.eslintcache
+.stylelintcache
+
+# ═══════════════════════════════════════════════════════════
+# BUILD CACHE
+# ═══════════════════════════════════════════════════════════
+.cache/
+.parcel-cache/
+.vite/
+dist/
+build/
+
+# ═══════════════════════════════════════════════════════════
+# TEST COVERAGE
+# ═══════════════════════════════════════════════════════════
+/coverage
+*.lcov
+.nyc_output/
+
+# ═══════════════════════════════════════════════════════════
+# SECRETS / CREDENTIALS
+# ═══════════════════════════════════════════════════════════
+*.pem
+*.key
+*.p12
+*.pfx
+!public/*.key
+!public/*.pem
+
+# ═══════════════════════════════════════════════════════════
+# LOGS
+# ═══════════════════════════════════════════════════════════
+*.log
+logs/
+!storage/logs/.gitignore

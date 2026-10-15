@@ -207,7 +207,7 @@ endpoints:
         name: LoginTime
         description: 'Must be a valid date in the format <code>Y-m-d H:i:s</code>.'
         required: true
-        example: '2026-08-04 07:14:01'
+        example: '2026-08-07 23:21:20'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -305,7 +305,7 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       UserId: 1
-      LoginTime: '2026-08-04 07:14:01'
+      LoginTime: '2026-08-07 23:21:20'
       IpAddress: mqeopfuudtdsufvyvddqa
       DeviceInfo: mniihfqcoynlazghdtqtq
       Status: Success
@@ -407,7 +407,7 @@ endpoints:
         name: LoginTime
         description: 'Must be a valid date in the format <code>Y-m-d H:i:s</code>.'
         required: true
-        example: '2026-08-04 07:14:01'
+        example: '2026-08-07 23:21:20'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -505,7 +505,7 @@ endpoints:
         deprecated: false
     cleanBodyParameters:
       UserId: 1
-      LoginTime: '2026-08-04 07:14:01'
+      LoginTime: '2026-08-07 23:21:20'
       IpAddress: mqeopfuudtdsufvyvddqa
       DeviceInfo: mniihfqcoynlazghdtqtq
       Status: Failed

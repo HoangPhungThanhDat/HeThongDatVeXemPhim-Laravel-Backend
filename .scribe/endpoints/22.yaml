@@ -255,7 +255,7 @@ endpoints:
         name: Status
         description: ''
         required: true
-        example: Inactive
+        example: Active
         type: string
         enumValues:
           - Active
@@ -269,7 +269,7 @@ endpoints:
       ItemId: 1
       Quantity: 1
       Price: '120000'
-      Status: Inactive
+      Status: Active
     fileParameters: []
     responses:
       -
@@ -408,7 +408,7 @@ endpoints:
         name: Status
         description: ''
         required: true
-        example: Inactive
+        example: Active
         type: string
         enumValues:
           - Active
@@ -422,7 +422,7 @@ endpoints:
       ItemId: 1
       Quantity: 2
       Price: '120000'
-      Status: Inactive
+      Status: Active
     fileParameters: []
     responses:
       -

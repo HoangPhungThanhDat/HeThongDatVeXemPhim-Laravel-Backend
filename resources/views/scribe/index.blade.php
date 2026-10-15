@@ -939,7 +939,13 @@
                     <a href="#movies">Movies</a>
                 </li>
                                     <ul id="tocify-subheader-movies" class="tocify-subheader">
-                                                    <li class="tocify-item level-2" data-unique="movies-GETapi-movies-now-showing-all">
+                                                    <li class="tocify-item level-2" data-unique="movies-POSTapi-movies-auto-update-status">
+                                <a href="#movies-POSTapi-movies-auto-update-status">✅ Tự động cập nhật trạng thái cho tất cả phim</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="movies-POSTapi-movies-update-status--movieId-">
+                                <a href="#movies-POSTapi-movies-update-status--movieId-">✅ Cập nhật trạng thái cho một phim cụ thể</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="movies-GETapi-movies-now-showing-all">
                                 <a href="#movies-GETapi-movies-now-showing-all">Get now showing movies</a>
                             </li>
                                                                                 <li class="tocify-item level-2" data-unique="movies-GETapi-movies-now-showing-filters">
@@ -1713,7 +1719,7 @@ Gọi khi user bấm "Xem chi tiết"</a>
     </ul>
 
     <ul class="toc-footer" id="last-updated">
-        <li>🔄 Last updated: August 4, 2026</li>
+        <li>🔄 Last updated: August 7, 2026</li>
     </ul>
 </div>
 <div class="page-wrapper">
@@ -1781,7 +1787,7 @@ Gọi khi user bấm "Xem chi tiết"</a>
     \"Gender\": \"Male\",
     \"DateOfBirth\": \"2000-01-01\",
     \"RoleId\": 17,
-    \"Status\": \"Inactive\"
+    \"Status\": \"Banned\"
 }"
 </code></pre></div>
 
@@ -1804,7 +1810,7 @@ let body = {
     "Gender": "Male",
     "DateOfBirth": "2000-01-01",
     "RoleId": 17,
-    "Status": "Inactive"
+    "Status": "Banned"
 };
 
 fetch(url, {
@@ -1831,7 +1837,7 @@ $response = $client-&gt;post(
             'Gender' =&gt; 'Male',
             'DateOfBirth' =&gt; '2000-01-01',
             'RoleId' =&gt; 17,
-            'Status' =&gt; 'Inactive',
+            'Status' =&gt; 'Banned',
         ],
     ]
 );
@@ -1852,7 +1858,7 @@ payload = {
     "Gender": "Male",
     "DateOfBirth": "2000-01-01",
     "RoleId": 17,
-    "Status": "Inactive"
+    "Status": "Banned"
 }
 headers = {
   'Content-Type': 'application/json'
@@ -2053,10 +2059,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="Status"                data-endpoint="POSTapi-register"
-               value="Inactive"
+               value="Banned"
                data-component="body">
     <br>
-<p>Example: <code>Inactive</code></p>
+<p>Example: <code>Banned</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>Active</code></li> <li><code>Inactive</code></li> <li><code>Banned</code></li></ul>
         </div>
@@ -4367,7 +4373,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"Gender\": \"Male\",
     \"DateOfBirth\": \"2000-01-01\",
     \"RoleId\": 2,
-    \"Status\": \"Banned\",
+    \"Status\": \"Active\",
     \"Password\": \"123456\",
     \"Address\": \"Hà Nội\"
 }"
@@ -4393,7 +4399,7 @@ let body = {
     "Gender": "Male",
     "DateOfBirth": "2000-01-01",
     "RoleId": 2,
-    "Status": "Banned",
+    "Status": "Active",
     "Password": "123456",
     "Address": "Hà Nội"
 };
@@ -4423,7 +4429,7 @@ $response = $client-&gt;post(
             'Gender' =&gt; 'Male',
             'DateOfBirth' =&gt; '2000-01-01',
             'RoleId' =&gt; 2,
-            'Status' =&gt; 'Banned',
+            'Status' =&gt; 'Active',
             'Password' =&gt; '123456',
             'Address' =&gt; 'Hà Nội',
         ],
@@ -4446,7 +4452,7 @@ payload = {
     "Gender": "Male",
     "DateOfBirth": "2000-01-01",
     "RoleId": 2,
-    "Status": "Banned",
+    "Status": "Active",
     "Password": "123456",
     "Address": "Hà Nội"
 }
@@ -4654,10 +4660,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="Status"                data-endpoint="POSTapi-users"
-               value="Banned"
+               value="Active"
                data-component="body">
     <br>
-<p>Example: <code>Banned</code></p>
+<p>Example: <code>Active</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>Active</code></li> <li><code>Inactive</code></li> <li><code>Banned</code></li></ul>
         </div>
@@ -4710,7 +4716,7 @@ Must be one of:
     \"PasswordHash\": \"hfqcoynlazghdtqtqxbajwbpilpmufinllwloauydlsmsjuryvojcybzvrbyickznkygloigmkw\",
     \"PhoneNumber\": \"0987654321\",
     \"Gender\": \"Female\",
-    \"DateOfBirth\": \"2026-08-04T07:14:02\",
+    \"DateOfBirth\": \"2026-08-07T23:21:21\",
     \"RoleId\": 1,
     \"Status\": \"Active\"
 }"
@@ -4734,7 +4740,7 @@ let body = {
     "PasswordHash": "hfqcoynlazghdtqtqxbajwbpilpmufinllwloauydlsmsjuryvojcybzvrbyickznkygloigmkw",
     "PhoneNumber": "0987654321",
     "Gender": "Female",
-    "DateOfBirth": "2026-08-04T07:14:02",
+    "DateOfBirth": "2026-08-07T23:21:21",
     "RoleId": 1,
     "Status": "Active"
 };
@@ -4762,7 +4768,7 @@ $response = $client-&gt;put(
             'PasswordHash' =&gt; 'hfqcoynlazghdtqtqxbajwbpilpmufinllwloauydlsmsjuryvojcybzvrbyickznkygloigmkw',
             'PhoneNumber' =&gt; '0987654321',
             'Gender' =&gt; 'Female',
-            'DateOfBirth' =&gt; '2026-08-04T07:14:02',
+            'DateOfBirth' =&gt; '2026-08-07T23:21:21',
             'RoleId' =&gt; 1,
             'Status' =&gt; 'Active',
         ],
@@ -4783,7 +4789,7 @@ payload = {
     "PasswordHash": "hfqcoynlazghdtqtqxbajwbpilpmufinllwloauydlsmsjuryvojcybzvrbyickznkygloigmkw",
     "PhoneNumber": "0987654321",
     "Gender": "Female",
-    "DateOfBirth": "2026-08-04T07:14:02",
+    "DateOfBirth": "2026-08-07T23:21:21",
     "RoleId": 1,
     "Status": "Active"
 }
@@ -4974,10 +4980,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="DateOfBirth"                data-endpoint="PUTapi-users--UserId-"
-               value="2026-08-04T07:14:02"
+               value="2026-08-07T23:21:21"
                data-component="body">
     <br>
-<p>Must be a valid date. Example: <code>2026-08-04T07:14:02</code></p>
+<p>Must be a valid date. Example: <code>2026-08-07T23:21:21</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>RoleId</code></b>&nbsp;&nbsp;
@@ -5171,7 +5177,331 @@ You can check the Dev Tools console for debugging information.</code></pre>
 filtering by status (Now Showing, Coming Soon, Ended),
 search, and statistics.</p>
 
-                                <h2 id="movies-GETapi-movies-now-showing-all">Get now showing movies</h2>
+                                <h2 id="movies-POSTapi-movies-auto-update-status">✅ Tự động cập nhật trạng thái cho tất cả phim</h2>
+
+<p>
+<small class="badge badge-darkred">requires authentication</small>
+</p>
+
+<p>Cập nhật trạng thái của tất cả phim dựa trên ngày chiếu và suất chiếu hiện tại.</p>
+
+<span id="example-requests-POSTapi-movies-auto-update-status">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request POST \
+    "http://localhost:5000/api/movies/auto-update-status" \
+    --header "Authorization: Bearer Bearer {your_jwt_token_here}"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:5000/api/movies/auto-update-status"
+);
+
+const headers = {
+    "Authorization": "Bearer Bearer {your_jwt_token_here}",
+    "Accept": "application/json",
+};
+
+
+fetch(url, {
+    method: "POST",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+
+<div class="php-example">
+    <pre><code class="language-php">$client = new \GuzzleHttp\Client();
+$url = 'http://localhost:5000/api/movies/auto-update-status';
+$response = $client-&gt;post(
+    $url,
+    [
+        'headers' =&gt; [
+            'Authorization' =&gt; 'Bearer Bearer {your_jwt_token_here}',
+        ],
+    ]
+);
+$body = $response-&gt;getBody();
+print_r(json_decode((string) $body));</code></pre></div>
+
+
+<div class="python-example">
+    <pre><code class="language-python">import requests
+import json
+
+url = 'http://localhost:5000/api/movies/auto-update-status'
+headers = {
+  'Authorization': 'Bearer Bearer {your_jwt_token_here}'
+}
+
+response = requests.request('POST', url, headers=headers)
+response.json()</code></pre></div>
+
+</span>
+
+<span id="example-responses-POSTapi-movies-auto-update-status">
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;success&quot;: true,
+    &quot;message&quot;: &quot;Đ&atilde; cập nhật trạng th&aacute;i cho 5 phim&quot;,
+    &quot;updated_count&quot;: 5,
+    &quot;updates&quot;: [
+        {
+            &quot;movie_id&quot;: 1,
+            &quot;title&quot;: &quot;Avengers: Endgame&quot;,
+            &quot;old_status&quot;: &quot;ComingSoon&quot;,
+            &quot;new_status&quot;: &quot;NowShowing&quot;
+        }
+    ]
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (500):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;success&quot;: false,
+    &quot;message&quot;: &quot;C&oacute; lỗi xảy ra khi cập nhật trạng th&aacute;i phim&quot;
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-POSTapi-movies-auto-update-status" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-POSTapi-movies-auto-update-status"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-POSTapi-movies-auto-update-status"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-POSTapi-movies-auto-update-status" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-POSTapi-movies-auto-update-status">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-POSTapi-movies-auto-update-status" data-method="POST"
+      data-path="api/movies/auto-update-status"
+      data-authed="1"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('POSTapi-movies-auto-update-status', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-POSTapi-movies-auto-update-status"
+                    onclick="tryItOut('POSTapi-movies-auto-update-status');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-POSTapi-movies-auto-update-status"
+                    onclick="cancelTryOut('POSTapi-movies-auto-update-status');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-POSTapi-movies-auto-update-status"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-black">POST</small>
+            <b><code>api/movies/auto-update-status</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Authorization</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Authorization" class="auth-value"               data-endpoint="POSTapi-movies-auto-update-status"
+               value="Bearer Bearer {your_jwt_token_here}"
+               data-component="header">
+    <br>
+<p>Example: <code>Bearer Bearer {your_jwt_token_here}</code></p>
+            </div>
+                        </form>
+
+                    <h2 id="movies-POSTapi-movies-update-status--movieId-">✅ Cập nhật trạng thái cho một phim cụ thể</h2>
+
+<p>
+<small class="badge badge-darkred">requires authentication</small>
+</p>
+
+<p>Cập nhật trạng thái của một phim dựa trên ngày chiếu và suất chiếu hiện tại.</p>
+
+<span id="example-requests-POSTapi-movies-update-status--movieId-">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request POST \
+    "http://localhost:5000/api/movies/update-status/1" \
+    --header "Authorization: Bearer Bearer {your_jwt_token_here}"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:5000/api/movies/update-status/1"
+);
+
+const headers = {
+    "Authorization": "Bearer Bearer {your_jwt_token_here}",
+    "Accept": "application/json",
+};
+
+
+fetch(url, {
+    method: "POST",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+
+<div class="php-example">
+    <pre><code class="language-php">$client = new \GuzzleHttp\Client();
+$url = 'http://localhost:5000/api/movies/update-status/1';
+$response = $client-&gt;post(
+    $url,
+    [
+        'headers' =&gt; [
+            'Authorization' =&gt; 'Bearer Bearer {your_jwt_token_here}',
+        ],
+    ]
+);
+$body = $response-&gt;getBody();
+print_r(json_decode((string) $body));</code></pre></div>
+
+
+<div class="python-example">
+    <pre><code class="language-python">import requests
+import json
+
+url = 'http://localhost:5000/api/movies/update-status/1'
+headers = {
+  'Authorization': 'Bearer Bearer {your_jwt_token_here}'
+}
+
+response = requests.request('POST', url, headers=headers)
+response.json()</code></pre></div>
+
+</span>
+
+<span id="example-responses-POSTapi-movies-update-status--movieId-">
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;success&quot;: true,
+    &quot;data&quot;: {
+        &quot;MovieId&quot;: 1,
+        &quot;Title&quot;: &quot;Avengers: Endgame&quot;,
+        &quot;Status&quot;: &quot;NowShowing&quot;
+    },
+    &quot;changed&quot;: true,
+    &quot;old_status&quot;: &quot;ComingSoon&quot;,
+    &quot;new_status&quot;: &quot;NowShowing&quot;,
+    &quot;message&quot;: &quot;Đ&atilde; cập nhật trạng th&aacute;i&quot;
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (404):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;success&quot;: false,
+    &quot;message&quot;: &quot;Kh&ocirc;ng t&igrave;m thấy phim&quot;
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-POSTapi-movies-update-status--movieId-" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-POSTapi-movies-update-status--movieId-"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-POSTapi-movies-update-status--movieId-"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-POSTapi-movies-update-status--movieId-" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-POSTapi-movies-update-status--movieId-">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-POSTapi-movies-update-status--movieId-" data-method="POST"
+      data-path="api/movies/update-status/{movieId}"
+      data-authed="1"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('POSTapi-movies-update-status--movieId-', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-POSTapi-movies-update-status--movieId-"
+                    onclick="tryItOut('POSTapi-movies-update-status--movieId-');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-POSTapi-movies-update-status--movieId-"
+                    onclick="cancelTryOut('POSTapi-movies-update-status--movieId-');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-POSTapi-movies-update-status--movieId-"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-black">POST</small>
+            <b><code>api/movies/update-status/{movieId}</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Authorization</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Authorization" class="auth-value"               data-endpoint="POSTapi-movies-update-status--movieId-"
+               value="Bearer Bearer {your_jwt_token_here}"
+               data-component="header">
+    <br>
+<p>Example: <code>Bearer Bearer {your_jwt_token_here}</code></p>
+            </div>
+                        <h4 class="fancy-heading-panel"><b>URL Parameters</b></h4>
+                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>movieId</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="movieId"                data-endpoint="POSTapi-movies-update-status--movieId-"
+               value="1"
+               data-component="url">
+    <br>
+<p>ID của phim cần cập nhật. Example: <code>1</code></p>
+            </div>
+                    </form>
+
+                    <h2 id="movies-GETapi-movies-now-showing-all">Get now showing movies</h2>
 
 <p>
 </p>
@@ -6373,7 +6703,8 @@ response.json()</code></pre></div>
         &quot;ended&quot;: 25,
         &quot;total_showtimes&quot;: 120,
         &quot;total_reviews&quot;: 500,
-        &quot;average_rating&quot;: 4.5
+        &quot;average_rating&quot;: 4.5,
+        &quot;total_cast_members&quot;: 120
     }
 }</code>
  </pre>
@@ -6583,12 +6914,12 @@ Must be one of:
 
 <div class="bash-example">
     <pre><code class="language-bash">curl --request GET \
-    --get "http://localhost:5000/api/movies/consequatur/detail"</code></pre></div>
+    --get "http://localhost:5000/api/movies/5/detail"</code></pre></div>
 
 
 <div class="javascript-example">
     <pre><code class="language-javascript">const url = new URL(
-    "http://localhost:5000/api/movies/consequatur/detail"
+    "http://localhost:5000/api/movies/5/detail"
 );
 
 
@@ -6600,7 +6931,7 @@ fetch(url, {
 
 <div class="php-example">
     <pre><code class="language-php">$client = new \GuzzleHttp\Client();
-$url = 'http://localhost:5000/api/movies/consequatur/detail';
+$url = 'http://localhost:5000/api/movies/5/detail';
 $response = $client-&gt;get($url);
 $body = $response-&gt;getBody();
 print_r(json_decode((string) $body));</code></pre></div>
@@ -6610,7 +6941,7 @@ print_r(json_decode((string) $body));</code></pre></div>
     <pre><code class="language-python">import requests
 import json
 
-url = 'http://localhost:5000/api/movies/consequatur/detail'
+url = 'http://localhost:5000/api/movies/5/detail'
 response = requests.request('GET', url, )
 response.json()</code></pre></div>
 
@@ -6695,15 +7026,15 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <h4 class="fancy-heading-panel"><b>URL Parameters</b></h4>
                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>id</code></b>&nbsp;&nbsp;
-<small>string</small>&nbsp;
+<small>integer</small>&nbsp;
  &nbsp;
  &nbsp;
-                <input type="text" style="display: none"
-                              name="id"                data-endpoint="GETapi-movies--id--detail"
-               value="consequatur"
+                <input type="number" style="display: none"
+               step="any"               name="id"                data-endpoint="GETapi-movies--id--detail"
+               value="5"
                data-component="url">
     <br>
-<p>The ID of the movie. Example: <code>consequatur</code></p>
+<p>The ID of the movie. Example: <code>5</code></p>
             </div>
                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>movieId</code></b>&nbsp;&nbsp;
@@ -7040,12 +7371,12 @@ Must be one of:
 
 <div class="bash-example">
     <pre><code class="language-bash">curl --request GET \
-    --get "http://localhost:5000/api/movies/consequatur"</code></pre></div>
+    --get "http://localhost:5000/api/movies/5"</code></pre></div>
 
 
 <div class="javascript-example">
     <pre><code class="language-javascript">const url = new URL(
-    "http://localhost:5000/api/movies/consequatur"
+    "http://localhost:5000/api/movies/5"
 );
 
 
@@ -7057,7 +7388,7 @@ fetch(url, {
 
 <div class="php-example">
     <pre><code class="language-php">$client = new \GuzzleHttp\Client();
-$url = 'http://localhost:5000/api/movies/consequatur';
+$url = 'http://localhost:5000/api/movies/5';
 $response = $client-&gt;get($url);
 $body = $response-&gt;getBody();
 print_r(json_decode((string) $body));</code></pre></div>
@@ -7067,7 +7398,7 @@ print_r(json_decode((string) $body));</code></pre></div>
     <pre><code class="language-python">import requests
 import json
 
-url = 'http://localhost:5000/api/movies/consequatur'
+url = 'http://localhost:5000/api/movies/5'
 response = requests.request('GET', url, )
 response.json()</code></pre></div>
 
@@ -7080,15 +7411,16 @@ response.json()</code></pre></div>
                 <pre>
 
 <code class="language-json" style="max-height: 300px;">{
-    &quot;MovieId&quot;: 1,
-    &quot;Title&quot;: &quot;Avengers: Endgame&quot;,
-    &quot;Description&quot;: &quot;After the devastating events of Infinity War...&quot;,
-    &quot;PosterUrl&quot;: &quot;https://...&quot;,
-    &quot;ReleaseDate&quot;: &quot;2019-04-26&quot;,
-    &quot;Duration&quot;: 180,
-    &quot;Language&quot;: &quot;English&quot;,
-    &quot;Rated&quot;: &quot;PG-13&quot;,
-    &quot;Status&quot;: &quot;NowShowing&quot;
+  &quot;MovieId&quot;: 1,
+  &quot;Title&quot;: &quot;Avengers: Endgame&quot;,
+  &quot;Description&quot;: &quot;After the devastating events of Infinity War...&quot;,
+  &quot;PosterUrl&quot;: &quot;https://...&quot;,
+  &quot;ReleaseDate&quot;: &quot;2019-04-26&quot;,
+  &quot;Duration&quot;: 180,
+  &quot;Language&quot;: &quot;English&quot;,
+  &quot;Rated&quot;: &quot;PG-13&quot;,
+  &quot;Status&quot;: &quot;NowShowing&quot;,
+  &quot;castMembers&quot;: [...]
 }</code>
  </pre>
             <blockquote>
@@ -7151,15 +7483,15 @@ You can check the Dev Tools console for debugging information.</code></pre>
                     <h4 class="fancy-heading-panel"><b>URL Parameters</b></h4>
                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>MovieId</code></b>&nbsp;&nbsp;
-<small>string</small>&nbsp;
+<small>integer</small>&nbsp;
  &nbsp;
  &nbsp;
-                <input type="text" style="display: none"
-                              name="MovieId"                data-endpoint="GETapi-movies--MovieId-"
-               value="consequatur"
+                <input type="number" style="display: none"
+               step="any"               name="MovieId"                data-endpoint="GETapi-movies--MovieId-"
+               value="5"
                data-component="url">
     <br>
-<p>Example: <code>consequatur</code></p>
+<p>Example: <code>5</code></p>
             </div>
                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>movieId</code></b>&nbsp;&nbsp;
@@ -7200,10 +7532,11 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "TrailerUrl=http://dibbert.com/eius-est-dolor-dolores-minus-voluptatem-quisquam"\
     --form "Language=English"\
     --form "Rated=PG-13"\
-    --form "Status=Ended"\
+    --form "Status=ComingSoon"\
     --form "Director=Anthony Russo"\
     --form "Cast=Robert Downey Jr., Chris Evans"\
-    --form "PosterUrl=@C:\Users\ACER\AppData\Local\Temp\php946C.tmp" </code></pre></div>
+    --form "CastMembers[]=consequatur"\
+    --form "PosterUrl=@C:\Users\ACER\AppData\Local\Temp\php5B05.tmp" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -7226,9 +7559,10 @@ body.append('ReleaseDate', '2019-04-26');
 body.append('TrailerUrl', 'http://dibbert.com/eius-est-dolor-dolores-minus-voluptatem-quisquam');
 body.append('Language', 'English');
 body.append('Rated', 'PG-13');
-body.append('Status', 'Ended');
+body.append('Status', 'ComingSoon');
 body.append('Director', 'Anthony Russo');
 body.append('Cast', 'Robert Downey Jr., Chris Evans');
+body.append('CastMembers[]', 'consequatur');
 body.append('PosterUrl', document.querySelector('input[name="PosterUrl"]').files[0]);
 
 fetch(url, {
@@ -7283,7 +7617,7 @@ $response = $client-&gt;post(
             ],
             [
                 'name' =&gt; 'Status',
-                'contents' =&gt; 'Ended'
+                'contents' =&gt; 'ComingSoon'
             ],
             [
                 'name' =&gt; 'Director',
@@ -7294,8 +7628,12 @@ $response = $client-&gt;post(
                 'contents' =&gt; 'Robert Downey Jr., Chris Evans'
             ],
             [
+                'name' =&gt; 'CastMembers[]',
+                'contents' =&gt; 'consequatur'
+            ],
+            [
                 'name' =&gt; 'PosterUrl',
-                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php946C.tmp', 'r')
+                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php5B05.tmp', 'r')
             ],
         ],
     ]
@@ -7318,10 +7656,11 @@ files = {
   'TrailerUrl': (None, 'http://dibbert.com/eius-est-dolor-dolores-minus-voluptatem-quisquam'),
   'Language': (None, 'English'),
   'Rated': (None, 'PG-13'),
-  'Status': (None, 'Ended'),
+  'Status': (None, 'ComingSoon'),
   'Director': (None, 'Anthony Russo'),
   'Cast': (None, 'Robert Downey Jr., Chris Evans'),
-  'PosterUrl': open('C:\Users\ACER\AppData\Local\Temp\php946C.tmp', 'rb')}
+  'CastMembers[]': (None, 'consequatur'),
+  'PosterUrl': open('C:\Users\ACER\AppData\Local\Temp\php5B05.tmp', 'rb')}
 payload = {
     "Title": "Avengers: Endgame",
     "Description": "After the devastating events of Infinity War...",
@@ -7331,9 +7670,12 @@ payload = {
     "TrailerUrl": "http:\/\/dibbert.com\/eius-est-dolor-dolores-minus-voluptatem-quisquam",
     "Language": "English",
     "Rated": "PG-13",
-    "Status": "Ended",
+    "Status": "ComingSoon",
     "Director": "Anthony Russo",
-    "Cast": "Robert Downey Jr., Chris Evans"
+    "Cast": "Robert Downey Jr., Chris Evans",
+    "CastMembers": [
+        "consequatur"
+    ]
 }
 headers = {
   'Authorization': 'Bearer Bearer {your_jwt_token_here}',
@@ -7352,13 +7694,14 @@ response.json()</code></pre></div>
                 <pre>
 
 <code class="language-json" style="max-height: 300px;">{
-    &quot;MovieId&quot;: 1,
-    &quot;Title&quot;: &quot;Avengers: Endgame&quot;,
-    &quot;Description&quot;: &quot;After the devastating events of Infinity War...&quot;,
-    &quot;PosterUrl&quot;: &quot;https://res.cloudinary.com/.../movies/posters/avengers.jpg&quot;,
-    &quot;ReleaseDate&quot;: &quot;2019-04-26&quot;,
-    &quot;Duration&quot;: 180,
-    &quot;Status&quot;: &quot;NowShowing&quot;
+  &quot;MovieId&quot;: 1,
+  &quot;Title&quot;: &quot;Avengers: Endgame&quot;,
+  &quot;Description&quot;: &quot;After the devastating events of Infinity War...&quot;,
+  &quot;PosterUrl&quot;: &quot;https://res.cloudinary.com/.../movies/posters/avengers.jpg&quot;,
+  &quot;ReleaseDate&quot;: &quot;2019-04-26&quot;,
+  &quot;Duration&quot;: 180,
+  &quot;Status&quot;: &quot;NowShowing&quot;,
+  &quot;castMembers&quot;: [...]
 }</code>
  </pre>
             <blockquote>
@@ -7534,7 +7877,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>The movie poster (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php946C.tmp</code></p>
+<p>The movie poster (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php5B05.tmp</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>TrailerUrl</code></b>&nbsp;&nbsp;
@@ -7581,10 +7924,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="Status"                data-endpoint="POSTapi-movies"
-               value="Ended"
+               value="ComingSoon"
                data-component="body">
     <br>
-<p>Example: <code>Ended</code></p>
+<p>Example: <code>ComingSoon</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>NowShowing</code></li> <li><code>Ended</code></li> <li><code>ComingSoon</code></li></ul>
         </div>
@@ -7612,6 +7955,42 @@ Must be one of:
     <br>
 <p>The cast members. Example: <code>Robert Downey Jr., Chris Evans</code></p>
         </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+        <details>
+            <summary style="padding-bottom: 10px;">
+                <b style="line-height: 2;"><code>CastMembers</code></b>&nbsp;&nbsp;
+<small>string[]</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+<br>
+<p>The cast members list (new format).</p>
+            </summary>
+                                                <div style="margin-left: 14px; clear: unset;">
+                        <b style="line-height: 2;"><code>name</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="CastMembers.0.name"                data-endpoint="POSTapi-movies"
+               value="consequatur"
+               data-component="body">
+    <br>
+<p>The cast member name. Example: <code>consequatur</code></p>
+                    </div>
+                                                                <div style="margin-left: 14px; clear: unset;">
+                        <b style="line-height: 2;"><code>role</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="CastMembers.0.role"                data-endpoint="POSTapi-movies"
+               value="consequatur"
+               data-component="body">
+    <br>
+<p>The role (Actor, Director, Producer, Writer). Example: <code>consequatur</code></p>
+                    </div>
+                                    </details>
+        </div>
         </form>
 
                     <h2 id="movies-PUTapi-movies--MovieId-">Update a movie</h2>
@@ -7628,7 +8007,7 @@ Must be one of:
 
 <div class="bash-example">
     <pre><code class="language-bash">curl --request PUT \
-    "http://localhost:5000/api/movies/consequatur" \
+    "http://localhost:5000/api/movies/5" \
     --header "Authorization: Bearer Bearer {your_jwt_token_here}" \
     --header "Content-Type: multipart/form-data" \
     --form "Title=Avengers: Endgame - Director's Cut"\
@@ -7640,12 +8019,13 @@ Must be one of:
     --form "Language=English"\
     --form "Rated=PG-13"\
     --form "Status=NowShowing"\
-    --form "PosterUrl=@C:\Users\ACER\AppData\Local\Temp\php94BC.tmp" </code></pre></div>
+    --form "CastMembers[]=consequatur"\
+    --form "PosterUrl=@C:\Users\ACER\AppData\Local\Temp\php5B55.tmp" </code></pre></div>
 
 
 <div class="javascript-example">
     <pre><code class="language-javascript">const url = new URL(
-    "http://localhost:5000/api/movies/consequatur"
+    "http://localhost:5000/api/movies/5"
 );
 
 const headers = {
@@ -7664,6 +8044,7 @@ body.append('TrailerUrl', 'http://dibbert.com/eius-est-dolor-dolores-minus-volup
 body.append('Language', 'English');
 body.append('Rated', 'PG-13');
 body.append('Status', 'NowShowing');
+body.append('CastMembers[]', 'consequatur');
 body.append('PosterUrl', document.querySelector('input[name="PosterUrl"]').files[0]);
 
 fetch(url, {
@@ -7675,7 +8056,7 @@ fetch(url, {
 
 <div class="php-example">
     <pre><code class="language-php">$client = new \GuzzleHttp\Client();
-$url = 'http://localhost:5000/api/movies/consequatur';
+$url = 'http://localhost:5000/api/movies/5';
 $response = $client-&gt;put(
     $url,
     [
@@ -7721,8 +8102,12 @@ $response = $client-&gt;put(
                 'contents' =&gt; 'NowShowing'
             ],
             [
+                'name' =&gt; 'CastMembers[]',
+                'contents' =&gt; 'consequatur'
+            ],
+            [
                 'name' =&gt; 'PosterUrl',
-                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php94BC.tmp', 'r')
+                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php5B55.tmp', 'r')
             ],
         ],
     ]
@@ -7735,7 +8120,7 @@ print_r(json_decode((string) $body));</code></pre></div>
     <pre><code class="language-python">import requests
 import json
 
-url = 'http://localhost:5000/api/movies/consequatur'
+url = 'http://localhost:5000/api/movies/5'
 files = {
   'Title': (None, 'Avengers: Endgame - Director's Cut'),
   'Description': (None, 'Dolores dolorum amet iste laborum eius est dolor.'),
@@ -7746,7 +8131,8 @@ files = {
   'Language': (None, 'English'),
   'Rated': (None, 'PG-13'),
   'Status': (None, 'NowShowing'),
-  'PosterUrl': open('C:\Users\ACER\AppData\Local\Temp\php94BC.tmp', 'rb')}
+  'CastMembers[]': (None, 'consequatur'),
+  'PosterUrl': open('C:\Users\ACER\AppData\Local\Temp\php5B55.tmp', 'rb')}
 payload = {
     "Title": "Avengers: Endgame - Director's Cut",
     "Description": "Dolores dolorum amet iste laborum eius est dolor.",
@@ -7756,7 +8142,10 @@ payload = {
     "TrailerUrl": "http:\/\/dibbert.com\/eius-est-dolor-dolores-minus-voluptatem-quisquam",
     "Language": "English",
     "Rated": "PG-13",
-    "Status": "NowShowing"
+    "Status": "NowShowing",
+    "CastMembers": [
+        "consequatur"
+    ]
 }
 headers = {
   'Authorization': 'Bearer Bearer {your_jwt_token_here}',
@@ -7775,9 +8164,10 @@ response.json()</code></pre></div>
                 <pre>
 
 <code class="language-json" style="max-height: 300px;">{
-    &quot;MovieId&quot;: 1,
-    &quot;Title&quot;: &quot;Avengers: Endgame - Director&#039;s Cut&quot;,
-    &quot;Status&quot;: &quot;NowShowing&quot;
+  &quot;MovieId&quot;: 1,
+  &quot;Title&quot;: &quot;Avengers: Endgame - Director&#039;s Cut&quot;,
+  &quot;Status&quot;: &quot;NowShowing&quot;,
+  &quot;castMembers&quot;: [...]
 }</code>
  </pre>
             <blockquote>
@@ -7875,15 +8265,15 @@ You can check the Dev Tools console for debugging information.</code></pre>
                         <h4 class="fancy-heading-panel"><b>URL Parameters</b></h4>
                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>MovieId</code></b>&nbsp;&nbsp;
-<small>string</small>&nbsp;
+<small>integer</small>&nbsp;
  &nbsp;
  &nbsp;
-                <input type="text" style="display: none"
-                              name="MovieId"                data-endpoint="PUTapi-movies--MovieId-"
-               value="consequatur"
+                <input type="number" style="display: none"
+               step="any"               name="MovieId"                data-endpoint="PUTapi-movies--MovieId-"
+               value="5"
                data-component="url">
     <br>
-<p>Example: <code>consequatur</code></p>
+<p>Example: <code>5</code></p>
             </div>
                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>movieId</code></b>&nbsp;&nbsp;
@@ -7968,7 +8358,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>The movie poster (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php94BC.tmp</code></p>
+<p>The movie poster (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php5B55.tmp</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>TrailerUrl</code></b>&nbsp;&nbsp;
@@ -8022,6 +8412,42 @@ Must be one of:
 Must be one of:
 <ul style="list-style-type: square;"><li><code>NowShowing</code></li> <li><code>ComingSoon</code></li> <li><code>Ended</code></li></ul>
         </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+        <details>
+            <summary style="padding-bottom: 10px;">
+                <b style="line-height: 2;"><code>CastMembers</code></b>&nbsp;&nbsp;
+<small>string[]</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+<br>
+<p>The cast members list.</p>
+            </summary>
+                                                <div style="margin-left: 14px; clear: unset;">
+                        <b style="line-height: 2;"><code>name</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="CastMembers.0.name"                data-endpoint="PUTapi-movies--MovieId-"
+               value="consequatur"
+               data-component="body">
+    <br>
+<p>The cast member name. Example: <code>consequatur</code></p>
+                    </div>
+                                                                <div style="margin-left: 14px; clear: unset;">
+                        <b style="line-height: 2;"><code>role</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="CastMembers.0.role"                data-endpoint="PUTapi-movies--MovieId-"
+               value="consequatur"
+               data-component="body">
+    <br>
+<p>The role (Actor, Director, Producer, Writer). Example: <code>consequatur</code></p>
+                    </div>
+                                    </details>
+        </div>
         </form>
 
                     <h2 id="movies-DELETEapi-movies--MovieId-">Delete a movie</h2>
@@ -8038,13 +8464,13 @@ Must be one of:
 
 <div class="bash-example">
     <pre><code class="language-bash">curl --request DELETE \
-    "http://localhost:5000/api/movies/consequatur" \
+    "http://localhost:5000/api/movies/5" \
     --header "Authorization: Bearer Bearer {your_jwt_token_here}"</code></pre></div>
 
 
 <div class="javascript-example">
     <pre><code class="language-javascript">const url = new URL(
-    "http://localhost:5000/api/movies/consequatur"
+    "http://localhost:5000/api/movies/5"
 );
 
 const headers = {
@@ -8061,7 +8487,7 @@ fetch(url, {
 
 <div class="php-example">
     <pre><code class="language-php">$client = new \GuzzleHttp\Client();
-$url = 'http://localhost:5000/api/movies/consequatur';
+$url = 'http://localhost:5000/api/movies/5';
 $response = $client-&gt;delete(
     $url,
     [
@@ -8078,7 +8504,7 @@ print_r(json_decode((string) $body));</code></pre></div>
     <pre><code class="language-python">import requests
 import json
 
-url = 'http://localhost:5000/api/movies/consequatur'
+url = 'http://localhost:5000/api/movies/5'
 headers = {
   'Authorization': 'Bearer Bearer {your_jwt_token_here}'
 }
@@ -8096,7 +8522,7 @@ response.json()</code></pre></div>
 
 <code class="language-json" style="max-height: 300px;">{
     &quot;success&quot;: true,
-    &quot;message&quot;: &quot;X&oacute;a phim th&agrave;nh c&ocirc;ng&quot;
+    &quot;message&quot;: &quot;X&oacute;a phim v&agrave; c&aacute;c diễn vi&ecirc;n/đạo diễn li&ecirc;n quan th&agrave;nh c&ocirc;ng&quot;
 }</code>
  </pre>
             <blockquote>
@@ -8172,15 +8598,15 @@ You can check the Dev Tools console for debugging information.</code></pre>
                         <h4 class="fancy-heading-panel"><b>URL Parameters</b></h4>
                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>MovieId</code></b>&nbsp;&nbsp;
-<small>string</small>&nbsp;
+<small>integer</small>&nbsp;
  &nbsp;
  &nbsp;
-                <input type="text" style="display: none"
-                              name="MovieId"                data-endpoint="DELETEapi-movies--MovieId-"
-               value="consequatur"
+                <input type="number" style="display: none"
+               step="any"               name="MovieId"                data-endpoint="DELETEapi-movies--MovieId-"
+               value="5"
                data-component="url">
     <br>
-<p>Example: <code>consequatur</code></p>
+<p>Example: <code>5</code></p>
             </div>
                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>movieId</code></b>&nbsp;&nbsp;
@@ -8771,7 +9197,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "Email=ward.benton@example.org"\
     --form "Status=Active"\
     --form "Description=Dolores dolorum amet iste laborum eius est dolor."\
-    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php89B7.tmp" </code></pre></div>
+    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php5234.tmp" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -8843,7 +9269,7 @@ $response = $client-&gt;post(
             ],
             [
                 'name' =&gt; 'ImageUrl',
-                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php89B7.tmp', 'r')
+                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php5234.tmp', 'r')
             ],
         ],
     ]
@@ -8865,7 +9291,7 @@ files = {
   'Email': (None, 'ward.benton@example.org'),
   'Status': (None, 'Active'),
   'Description': (None, 'Dolores dolorum amet iste laborum eius est dolor.'),
-  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php89B7.tmp', 'rb')}
+  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php5234.tmp', 'rb')}
 payload = {
     "Name": "CGV Vincom Center",
     "Address": "72 Nguyễn Trãi, P. Bến Nghé, Q.1, TP.HCM",
@@ -9072,7 +9498,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>The cinema image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php89B7.tmp</code></p>
+<p>The cinema image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php5234.tmp</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>Status</code></b>&nbsp;&nbsp;
@@ -9126,7 +9552,7 @@ Must be one of:
     --form "Email=ward.benton@example.org"\
     --form "Status=Inactive"\
     --form "Description=Dolores dolorum amet iste laborum eius est dolor."\
-    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php8A07.tmp" </code></pre></div>
+    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php5275.tmp" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -9198,7 +9624,7 @@ $response = $client-&gt;put(
             ],
             [
                 'name' =&gt; 'ImageUrl',
-                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php8A07.tmp', 'r')
+                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php5275.tmp', 'r')
             ],
         ],
     ]
@@ -9220,7 +9646,7 @@ files = {
   'Email': (None, 'ward.benton@example.org'),
   'Status': (None, 'Inactive'),
   'Description': (None, 'Dolores dolorum amet iste laborum eius est dolor.'),
-  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php8A07.tmp', 'rb')}
+  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php5275.tmp', 'rb')}
 payload = {
     "Name": "CGV Vincom Center Updated",
     "Address": "72 Nguyễn Trãi, P. Bến Nghé, Q.1, TP.HCM",
@@ -9430,7 +9856,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>The cinema image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php8A07.tmp</code></p>
+<p>The cinema image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php5275.tmp</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>Status</code></b>&nbsp;&nbsp;
@@ -13673,7 +14099,7 @@ Must be one of:
     --header "Content-Type: application/json" \
     --data "{
     \"UserId\": 1,
-    \"OrderDate\": \"2026-08-04T07:14:02\",
+    \"OrderDate\": \"2026-08-07T23:21:21\",
     \"TotalAmount\": \"150000\",
     \"Status\": \"Cancelled\"
 }"
@@ -13693,7 +14119,7 @@ const headers = {
 
 let body = {
     "UserId": 1,
-    "OrderDate": "2026-08-04T07:14:02",
+    "OrderDate": "2026-08-07T23:21:21",
     "TotalAmount": "150000",
     "Status": "Cancelled"
 };
@@ -13717,7 +14143,7 @@ $response = $client-&gt;put(
         ],
         'json' =&gt; [
             'UserId' =&gt; 1,
-            'OrderDate' =&gt; '2026-08-04T07:14:02',
+            'OrderDate' =&gt; '2026-08-07T23:21:21',
             'TotalAmount' =&gt; '150000',
             'Status' =&gt; 'Cancelled',
         ],
@@ -13734,7 +14160,7 @@ import json
 url = 'http://localhost:5000/api/orders/1'
 payload = {
     "UserId": 1,
-    "OrderDate": "2026-08-04T07:14:02",
+    "OrderDate": "2026-08-07T23:21:21",
     "TotalAmount": "150000",
     "Status": "Cancelled"
 }
@@ -13875,10 +14301,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="OrderDate"                data-endpoint="PUTapi-orders--OrderId-"
-               value="2026-08-04T07:14:02"
+               value="2026-08-07T23:21:21"
                data-component="body">
     <br>
-<p>Must be a valid date. Example: <code>2026-08-04T07:14:02</code></p>
+<p>Must be a valid date. Example: <code>2026-08-07T23:21:21</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>TotalAmount</code></b>&nbsp;&nbsp;
@@ -15624,7 +16050,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"TicketId\": 17,
     \"Amount\": \"150000\",
     \"PaymentMethod\": \"Credit Card\",
-    \"PaymentStatus\": \"failed\",
+    \"PaymentStatus\": \"cancelled\",
     \"Status\": \"Completed\",
     \"OrderId\": 1,
     \"UserId\": 1,
@@ -15649,7 +16075,7 @@ let body = {
     "TicketId": 17,
     "Amount": "150000",
     "PaymentMethod": "Credit Card",
-    "PaymentStatus": "failed",
+    "PaymentStatus": "cancelled",
     "Status": "Completed",
     "OrderId": 1,
     "UserId": 1,
@@ -15678,7 +16104,7 @@ $response = $client-&gt;post(
             'TicketId' =&gt; 17,
             'Amount' =&gt; '150000',
             'PaymentMethod' =&gt; 'Credit Card',
-            'PaymentStatus' =&gt; 'failed',
+            'PaymentStatus' =&gt; 'cancelled',
             'Status' =&gt; 'Completed',
             'OrderId' =&gt; 1,
             'UserId' =&gt; 1,
@@ -15700,7 +16126,7 @@ payload = {
     "TicketId": 17,
     "Amount": "150000",
     "PaymentMethod": "Credit Card",
-    "PaymentStatus": "failed",
+    "PaymentStatus": "cancelled",
     "Status": "Completed",
     "OrderId": 1,
     "UserId": 1,
@@ -15876,10 +16302,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="PaymentStatus"                data-endpoint="POSTapi-payments"
-               value="failed"
+               value="cancelled"
                data-component="body">
     <br>
-<p>Example: <code>failed</code></p>
+<p>Example: <code>cancelled</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>pending</code></li> <li><code>completed</code></li> <li><code>failed</code></li> <li><code>cancelled</code></li></ul>
         </div>
@@ -17024,7 +17450,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "Status=Active"\
     --form "MinOrderAmount=100000"\
     --form "UsageLimit=1000"\
-    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php854A.tmp" </code></pre></div>
+    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php4EB2.tmp" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -17116,7 +17542,7 @@ $response = $client-&gt;post(
             ],
             [
                 'name' =&gt; 'ImageUrl',
-                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php854A.tmp', 'r')
+                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php4EB2.tmp', 'r')
             ],
         ],
     ]
@@ -17142,7 +17568,7 @@ files = {
   'Status': (None, 'Active'),
   'MinOrderAmount': (None, '100000'),
   'UsageLimit': (None, '1000'),
-  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php854A.tmp', 'rb')}
+  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php4EB2.tmp', 'rb')}
 payload = {
     "Title": "Summer Sale 2024",
     "Code": "SUMMER20",
@@ -17333,7 +17759,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>The promotion image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php854A.tmp</code></p>
+<p>The promotion image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php4EB2.tmp</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>DiscountType</code></b>&nbsp;&nbsp;
@@ -17467,15 +17893,15 @@ Must be one of:
     --form "Title=Summer Sale 2024 - Extended"\
     --form "Code=SUMMER25"\
     --form "Description=Dolores dolorum amet iste laborum eius est dolor."\
-    --form "DiscountType=Fixed"\
+    --form "DiscountType=Percentage"\
     --form "DiscountValue=consequatur"\
     --form "StartDate=consequatur"\
     --form "EndDate=consequatur"\
     --form "IsActive="\
-    --form "Status=Inactive"\
+    --form "Status=Active"\
     --form "MinOrderAmount=consequatur"\
     --form "UsageLimit=17"\
-    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php859A.tmp" </code></pre></div>
+    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php4EF2.tmp" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -17493,12 +17919,12 @@ const body = new FormData();
 body.append('Title', 'Summer Sale 2024 - Extended');
 body.append('Code', 'SUMMER25');
 body.append('Description', 'Dolores dolorum amet iste laborum eius est dolor.');
-body.append('DiscountType', 'Fixed');
+body.append('DiscountType', 'Percentage');
 body.append('DiscountValue', 'consequatur');
 body.append('StartDate', 'consequatur');
 body.append('EndDate', 'consequatur');
 body.append('IsActive', '');
-body.append('Status', 'Inactive');
+body.append('Status', 'Active');
 body.append('MinOrderAmount', 'consequatur');
 body.append('UsageLimit', '17');
 body.append('ImageUrl', document.querySelector('input[name="ImageUrl"]').files[0]);
@@ -17535,7 +17961,7 @@ $response = $client-&gt;put(
             ],
             [
                 'name' =&gt; 'DiscountType',
-                'contents' =&gt; 'Fixed'
+                'contents' =&gt; 'Percentage'
             ],
             [
                 'name' =&gt; 'DiscountValue',
@@ -17555,7 +17981,7 @@ $response = $client-&gt;put(
             ],
             [
                 'name' =&gt; 'Status',
-                'contents' =&gt; 'Inactive'
+                'contents' =&gt; 'Active'
             ],
             [
                 'name' =&gt; 'MinOrderAmount',
@@ -17567,7 +17993,7 @@ $response = $client-&gt;put(
             ],
             [
                 'name' =&gt; 'ImageUrl',
-                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php859A.tmp', 'r')
+                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php4EF2.tmp', 'r')
             ],
         ],
     ]
@@ -17585,25 +18011,25 @@ files = {
   'Title': (None, 'Summer Sale 2024 - Extended'),
   'Code': (None, 'SUMMER25'),
   'Description': (None, 'Dolores dolorum amet iste laborum eius est dolor.'),
-  'DiscountType': (None, 'Fixed'),
+  'DiscountType': (None, 'Percentage'),
   'DiscountValue': (None, 'consequatur'),
   'StartDate': (None, 'consequatur'),
   'EndDate': (None, 'consequatur'),
   'IsActive': (None, ''),
-  'Status': (None, 'Inactive'),
+  'Status': (None, 'Active'),
   'MinOrderAmount': (None, 'consequatur'),
   'UsageLimit': (None, '17'),
-  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php859A.tmp', 'rb')}
+  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php4EF2.tmp', 'rb')}
 payload = {
     "Title": "Summer Sale 2024 - Extended",
     "Code": "SUMMER25",
     "Description": "Dolores dolorum amet iste laborum eius est dolor.",
-    "DiscountType": "Fixed",
+    "DiscountType": "Percentage",
     "DiscountValue": "consequatur",
     "StartDate": "consequatur",
     "EndDate": "consequatur",
     "IsActive": false,
-    "Status": "Inactive",
+    "Status": "Active",
     "MinOrderAmount": "consequatur",
     "UsageLimit": 17
 }
@@ -17781,7 +18207,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>The promotion image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php859A.tmp</code></p>
+<p>The promotion image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php4EF2.tmp</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>DiscountType</code></b>&nbsp;&nbsp;
@@ -17790,10 +18216,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="DiscountType"                data-endpoint="PUTapi-promotions--PromotionId-"
-               value="Fixed"
+               value="Percentage"
                data-component="body">
     <br>
-<p>The discount type. Example: <code>Fixed</code></p>
+<p>The discount type. Example: <code>Percentage</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>Percentage</code></li> <li><code>Fixed</code></li></ul>
         </div>
@@ -17862,10 +18288,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="Status"                data-endpoint="PUTapi-promotions--PromotionId-"
-               value="Inactive"
+               value="Active"
                data-component="body">
     <br>
-<p>The status. Example: <code>Inactive</code></p>
+<p>The status. Example: <code>Active</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>Active</code></li> <li><code>Inactive</code></li> <li><code>Expired</code></li></ul>
         </div>
@@ -18341,7 +18767,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "Description=Get 20% off on all tickets"\
     --form "Link=https://example.com/promotion"\
     --form "Order=1"\
-    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php844B.tmp" </code></pre></div>
+    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php4DB3.tmp" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -18418,7 +18844,7 @@ $response = $client-&gt;post(
             ],
             [
                 'name' =&gt; 'ImageUrl',
-                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php844B.tmp', 'r')
+                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php4DB3.tmp', 'r')
             ],
         ],
     ]
@@ -18441,7 +18867,7 @@ files = {
   'Description': (None, 'Get 20% off on all tickets'),
   'Link': (None, 'https://example.com/promotion'),
   'Order': (None, '1'),
-  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php844B.tmp', 'rb')}
+  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php4DB3.tmp', 'rb')}
 payload = {
     "UserId": "consequatur",
     "Title": "Summer Movie Festival",
@@ -18612,7 +19038,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>The banner image file (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php844B.tmp</code></p>
+<p>The banner image file (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php4DB3.tmp</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>LinkUrl</code></b>&nbsp;&nbsp;
@@ -18715,7 +19141,7 @@ Must be one of:
     --form "Description=Get 25% off on all tickets"\
     --form "Link=https://example.com/new-promotion"\
     --form "Order=2"\
-    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php849C.tmp" </code></pre></div>
+    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php4E04.tmp" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -18792,7 +19218,7 @@ $response = $client-&gt;put(
             ],
             [
                 'name' =&gt; 'ImageUrl',
-                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php849C.tmp', 'r')
+                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php4E04.tmp', 'r')
             ],
         ],
     ]
@@ -18815,7 +19241,7 @@ files = {
   'Description': (None, 'Get 25% off on all tickets'),
   'Link': (None, 'https://example.com/new-promotion'),
   'Order': (None, '2'),
-  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php849C.tmp', 'rb')}
+  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php4E04.tmp', 'rb')}
 payload = {
     "UserId": "consequatur",
     "Title": "Updated Summer Festival",
@@ -18991,7 +19417,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>The banner image file (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php849C.tmp</code></p>
+<p>The banner image file (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php4E04.tmp</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>LinkUrl</code></b>&nbsp;&nbsp;
@@ -19517,7 +19943,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "Status=Published"\
     --form "Author=Admin"\
     --form "PublishedAt=2024-06-01 10:00:00"\
-    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php8667.tmp" </code></pre></div>
+    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php4F90.tmp" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -19589,7 +20015,7 @@ $response = $client-&gt;post(
             ],
             [
                 'name' =&gt; 'ImageUrl',
-                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php8667.tmp', 'r')
+                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php4F90.tmp', 'r')
             ],
         ],
     ]
@@ -19611,7 +20037,7 @@ files = {
   'Status': (None, 'Published'),
   'Author': (None, 'Admin'),
   'PublishedAt': (None, '2024-06-01 10:00:00'),
-  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php8667.tmp', 'rb')}
+  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php4F90.tmp', 'rb')}
 payload = {
     "UserId": "consequatur",
     "Title": "Summer Movie Festival 2024",
@@ -19806,7 +20232,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>The news image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php8667.tmp</code></p>
+<p>The news image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php4F90.tmp</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>Status</code></b>&nbsp;&nbsp;
@@ -19872,7 +20298,7 @@ Must be one of:
     --form "Status=Archived"\
     --form "Author=Admin"\
     --form "PublishedAt=2024-06-01 10:00:00"\
-    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php86C7.tmp" </code></pre></div>
+    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php4FD1.tmp" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -19944,7 +20370,7 @@ $response = $client-&gt;put(
             ],
             [
                 'name' =&gt; 'ImageUrl',
-                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php86C7.tmp', 'r')
+                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php4FD1.tmp', 'r')
             ],
         ],
     ]
@@ -19966,7 +20392,7 @@ files = {
   'Status': (None, 'Archived'),
   'Author': (None, 'Admin'),
   'PublishedAt': (None, '2024-06-01 10:00:00'),
-  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php86C7.tmp', 'rb')}
+  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php4FD1.tmp', 'rb')}
 payload = {
     "UserId": "consequatur",
     "Title": "Summer Movie Festival 2024 - Updated",
@@ -20162,7 +20588,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>The news image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php86C7.tmp</code></p>
+<p>The news image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php4FD1.tmp</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>Status</code></b>&nbsp;&nbsp;
@@ -24955,7 +25381,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --data "{
     \"UserId\": 1,
     \"MovieId\": 1,
-    \"Status\": \"Inactive\",
+    \"Status\": \"Active\",
     \"AddedAt\": \"2024-01-01 10:00:00\"
 }"
 </code></pre></div>
@@ -24975,7 +25401,7 @@ const headers = {
 let body = {
     "UserId": 1,
     "MovieId": 1,
-    "Status": "Inactive",
+    "Status": "Active",
     "AddedAt": "2024-01-01 10:00:00"
 };
 
@@ -24999,7 +25425,7 @@ $response = $client-&gt;post(
         'json' =&gt; [
             'UserId' =&gt; 1,
             'MovieId' =&gt; 1,
-            'Status' =&gt; 'Inactive',
+            'Status' =&gt; 'Active',
             'AddedAt' =&gt; '2024-01-01 10:00:00',
         ],
     ]
@@ -25016,7 +25442,7 @@ url = 'http://localhost:5000/api/wishlists'
 payload = {
     "UserId": 1,
     "MovieId": 1,
-    "Status": "Inactive",
+    "Status": "Active",
     "AddedAt": "2024-01-01 10:00:00"
 }
 headers = {
@@ -25175,10 +25601,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="Status"                data-endpoint="POSTapi-wishlists"
-               value="Inactive"
+               value="Active"
                data-component="body">
     <br>
-<p>Example: <code>Inactive</code></p>
+<p>Example: <code>Active</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>Active</code></li> <li><code>Inactive</code></li></ul>
         </div>
@@ -29330,7 +29756,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Content-Type: application/json" \
     --data "{
     \"UserId\": 1,
-    \"LoginTime\": \"2026-08-04 07:14:01\",
+    \"LoginTime\": \"2026-08-07 23:21:20\",
     \"IpAddress\": \"mqeopfuudtdsufvyvddqa\",
     \"DeviceInfo\": \"mniihfqcoynlazghdtqtq\",
     \"Status\": \"Success\",
@@ -29356,7 +29782,7 @@ const headers = {
 
 let body = {
     "UserId": 1,
-    "LoginTime": "2026-08-04 07:14:01",
+    "LoginTime": "2026-08-07 23:21:20",
     "IpAddress": "mqeopfuudtdsufvyvddqa",
     "DeviceInfo": "mniihfqcoynlazghdtqtq",
     "Status": "Success",
@@ -29386,7 +29812,7 @@ $response = $client-&gt;post(
         ],
         'json' =&gt; [
             'UserId' =&gt; 1,
-            'LoginTime' =&gt; '2026-08-04 07:14:01',
+            'LoginTime' =&gt; '2026-08-07 23:21:20',
             'IpAddress' =&gt; 'mqeopfuudtdsufvyvddqa',
             'DeviceInfo' =&gt; 'mniihfqcoynlazghdtqtq',
             'Status' =&gt; 'Success',
@@ -29409,7 +29835,7 @@ import json
 url = 'http://localhost:5000/api/loginhistorys'
 payload = {
     "UserId": 1,
-    "LoginTime": "2026-08-04 07:14:01",
+    "LoginTime": "2026-08-07 23:21:20",
     "IpAddress": "mqeopfuudtdsufvyvddqa",
     "DeviceInfo": "mniihfqcoynlazghdtqtq",
     "Status": "Success",
@@ -29555,10 +29981,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="LoginTime"                data-endpoint="POSTapi-loginhistorys"
-               value="2026-08-04 07:14:01"
+               value="2026-08-07 23:21:20"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>Y-m-d H:i:s</code>. Example: <code>2026-08-04 07:14:01</code></p>
+<p>Must be a valid date in the format <code>Y-m-d H:i:s</code>. Example: <code>2026-08-07 23:21:20</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>IpAddress</code></b>&nbsp;&nbsp;
@@ -29679,7 +30105,7 @@ Must be one of:
     --header "Content-Type: application/json" \
     --data "{
     \"UserId\": 1,
-    \"LoginTime\": \"2026-08-04 07:14:01\",
+    \"LoginTime\": \"2026-08-07 23:21:20\",
     \"IpAddress\": \"mqeopfuudtdsufvyvddqa\",
     \"DeviceInfo\": \"mniihfqcoynlazghdtqtq\",
     \"Status\": \"Failed\",
@@ -29705,7 +30131,7 @@ const headers = {
 
 let body = {
     "UserId": 1,
-    "LoginTime": "2026-08-04 07:14:01",
+    "LoginTime": "2026-08-07 23:21:20",
     "IpAddress": "mqeopfuudtdsufvyvddqa",
     "DeviceInfo": "mniihfqcoynlazghdtqtq",
     "Status": "Failed",
@@ -29735,7 +30161,7 @@ $response = $client-&gt;put(
         ],
         'json' =&gt; [
             'UserId' =&gt; 1,
-            'LoginTime' =&gt; '2026-08-04 07:14:01',
+            'LoginTime' =&gt; '2026-08-07 23:21:20',
             'IpAddress' =&gt; 'mqeopfuudtdsufvyvddqa',
             'DeviceInfo' =&gt; 'mniihfqcoynlazghdtqtq',
             'Status' =&gt; 'Failed',
@@ -29758,7 +30184,7 @@ import json
 url = 'http://localhost:5000/api/loginhistorys/1'
 payload = {
     "UserId": 1,
-    "LoginTime": "2026-08-04 07:14:01",
+    "LoginTime": "2026-08-07 23:21:20",
     "IpAddress": "mqeopfuudtdsufvyvddqa",
     "DeviceInfo": "mniihfqcoynlazghdtqtq",
     "Status": "Failed",
@@ -29909,10 +30335,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="LoginTime"                data-endpoint="PUTapi-loginhistorys--LoginId-"
-               value="2026-08-04 07:14:01"
+               value="2026-08-07 23:21:20"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>Y-m-d H:i:s</code>. Example: <code>2026-08-04 07:14:01</code></p>
+<p>Must be a valid date in the format <code>Y-m-d H:i:s</code>. Example: <code>2026-08-07 23:21:20</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>IpAddress</code></b>&nbsp;&nbsp;
@@ -30455,11 +30881,11 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "Name=Bắp rang bơ"\
     --form "Description=Bắp rang bơ thơm ngon"\
     --form "Price=45000"\
-    --form "IsAvailable="\
+    --form "IsAvailable=1"\
     --form "Status=Available"\
     --form "Category=Snacks"\
     --form "Items[]=ynlazghdtqtqxbajwbpil"\
-    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php8D35.tmp" </code></pre></div>
+    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php5546.tmp" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -30477,7 +30903,7 @@ const body = new FormData();
 body.append('Name', 'Bắp rang bơ');
 body.append('Description', 'Bắp rang bơ thơm ngon');
 body.append('Price', '45000');
-body.append('IsAvailable', '');
+body.append('IsAvailable', '1');
 body.append('Status', 'Available');
 body.append('Category', 'Snacks');
 body.append('Items[]', 'ynlazghdtqtqxbajwbpil');
@@ -30515,7 +30941,7 @@ $response = $client-&gt;post(
             ],
             [
                 'name' =&gt; 'IsAvailable',
-                'contents' =&gt; ''
+                'contents' =&gt; '1'
             ],
             [
                 'name' =&gt; 'Status',
@@ -30531,7 +30957,7 @@ $response = $client-&gt;post(
             ],
             [
                 'name' =&gt; 'ImageUrl',
-                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php8D35.tmp', 'r')
+                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php5546.tmp', 'r')
             ],
         ],
     ]
@@ -30549,16 +30975,16 @@ files = {
   'Name': (None, 'Bắp rang bơ'),
   'Description': (None, 'Bắp rang bơ thơm ngon'),
   'Price': (None, '45000'),
-  'IsAvailable': (None, ''),
+  'IsAvailable': (None, '1'),
   'Status': (None, 'Available'),
   'Category': (None, 'Snacks'),
   'Items[]': (None, 'ynlazghdtqtqxbajwbpil'),
-  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php8D35.tmp', 'rb')}
+  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php5546.tmp', 'rb')}
 payload = {
     "Name": "Bắp rang bơ",
     "Description": "Bắp rang bơ thơm ngon",
     "Price": "45000",
-    "IsAvailable": false,
+    "IsAvailable": true,
     "Status": "Available",
     "Category": "Snacks",
     "Items": [
@@ -30748,7 +31174,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>Status</code></b>&nbsp;&nbsp;
@@ -30802,7 +31228,7 @@ Must be one of:
                value=""
                data-component="body">
     <br>
-<p>The item image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php8D35.tmp</code></p>
+<p>The item image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php5546.tmp</code></p>
         </div>
         </form>
 
@@ -30826,11 +31252,11 @@ Must be one of:
     --form "Name=Bắp rang bơ lớn"\
     --form "Description=Bắp rang bơ thơm ngon, giòn rụm"\
     --form "Price=55000"\
-    --form "IsAvailable="\
+    --form "IsAvailable=1"\
     --form "Status=Unavailable"\
     --form "Category=Snacks"\
     --form "Items[]=ynlazghdtqtqxbajwbpil"\
-    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php8D75.tmp" </code></pre></div>
+    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php5585.tmp" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -30848,7 +31274,7 @@ const body = new FormData();
 body.append('Name', 'Bắp rang bơ lớn');
 body.append('Description', 'Bắp rang bơ thơm ngon, giòn rụm');
 body.append('Price', '55000');
-body.append('IsAvailable', '');
+body.append('IsAvailable', '1');
 body.append('Status', 'Unavailable');
 body.append('Category', 'Snacks');
 body.append('Items[]', 'ynlazghdtqtqxbajwbpil');
@@ -30886,7 +31312,7 @@ $response = $client-&gt;put(
             ],
             [
                 'name' =&gt; 'IsAvailable',
-                'contents' =&gt; ''
+                'contents' =&gt; '1'
             ],
             [
                 'name' =&gt; 'Status',
@@ -30902,7 +31328,7 @@ $response = $client-&gt;put(
             ],
             [
                 'name' =&gt; 'ImageUrl',
-                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php8D75.tmp', 'r')
+                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php5585.tmp', 'r')
             ],
         ],
     ]
@@ -30920,16 +31346,16 @@ files = {
   'Name': (None, 'Bắp rang bơ lớn'),
   'Description': (None, 'Bắp rang bơ thơm ngon, giòn rụm'),
   'Price': (None, '55000'),
-  'IsAvailable': (None, ''),
+  'IsAvailable': (None, '1'),
   'Status': (None, 'Unavailable'),
   'Category': (None, 'Snacks'),
   'Items[]': (None, 'ynlazghdtqtqxbajwbpil'),
-  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php8D75.tmp', 'rb')}
+  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php5585.tmp', 'rb')}
 payload = {
     "Name": "Bắp rang bơ lớn",
     "Description": "Bắp rang bơ thơm ngon, giòn rụm",
     "Price": "55000",
-    "IsAvailable": false,
+    "IsAvailable": true,
     "Status": "Unavailable",
     "Category": "Snacks",
     "Items": [
@@ -31121,7 +31547,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>Example: <code>false</code></p>
+<p>Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>Status</code></b>&nbsp;&nbsp;
@@ -31175,7 +31601,7 @@ Must be one of:
                value=""
                data-component="body">
     <br>
-<p>The item image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php8D75.tmp</code></p>
+<p>The item image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php5585.tmp</code></p>
         </div>
         </form>
 
@@ -31719,8 +32145,8 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"UserId\": \"consequatur\",
     \"Level\": \"mqeopfuudtdsufvyvddqa\",
     \"Points\": 45,
-    \"StartDate\": \"2026-08-04T07:14:03\",
-    \"EndDate\": \"2107-09-02\",
+    \"StartDate\": \"2026-08-07T23:21:21\",
+    \"EndDate\": \"2107-09-06\",
     \"Benefits\": \"consequatur\",
     \"Status\": \"Active\",
     \"Name\": \"Silver\",
@@ -31749,8 +32175,8 @@ let body = {
     "UserId": "consequatur",
     "Level": "mqeopfuudtdsufvyvddqa",
     "Points": 45,
-    "StartDate": "2026-08-04T07:14:03",
-    "EndDate": "2107-09-02",
+    "StartDate": "2026-08-07T23:21:21",
+    "EndDate": "2107-09-06",
     "Benefits": "consequatur",
     "Status": "Active",
     "Name": "Silver",
@@ -31783,8 +32209,8 @@ $response = $client-&gt;post(
             'UserId' =&gt; 'consequatur',
             'Level' =&gt; 'mqeopfuudtdsufvyvddqa',
             'Points' =&gt; 45,
-            'StartDate' =&gt; '2026-08-04T07:14:03',
-            'EndDate' =&gt; '2107-09-02',
+            'StartDate' =&gt; '2026-08-07T23:21:21',
+            'EndDate' =&gt; '2107-09-06',
             'Benefits' =&gt; 'consequatur',
             'Status' =&gt; 'Active',
             'Name' =&gt; 'Silver',
@@ -31810,8 +32236,8 @@ payload = {
     "UserId": "consequatur",
     "Level": "mqeopfuudtdsufvyvddqa",
     "Points": 45,
-    "StartDate": "2026-08-04T07:14:03",
-    "EndDate": "2107-09-02",
+    "StartDate": "2026-08-07T23:21:21",
+    "EndDate": "2107-09-06",
     "Benefits": "consequatur",
     "Status": "Active",
     "Name": "Silver",
@@ -31987,10 +32413,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="StartDate"                data-endpoint="POSTapi-memberships"
-               value="2026-08-04T07:14:03"
+               value="2026-08-07T23:21:21"
                data-component="body">
     <br>
-<p>Must be a valid date. Example: <code>2026-08-04T07:14:03</code></p>
+<p>Must be a valid date. Example: <code>2026-08-07T23:21:21</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>EndDate</code></b>&nbsp;&nbsp;
@@ -31999,10 +32425,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="EndDate"                data-endpoint="POSTapi-memberships"
-               value="2107-09-02"
+               value="2107-09-06"
                data-component="body">
     <br>
-<p>Must be a valid date. Must be a date after or equal to <code>StartDate</code>. Example: <code>2107-09-02</code></p>
+<p>Must be a valid date. Must be a date after or equal to <code>StartDate</code>. Example: <code>2107-09-06</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>Benefits</code></b>&nbsp;&nbsp;
@@ -32157,8 +32583,8 @@ Must be one of:
     \"UserId\": \"consequatur\",
     \"Level\": \"mqeopfuudtdsufvyvddqa\",
     \"Points\": 45,
-    \"StartDate\": \"2026-08-04T07:14:03\",
-    \"EndDate\": \"2107-09-02\",
+    \"StartDate\": \"2026-08-07T23:21:22\",
+    \"EndDate\": \"2107-09-06\",
     \"Benefits\": \"consequatur\",
     \"Status\": \"Inactive\",
     \"Name\": \"Silver Premium\",
@@ -32187,8 +32613,8 @@ let body = {
     "UserId": "consequatur",
     "Level": "mqeopfuudtdsufvyvddqa",
     "Points": 45,
-    "StartDate": "2026-08-04T07:14:03",
-    "EndDate": "2107-09-02",
+    "StartDate": "2026-08-07T23:21:22",
+    "EndDate": "2107-09-06",
     "Benefits": "consequatur",
     "Status": "Inactive",
     "Name": "Silver Premium",
@@ -32221,8 +32647,8 @@ $response = $client-&gt;put(
             'UserId' =&gt; 'consequatur',
             'Level' =&gt; 'mqeopfuudtdsufvyvddqa',
             'Points' =&gt; 45,
-            'StartDate' =&gt; '2026-08-04T07:14:03',
-            'EndDate' =&gt; '2107-09-02',
+            'StartDate' =&gt; '2026-08-07T23:21:22',
+            'EndDate' =&gt; '2107-09-06',
             'Benefits' =&gt; 'consequatur',
             'Status' =&gt; 'Inactive',
             'Name' =&gt; 'Silver Premium',
@@ -32248,8 +32674,8 @@ payload = {
     "UserId": "consequatur",
     "Level": "mqeopfuudtdsufvyvddqa",
     "Points": 45,
-    "StartDate": "2026-08-04T07:14:03",
-    "EndDate": "2107-09-02",
+    "StartDate": "2026-08-07T23:21:22",
+    "EndDate": "2107-09-06",
     "Benefits": "consequatur",
     "Status": "Inactive",
     "Name": "Silver Premium",
@@ -32427,10 +32853,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="StartDate"                data-endpoint="PUTapi-memberships--MembershipId-"
-               value="2026-08-04T07:14:03"
+               value="2026-08-07T23:21:22"
                data-component="body">
     <br>
-<p>Must be a valid date. Example: <code>2026-08-04T07:14:03</code></p>
+<p>Must be a valid date. Example: <code>2026-08-07T23:21:22</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>EndDate</code></b>&nbsp;&nbsp;
@@ -32439,10 +32865,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="EndDate"                data-endpoint="PUTapi-memberships--MembershipId-"
-               value="2107-09-02"
+               value="2107-09-06"
                data-component="body">
     <br>
-<p>Must be a valid date. Must be a date after or equal to <code>StartDate</code>. Example: <code>2107-09-02</code></p>
+<p>Must be a valid date. Must be a date after or equal to <code>StartDate</code>. Example: <code>2107-09-06</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>Benefits</code></b>&nbsp;&nbsp;
@@ -35340,7 +35766,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --data "{
     \"ShowtimeId\": 17,
     \"SeatId\": 17,
-    \"Status\": \"Available\"
+    \"Status\": \"Broken\"
 }"
 </code></pre></div>
 
@@ -35358,7 +35784,7 @@ const headers = {
 let body = {
     "ShowtimeId": 17,
     "SeatId": 17,
-    "Status": "Available"
+    "Status": "Broken"
 };
 
 fetch(url, {
@@ -35380,7 +35806,7 @@ $response = $client-&gt;post(
         'json' =&gt; [
             'ShowtimeId' =&gt; 17,
             'SeatId' =&gt; 17,
-            'Status' =&gt; 'Available',
+            'Status' =&gt; 'Broken',
         ],
     ]
 );
@@ -35396,7 +35822,7 @@ url = 'http://localhost:5000/api/showtimeseats'
 payload = {
     "ShowtimeId": 17,
     "SeatId": 17,
-    "Status": "Available"
+    "Status": "Broken"
 }
 headers = {
   'Content-Type': 'application/json'
@@ -35500,10 +35926,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="Status"                data-endpoint="POSTapi-showtimeseats"
-               value="Available"
+               value="Broken"
                data-component="body">
     <br>
-<p>Example: <code>Available</code></p>
+<p>Example: <code>Broken</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>Available</code></li> <li><code>Reserved</code></li> <li><code>Held</code></li> <li><code>Broken</code></li> <li><code>Maintenance</code></li> <li><code>Inactive</code></li></ul>
         </div>
@@ -35527,7 +35953,7 @@ Must be one of:
     --data "{
     \"ShowtimeId\": 17,
     \"SeatId\": 17,
-    \"Status\": \"Held\"
+    \"Status\": \"Reserved\"
 }"
 </code></pre></div>
 
@@ -35545,7 +35971,7 @@ const headers = {
 let body = {
     "ShowtimeId": 17,
     "SeatId": 17,
-    "Status": "Held"
+    "Status": "Reserved"
 };
 
 fetch(url, {
@@ -35567,7 +35993,7 @@ $response = $client-&gt;put(
         'json' =&gt; [
             'ShowtimeId' =&gt; 17,
             'SeatId' =&gt; 17,
-            'Status' =&gt; 'Held',
+            'Status' =&gt; 'Reserved',
         ],
     ]
 );
@@ -35583,7 +36009,7 @@ url = 'http://localhost:5000/api/showtimeseats/consequatur'
 payload = {
     "ShowtimeId": 17,
     "SeatId": 17,
-    "Status": "Held"
+    "Status": "Reserved"
 }
 headers = {
   'Content-Type': 'application/json'
@@ -35700,10 +36126,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="Status"                data-endpoint="PUTapi-showtimeseats--Id-"
-               value="Held"
+               value="Reserved"
                data-component="body">
     <br>
-<p>Example: <code>Held</code></p>
+<p>Example: <code>Reserved</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>Available</code></li> <li><code>Reserved</code></li> <li><code>Held</code></li> <li><code>Broken</code></li> <li><code>Maintenance</code></li> <li><code>Inactive</code></li></ul>
         </div>
@@ -36297,7 +36723,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "Status=Active"\
     --form "Character=Tony Stark / Iron Man"\
     --form "Biography=American actor known for Iron Man"\
-    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php9569.tmp" </code></pre></div>
+    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php5BE3.tmp" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -36364,7 +36790,7 @@ $response = $client-&gt;post(
             ],
             [
                 'name' =&gt; 'ImageUrl',
-                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php9569.tmp', 'r')
+                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php5BE3.tmp', 'r')
             ],
         ],
     ]
@@ -36385,7 +36811,7 @@ files = {
   'Status': (None, 'Active'),
   'Character': (None, 'Tony Stark / Iron Man'),
   'Biography': (None, 'American actor known for Iron Man'),
-  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php9569.tmp', 'rb')}
+  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php5BE3.tmp', 'rb')}
 payload = {
     "MovieId": "consequatur",
     "Name": "Robert Downey Jr.",
@@ -36597,7 +37023,7 @@ Must be one of:
                value=""
                data-component="body">
     <br>
-<p>The cast image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php9569.tmp</code></p>
+<p>The cast image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php5BE3.tmp</code></p>
         </div>
         </form>
 
@@ -36624,7 +37050,7 @@ Must be one of:
     --form "Status=Inactive"\
     --form "Character=Tony Stark"\
     --form "Biography=Updated biography"\
-    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php95B8.tmp" </code></pre></div>
+    --form "ImageUrl=@C:\Users\ACER\AppData\Local\Temp\php5C23.tmp" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -36691,7 +37117,7 @@ $response = $client-&gt;put(
             ],
             [
                 'name' =&gt; 'ImageUrl',
-                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php95B8.tmp', 'r')
+                'contents' =&gt; fopen('C:\Users\ACER\AppData\Local\Temp\php5C23.tmp', 'r')
             ],
         ],
     ]
@@ -36712,7 +37138,7 @@ files = {
   'Status': (None, 'Inactive'),
   'Character': (None, 'Tony Stark'),
   'Biography': (None, 'Updated biography'),
-  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php95B8.tmp', 'rb')}
+  'ImageUrl': open('C:\Users\ACER\AppData\Local\Temp\php5C23.tmp', 'rb')}
 payload = {
     "MovieId": "consequatur",
     "Name": "Robert Downey Jr. Updated",
@@ -36926,7 +37352,7 @@ Must be one of:
                value=""
                data-component="body">
     <br>
-<p>The cast image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php95B8.tmp</code></p>
+<p>The cast image (jpg, png, webp). Max 2MB. Example: <code>C:\Users\ACER\AppData\Local\Temp\php5C23.tmp</code></p>
         </div>
         </form>
 
@@ -37453,7 +37879,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --data "{
     \"MovieId\": 1,
     \"GenreId\": 1,
-    \"Status\": \"Inactive\"
+    \"Status\": \"Active\"
 }"
 </code></pre></div>
 
@@ -37472,7 +37898,7 @@ const headers = {
 let body = {
     "MovieId": 1,
     "GenreId": 1,
-    "Status": "Inactive"
+    "Status": "Active"
 };
 
 fetch(url, {
@@ -37495,7 +37921,7 @@ $response = $client-&gt;post(
         'json' =&gt; [
             'MovieId' =&gt; 1,
             'GenreId' =&gt; 1,
-            'Status' =&gt; 'Inactive',
+            'Status' =&gt; 'Active',
         ],
     ]
 );
@@ -37511,7 +37937,7 @@ url = 'http://localhost:5000/api/moviegenres'
 payload = {
     "MovieId": 1,
     "GenreId": 1,
-    "Status": "Inactive"
+    "Status": "Active"
 }
 headers = {
   'Authorization': 'Bearer Bearer {your_jwt_token_here}',
@@ -37668,10 +38094,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="Status"                data-endpoint="POSTapi-moviegenres"
-               value="Inactive"
+               value="Active"
                data-component="body">
     <br>
-<p>Example: <code>Inactive</code></p>
+<p>Example: <code>Active</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>Active</code></li> <li><code>Inactive</code></li> <li><code>Banned</code></li></ul>
         </div>
@@ -37697,7 +38123,7 @@ Must be one of:
     --data "{
     \"MovieId\": 1,
     \"GenreId\": 2,
-    \"Status\": \"Inactive\"
+    \"Status\": \"Banned\"
 }"
 </code></pre></div>
 
@@ -37716,7 +38142,7 @@ const headers = {
 let body = {
     "MovieId": 1,
     "GenreId": 2,
-    "Status": "Inactive"
+    "Status": "Banned"
 };
 
 fetch(url, {
@@ -37739,7 +38165,7 @@ $response = $client-&gt;put(
         'json' =&gt; [
             'MovieId' =&gt; 1,
             'GenreId' =&gt; 2,
-            'Status' =&gt; 'Inactive',
+            'Status' =&gt; 'Banned',
         ],
     ]
 );
@@ -37755,7 +38181,7 @@ url = 'http://localhost:5000/api/moviegenres/1'
 payload = {
     "MovieId": 1,
     "GenreId": 2,
-    "Status": "Inactive"
+    "Status": "Banned"
 }
 headers = {
   'Authorization': 'Bearer Bearer {your_jwt_token_here}',
@@ -37917,10 +38343,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="Status"                data-endpoint="PUTapi-moviegenres--MovieGenreId-"
-               value="Inactive"
+               value="Banned"
                data-component="body">
     <br>
-<p>Example: <code>Inactive</code></p>
+<p>Example: <code>Banned</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>Active</code></li> <li><code>Inactive</code></li> <li><code>Banned</code></li></ul>
         </div>
@@ -38460,7 +38886,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"ItemId\": 1,
     \"Quantity\": 1,
     \"Price\": \"120000\",
-    \"Status\": \"Inactive\"
+    \"Status\": \"Active\"
 }"
 </code></pre></div>
 
@@ -38482,7 +38908,7 @@ let body = {
     "ItemId": 1,
     "Quantity": 1,
     "Price": "120000",
-    "Status": "Inactive"
+    "Status": "Active"
 };
 
 fetch(url, {
@@ -38508,7 +38934,7 @@ $response = $client-&gt;post(
             'ItemId' =&gt; 1,
             'Quantity' =&gt; 1,
             'Price' =&gt; '120000',
-            'Status' =&gt; 'Inactive',
+            'Status' =&gt; 'Active',
         ],
     ]
 );
@@ -38527,7 +38953,7 @@ payload = {
     "ItemId": 1,
     "Quantity": 1,
     "Price": "120000",
-    "Status": "Inactive"
+    "Status": "Active"
 }
 headers = {
   'Authorization': 'Bearer Bearer {your_jwt_token_here}',
@@ -38716,10 +39142,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="Status"                data-endpoint="POSTapi-orderdetails"
-               value="Inactive"
+               value="Active"
                data-component="body">
     <br>
-<p>Example: <code>Inactive</code></p>
+<p>Example: <code>Active</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>Active</code></li> <li><code>Inactive</code></li></ul>
         </div>
@@ -38748,7 +39174,7 @@ Must be one of:
     \"ItemId\": 1,
     \"Quantity\": 2,
     \"Price\": \"120000\",
-    \"Status\": \"Inactive\"
+    \"Status\": \"Active\"
 }"
 </code></pre></div>
 
@@ -38770,7 +39196,7 @@ let body = {
     "ItemId": 1,
     "Quantity": 2,
     "Price": "120000",
-    "Status": "Inactive"
+    "Status": "Active"
 };
 
 fetch(url, {
@@ -38796,7 +39222,7 @@ $response = $client-&gt;put(
             'ItemId' =&gt; 1,
             'Quantity' =&gt; 2,
             'Price' =&gt; '120000',
-            'Status' =&gt; 'Inactive',
+            'Status' =&gt; 'Active',
         ],
     ]
 );
@@ -38815,7 +39241,7 @@ payload = {
     "ItemId": 1,
     "Quantity": 2,
     "Price": "120000",
-    "Status": "Inactive"
+    "Status": "Active"
 }
 headers = {
   'Authorization': 'Bearer Bearer {your_jwt_token_here}',
@@ -39006,10 +39432,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="Status"                data-endpoint="PUTapi-orderdetails--OrderDetailId-"
-               value="Inactive"
+               value="Active"
                data-component="body">
     <br>
-<p>Example: <code>Inactive</code></p>
+<p>Example: <code>Active</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>Active</code></li> <li><code>Inactive</code></li></ul>
         </div>
@@ -42467,12 +42893,12 @@ and seat assignments for each showtime. (Admin only)</p>
     \"StartDate\": \"2024-01-01\",
     \"EndDate\": \"2024-01-31\",
     \"DaysOfWeek\": [
-        \"Sat\"
+        \"Fri\"
     ],
-    \"StartTime\": \"07:14\",
-    \"EndTime\": \"2107-09-02\",
+    \"StartTime\": \"23:21\",
+    \"EndTime\": \"2107-09-06\",
     \"Price\": \"120000\",
-    \"Status\": \"Active\",
+    \"Status\": \"Inactive\",
     \"CinemaId\": 1,
     \"Showtimes\": [
         \"10:00\",
@@ -42500,12 +42926,12 @@ let body = {
     "StartDate": "2024-01-01",
     "EndDate": "2024-01-31",
     "DaysOfWeek": [
-        "Sat"
+        "Fri"
     ],
-    "StartTime": "07:14",
-    "EndTime": "2107-09-02",
+    "StartTime": "23:21",
+    "EndTime": "2107-09-06",
     "Price": "120000",
-    "Status": "Active",
+    "Status": "Inactive",
     "CinemaId": 1,
     "Showtimes": [
         "10:00",
@@ -42537,12 +42963,12 @@ $response = $client-&gt;post(
             'StartDate' =&gt; '2024-01-01',
             'EndDate' =&gt; '2024-01-31',
             'DaysOfWeek' =&gt; [
-                'Sat',
+                'Fri',
             ],
-            'StartTime' =&gt; '07:14',
-            'EndTime' =&gt; '2107-09-02',
+            'StartTime' =&gt; '23:21',
+            'EndTime' =&gt; '2107-09-06',
             'Price' =&gt; '120000',
-            'Status' =&gt; 'Active',
+            'Status' =&gt; 'Inactive',
             'CinemaId' =&gt; 1,
             'Showtimes' =&gt; [
                 '10:00',
@@ -42567,12 +42993,12 @@ payload = {
     "StartDate": "2024-01-01",
     "EndDate": "2024-01-31",
     "DaysOfWeek": [
-        "Sat"
+        "Fri"
     ],
-    "StartTime": "07:14",
-    "EndTime": "2107-09-02",
+    "StartTime": "23:21",
+    "EndTime": "2107-09-06",
     "Price": "120000",
-    "Status": "Active",
+    "Status": "Inactive",
     "CinemaId": 1,
     "Showtimes": [
         "10:00",
@@ -42794,10 +43220,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="StartTime"                data-endpoint="POSTapi-schedules"
-               value="07:14"
+               value="23:21"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>07:14</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>23:21</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>EndTime</code></b>&nbsp;&nbsp;
@@ -42806,10 +43232,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="EndTime"                data-endpoint="POSTapi-schedules"
-               value="2107-09-02"
+               value="2107-09-06"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Must be a date after <code>StartTime</code>. Example: <code>2107-09-02</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Must be a date after <code>StartTime</code>. Example: <code>2107-09-06</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>Price</code></b>&nbsp;&nbsp;
@@ -42830,10 +43256,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="Status"                data-endpoint="POSTapi-schedules"
-               value="Active"
+               value="Inactive"
                data-component="body">
     <br>
-<p>Example: <code>Active</code></p>
+<p>Example: <code>Inactive</code></p>
 Must be one of:
 <ul style="list-style-type: square;"><li><code>Active</code></li> <li><code>Inactive</code></li></ul>
         </div>
@@ -42888,10 +43314,10 @@ Must be one of:
     \"StartDate\": \"2024-01-01\",
     \"EndDate\": \"2024-02-15\",
     \"DaysOfWeek\": [
-        \"Sun\"
+        \"Fri\"
     ],
-    \"StartTime\": \"07:14\",
-    \"EndTime\": \"2107-09-02\",
+    \"StartTime\": \"23:21\",
+    \"EndTime\": \"2107-09-06\",
     \"Price\": \"130000\",
     \"Status\": \"Active\",
     \"CinemaId\": 1,
@@ -42921,10 +43347,10 @@ let body = {
     "StartDate": "2024-01-01",
     "EndDate": "2024-02-15",
     "DaysOfWeek": [
-        "Sun"
+        "Fri"
     ],
-    "StartTime": "07:14",
-    "EndTime": "2107-09-02",
+    "StartTime": "23:21",
+    "EndTime": "2107-09-06",
     "Price": "130000",
     "Status": "Active",
     "CinemaId": 1,
@@ -42958,10 +43384,10 @@ $response = $client-&gt;put(
             'StartDate' =&gt; '2024-01-01',
             'EndDate' =&gt; '2024-02-15',
             'DaysOfWeek' =&gt; [
-                'Sun',
+                'Fri',
             ],
-            'StartTime' =&gt; '07:14',
-            'EndTime' =&gt; '2107-09-02',
+            'StartTime' =&gt; '23:21',
+            'EndTime' =&gt; '2107-09-06',
             'Price' =&gt; '130000',
             'Status' =&gt; 'Active',
             'CinemaId' =&gt; 1,
@@ -42988,10 +43414,10 @@ payload = {
     "StartDate": "2024-01-01",
     "EndDate": "2024-02-15",
     "DaysOfWeek": [
-        "Sun"
+        "Fri"
     ],
-    "StartTime": "07:14",
-    "EndTime": "2107-09-02",
+    "StartTime": "23:21",
+    "EndTime": "2107-09-06",
     "Price": "130000",
     "Status": "Active",
     "CinemaId": 1,
@@ -43206,10 +43632,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="StartTime"                data-endpoint="PUTapi-schedules--ScheduleId-"
-               value="07:14"
+               value="23:21"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>07:14</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>23:21</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>EndTime</code></b>&nbsp;&nbsp;
@@ -43218,10 +43644,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="EndTime"                data-endpoint="PUTapi-schedules--ScheduleId-"
-               value="2107-09-02"
+               value="2107-09-06"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Must be a date after <code>StartTime</code>. Example: <code>2107-09-02</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Must be a date after <code>StartTime</code>. Example: <code>2107-09-06</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>Price</code></b>&nbsp;&nbsp;

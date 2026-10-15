@@ -112,7 +112,7 @@ endpoints:
         name: Status
         description: ''
         required: false
-        example: Inactive
+        example: Banned
         type: string
         enumValues:
           - Active
@@ -129,7 +129,7 @@ endpoints:
       Gender: Male
       DateOfBirth: '2000-01-01'
       RoleId: 17
-      Status: Inactive
+      Status: Banned
     fileParameters: []
     responses:
       -

@@ -1,7 +1,9 @@
 <?php
 namespace App\Services;
 
+use App\Models\Movie;
 use App\Repositories\MovieRepository;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -15,11 +17,140 @@ class MovieService
     }
 
     /**
+     * ✅ Helper: Cập nhật trạng thái cho movie an toàn
+     * 
+     * @param mixed $movie
+     * @return bool
+     */
+    private function safeUpdateStatus($movie): bool
+    {
+        // Kiểm tra null
+        if (!$movie) {
+            return false;
+        }
+        
+        // Kiểm tra là object
+        if (!is_object($movie)) {
+            return false;
+        }
+        
+        // Kiểm tra là instance của Movie Model
+        if (!$movie instanceof \App\Models\Movie) {
+            return false;
+        }
+        
+        // Kiểm tra có method updateStatus
+        if (!method_exists($movie, 'updateStatus')) {
+            return false;
+        }
+        
+        try {
+            return $movie->updateStatus();
+        } catch (\Exception $e) {
+            Log::warning('Failed to update status for movie ID ' . ($movie->MovieId ?? 'unknown') . ': ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * ✅ Helper: Lấy movie và kiểm tra tồn tại
+     * 
+     * @param int $movieId
+     * @return array ['success' => bool, 'movie' => Movie|null, 'message' => string]
+     */
+    private function findMovieOrFail(int $movieId): array
+    {
+        try {
+            $movie = $this->movieRepository->find($movieId);
+            
+            if (!$movie) {
+                return [
+                    'success' => false,
+                    'movie' => null,
+                    'message' => 'Không tìm thấy phim với ID: ' . $movieId
+                ];
+            }
+            
+            return [
+                'success' => true,
+                'movie' => $movie,
+                'message' => 'Tìm thấy phim'
+            ];
+        } catch (\Exception $e) {
+            Log::error('Error finding movie: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'movie' => null,
+                'message' => 'Có lỗi xảy ra khi tìm phim: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * ✅ Tự động cập nhật trạng thái cho tất cả phim
+     */
+    public function autoUpdateStatus(): array
+    {
+        try {
+            return Movie::autoUpdateAllStatus();
+        } catch (\Exception $e) {
+            Log::error('Lỗi autoUpdateStatus: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Có lỗi xảy ra khi cập nhật trạng thái phim: ' . $e->getMessage(),
+                'updated_count' => 0,
+                'updates' => []
+            ];
+        }
+    }
+
+    /**
+     * ✅ Cập nhật trạng thái cho một phim cụ thể
+     */
+    public function updateSingleStatus(int $movieId): array
+    {
+        try {
+            $result = $this->findMovieOrFail($movieId);
+            
+            if (!$result['success']) {
+                return [
+                    'success' => false,
+                    'message' => $result['message']
+                ];
+            }
+            
+            $movie = $result['movie'];
+            $oldStatus = $movie->Status;
+            
+            // Cập nhật trạng thái
+            $changed = $this->safeUpdateStatus($movie);
+            
+            return [
+                'success' => true,
+                'data' => $movie,
+                'changed' => $changed,
+                'old_status' => $oldStatus,
+                'new_status' => $movie->Status,
+                'message' => $changed ? 'Đã cập nhật trạng thái' : 'Trạng thái không thay đổi'
+            ];
+        } catch (\Exception $e) {
+            Log::error('Lỗi updateSingleStatus: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
      * Lấy tất cả phim
      */
     public function getAll()
     {
         try {
+            // ✅ Tự động cập nhật trạng thái trước khi lấy
+            $this->autoUpdateStatus();
+            
             $movies = $this->movieRepository->all();
             
             return [
@@ -46,15 +177,20 @@ class MovieService
     public function find($movieId)
     {
         try {
-            $movie = $this->movieRepository->find($movieId);
+            $result = $this->findMovieOrFail($movieId);
             
-            if (!$movie) {
+            if (!$result['success']) {
                 return [
                     'success' => false,
                     'data' => null,
-                    'message' => 'Không tìm thấy phim'
+                    'message' => $result['message']
                 ];
             }
+            
+            $movie = $result['movie'];
+            
+            // ✅ Cập nhật trạng thái an toàn
+            $this->safeUpdateStatus($movie);
 
             return [
                 'success' => true,
@@ -67,7 +203,7 @@ class MovieService
             return [
                 'success' => false,
                 'data' => null,
-                'message' => 'Có lỗi xảy ra',
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ];
         }
@@ -84,7 +220,22 @@ class MovieService
                 $data['CreatedBy'] = Auth::user()->UserId;
             }
             
+            // ✅ Tính trạng thái dựa trên ngày chiếu
+            if (isset($data['ReleaseDate'])) {
+                $releaseDate = Carbon::parse($data['ReleaseDate'])->startOfDay();
+                $today = Carbon::now()->startOfDay();
+                
+                // Nếu ngày chiếu trong tương lai -> Sắp chiếu
+                // Nếu ngày chiếu đã qua hoặc hôm nay -> Đang chiếu
+                $data['Status'] = $releaseDate->gt($today) ? 'ComingSoon' : 'NowShowing';
+            }
+            
             $movie = $this->movieRepository->create($data);
+            
+            // ✅ Cập nhật trạng thái an toàn
+            if ($movie) {
+                $this->safeUpdateStatus($movie);
+            }
             
             return [
                 'success' => true,
@@ -97,7 +248,7 @@ class MovieService
             return [
                 'success' => false,
                 'data' => null,
-                'message' => 'Có lỗi xảy ra khi tạo phim',
+                'message' => 'Có lỗi xảy ra khi tạo phim: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ];
         }
@@ -114,17 +265,50 @@ class MovieService
                 $data['UpdatedBy'] = Auth::user()->UserId;
             }
             
-            $movie = $this->movieRepository->find($movieId);
+            $result = $this->findMovieOrFail($movieId);
             
-            if (!$movie) {
+            if (!$result['success']) {
                 return [
                     'success' => false,
                     'data' => null,
-                    'message' => 'Không tìm thấy phim'
+                    'message' => $result['message']
                 ];
             }
             
+            $movie = $result['movie'];
+            
+            // ✅ Nếu cập nhật ngày chiếu, tính lại trạng thái
+            if (isset($data['ReleaseDate'])) {
+                $releaseDate = Carbon::parse($data['ReleaseDate'])->startOfDay();
+                $today = Carbon::now()->startOfDay();
+                
+                // Kiểm tra suất chiếu trong tương lai
+                $hasShowtime = false;
+                if (method_exists($movie, 'showtimes')) {
+                    $hasShowtime = $movie->showtimes()
+                        ->where('StartTime', '>=', Carbon::now())
+                        ->exists();
+                }
+                    
+                if ($releaseDate->gt($today)) {
+                    // Ngày chiếu trong tương lai -> Sắp chiếu
+                    $data['Status'] = 'ComingSoon';
+                } elseif ($hasShowtime) {
+                    // Có suất chiếu -> Đang chiếu
+                    $data['Status'] = 'NowShowing';
+                } else {
+                    // Không có suất chiếu, kiểm tra thời gian
+                    $daysSinceRelease = $today->diffInDays($releaseDate);
+                    $data['Status'] = $daysSinceRelease >= 60 ? 'Ended' : 'NowShowing';
+                }
+            }
+            
             $updatedMovie = $this->movieRepository->update($movie, $data);
+            
+            // ✅ Cập nhật trạng thái an toàn
+            if ($updatedMovie) {
+                $this->safeUpdateStatus($updatedMovie);
+            }
             
             return [
                 'success' => true,
@@ -137,7 +321,7 @@ class MovieService
             return [
                 'success' => false,
                 'data' => null,
-                'message' => 'Có lỗi xảy ra khi cập nhật phim',
+                'message' => 'Có lỗi xảy ra khi cập nhật phim: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ];
         }
@@ -149,15 +333,16 @@ class MovieService
     public function delete($movieId)
     {
         try {
-            $movie = $this->movieRepository->find($movieId);
+            $result = $this->findMovieOrFail($movieId);
             
-            if (!$movie) {
+            if (!$result['success']) {
                 return [
                     'success' => false,
-                    'message' => 'Không tìm thấy phim'
+                    'message' => $result['message']
                 ];
             }
             
+            $movie = $result['movie'];
             $this->movieRepository->delete($movie);
             
             return [
@@ -169,7 +354,7 @@ class MovieService
             
             return [
                 'success' => false,
-                'message' => 'Có lỗi xảy ra khi xóa phim',
+                'message' => 'Có lỗi xảy ra khi xóa phim: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ];
         }
@@ -181,6 +366,9 @@ class MovieService
     public function getNowShowingMovies()
     {
         try {
+            // ✅ Tự động cập nhật trạng thái trước khi lấy
+            $this->autoUpdateStatus();
+            
             $movies = $this->movieRepository->getNowShowingWithDetails();
             
             return [
@@ -195,7 +383,7 @@ class MovieService
             return [
                 'success' => false,
                 'data' => [],
-                'message' => 'Có lỗi xảy ra khi lấy danh sách phim',
+                'message' => 'Có lỗi xảy ra khi lấy danh sách phim đang chiếu',
                 'error' => $e->getMessage()
             ];
         }
@@ -207,15 +395,20 @@ class MovieService
     public function getMovieDetail($movieId)
     {
         try {
-            $movie = $this->movieRepository->getMovieDetailById($movieId);
+            $result = $this->findMovieOrFail($movieId);
             
-            if (!$movie) {
+            if (!$result['success']) {
                 return [
                     'success' => false,
                     'data' => null,
-                    'message' => 'Không tìm thấy phim'
+                    'message' => $result['message']
                 ];
             }
+            
+            $movie = $result['movie'];
+            
+            // ✅ Cập nhật trạng thái an toàn
+            $this->safeUpdateStatus($movie);
 
             return [
                 'success' => true,
@@ -228,7 +421,7 @@ class MovieService
             return [
                 'success' => false,
                 'data' => null,
-                'message' => 'Có lỗi xảy ra khi lấy chi tiết phim',
+                'message' => 'Có lỗi xảy ra khi lấy chi tiết phim: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ];
         }
@@ -254,7 +447,7 @@ class MovieService
             return [
                 'success' => false,
                 'data' => [],
-                'message' => 'Có lỗi xảy ra',
+                'message' => 'Có lỗi xảy ra khi lấy phim theo thể loại: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ];
         }
@@ -289,7 +482,7 @@ class MovieService
             return [
                 'success' => false,
                 'data' => [],
-                'message' => 'Có lỗi xảy ra khi tìm kiếm',
+                'message' => 'Có lỗi xảy ra khi tìm kiếm: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ];
         }
@@ -301,6 +494,9 @@ class MovieService
     public function getComingSoonMovies()
     {
         try {
+            // ✅ Tự động cập nhật trạng thái trước khi lấy
+            $this->autoUpdateStatus();
+            
             $movies = $this->movieRepository->getComingSoon();
             
             return [
@@ -315,7 +511,7 @@ class MovieService
             return [
                 'success' => false,
                 'data' => [],
-                'message' => 'Có lỗi xảy ra',
+                'message' => 'Có lỗi xảy ra khi lấy danh sách phim sắp chiếu: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ];
         }
@@ -323,7 +519,6 @@ class MovieService
 
     /**
      * Lấy danh sách thể loại, đạo diễn, diễn viên từ phim đang chiếu
-     * (Để làm filters)
      */
     public function getNowShowingFilters()
     {
@@ -346,7 +541,7 @@ class MovieService
                     'actors' => [],
                     'total_movies' => 0
                 ],
-                'message' => 'Có lỗi xảy ra',
+                'message' => 'Có lỗi xảy ra khi lấy filters: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ];
         }
@@ -373,7 +568,7 @@ class MovieService
             return [
                 'success' => false,
                 'data' => [],
-                'message' => 'Có lỗi xảy ra khi lọc phim',
+                'message' => 'Có lỗi xảy ra khi lọc phim: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ];
         }
@@ -385,6 +580,9 @@ class MovieService
     public function getByStatus($status)
     {
         try {
+            // ✅ Tự động cập nhật trạng thái trước khi lấy
+            $this->autoUpdateStatus();
+            
             $movies = $this->movieRepository->getByStatus($status);
             
             return [
@@ -392,7 +590,7 @@ class MovieService
                 'data' => $movies,
                 'total' => $movies->count(),
                 'status' => $status,
-                'message' => 'Lấy danh sách phim thành công'
+                'message' => 'Lấy danh sách phim theo trạng thái thành công'
             ];
         } catch (\Exception $e) {
             Log::error('Error getting movies by status: ' . $e->getMessage());
@@ -400,7 +598,7 @@ class MovieService
             return [
                 'success' => false,
                 'data' => [],
-                'message' => 'Có lỗi xảy ra',
+                'message' => 'Có lỗi xảy ra khi lấy phim theo trạng thái: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ];
         }
@@ -426,7 +624,7 @@ class MovieService
             return [
                 'success' => false,
                 'data' => [],
-                'message' => 'Có lỗi xảy ra',
+                'message' => 'Có lỗi xảy ra khi lấy phim mới nhất: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ];
         }
@@ -452,7 +650,7 @@ class MovieService
             return [
                 'success' => false,
                 'data' => [],
-                'message' => 'Có lỗi xảy ra',
+                'message' => 'Có lỗi xảy ra khi lấy phim hot: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ];
         }
@@ -464,6 +662,9 @@ class MovieService
     public function getStatistics()
     {
         try {
+            // ✅ Tự động cập nhật trạng thái trước khi thống kê
+            $this->autoUpdateStatus();
+            
             $stats = $this->movieRepository->countByStatus();
             
             return [
@@ -477,33 +678,70 @@ class MovieService
             return [
                 'success' => false,
                 'data' => null,
-                'message' => 'Có lỗi xảy ra',
+                'message' => 'Có lỗi xảy ra khi lấy thống kê: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ];
         }
     }
 
     /**
+     * ✅ Kiểm tra và cập nhật trạng thái cho một phim (method helper)
+     * 
+     * @param mixed $movie
+     * @return bool
+     */
+    public function updateMovieStatus($movie): bool
+    {
+        return $this->safeUpdateStatus($movie);
+    }
+
+    /**
+     * ✅ Kiểm tra và cập nhật trạng thái cho nhiều phim (method helper)
+     * 
+     * @param array $movieIds
+     * @return array
+     */
+    public function updateMultipleStatus(array $movieIds): array
+    {
+        $results = [];
+        foreach ($movieIds as $movieId) {
+            $results[$movieId] = $this->updateSingleStatus($movieId);
+        }
+        return $results;
+    }
+
+    /**
      * Validate dữ liệu phim trước khi tạo/cập nhật
      */
-    private function validateMovieData(array $data)
+    private function validateMovieData(array $data): array
     {
         $errors = [];
 
-        // Validate Title
+        // Title
         if (empty($data['Title'])) {
-            $errors[] = 'Tiêu đề phim không được để trống';
+            $errors['Title'] = 'Tiêu đề phim không được để trống';
         }
 
-        // Validate Duration
-        if (isset($data['Duration']) && $data['Duration'] < 0) {
-            $errors[] = 'Thời lượng phim không hợp lệ';
+        // Duration
+        if (isset($data['Duration'])) {
+            if (!is_numeric($data['Duration']) || $data['Duration'] < 0) {
+                $errors['Duration'] = 'Thời lượng phim không hợp lệ (phải là số dương)';
+            }
         }
 
-        // Validate Status
+        // Status
         $validStatuses = ['NowShowing', 'ComingSoon', 'Ended'];
         if (isset($data['Status']) && !in_array($data['Status'], $validStatuses)) {
-            $errors[] = 'Trạng thái phim không hợp lệ';
+            $errors['Status'] = 'Trạng thái phim không hợp lệ. Chấp nhận: ' . implode(', ', $validStatuses);
+        }
+
+        // ReleaseDate
+        if (isset($data['ReleaseDate'])) {
+            try {
+                Carbon::parse($data['ReleaseDate']);
+            } catch (\Exception $e) {
+                $errors['ReleaseDate'] = 'Ngày phát hành không hợp lệ';
+            }
         }
 
         return $errors;
@@ -512,9 +750,8 @@ class MovieService
     /**
      * Tạo phim với validation
      */
-    public function createWithValidation(array $data)
+    public function createWithValidation(array $data): array
     {
-        // Validate dữ liệu
         $errors = $this->validateMovieData($data);
         
         if (!empty($errors)) {
@@ -532,9 +769,8 @@ class MovieService
     /**
      * Cập nhật phim với validation
      */
-    public function updateWithValidation($movieId, array $data)
+    public function updateWithValidation($movieId, array $data): array
     {
-        // Validate dữ liệu
         $errors = $this->validateMovieData($data);
         
         if (!empty($errors)) {

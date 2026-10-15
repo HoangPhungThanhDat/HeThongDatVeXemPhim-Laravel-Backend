@@ -576,7 +576,7 @@ endpoints:
         name: Status
         description: ''
         required: true
-        example: Available
+        example: Broken
         type: string
         enumValues:
           - Available
@@ -591,7 +591,7 @@ endpoints:
     cleanBodyParameters:
       ShowtimeId: 17
       SeatId: 17
-      Status: Available
+      Status: Broken
     fileParameters: []
     responses: []
     responseFields: []
@@ -660,7 +660,7 @@ endpoints:
         name: Status
         description: ''
         required: false
-        example: Held
+        example: Reserved
         type: string
         enumValues:
           - Available
@@ -675,7 +675,7 @@ endpoints:
     cleanBodyParameters:
       ShowtimeId: 17
       SeatId: 17
-      Status: Held
+      Status: Reserved
     fileParameters: []
     responses: []
     responseFields: []

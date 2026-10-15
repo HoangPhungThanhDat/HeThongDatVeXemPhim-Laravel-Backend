@@ -236,7 +236,7 @@ endpoints:
         description: ''
         required: false
         example:
-          - Sat
+          - Fri
         type: 'string[]'
         enumValues:
           - Mon
@@ -254,7 +254,7 @@ endpoints:
         name: StartTime
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '07:14'
+        example: '23:21'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -265,7 +265,7 @@ endpoints:
         name: EndTime
         description: 'Must be a valid date in the format <code>H:i</code>. Must be a date after <code>StartTime</code>.'
         required: true
-        example: '2107-09-02'
+        example: '2107-09-06'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -287,7 +287,7 @@ endpoints:
         name: Status
         description: ''
         required: true
-        example: Active
+        example: Inactive
         type: string
         enumValues:
           - Active
@@ -326,11 +326,11 @@ endpoints:
       StartDate: '2024-01-01'
       EndDate: '2024-01-31'
       DaysOfWeek:
-        - Sat
-      StartTime: '07:14'
-      EndTime: '2107-09-02'
+        - Fri
+      StartTime: '23:21'
+      EndTime: '2107-09-06'
       Price: '120000'
-      Status: Active
+      Status: Inactive
       CinemaId: 1
       Showtimes:
         - '10:00'
@@ -494,7 +494,7 @@ endpoints:
         description: ''
         required: false
         example:
-          - Sun
+          - Fri
         type: 'string[]'
         enumValues:
           - Mon
@@ -512,7 +512,7 @@ endpoints:
         name: StartTime
         description: 'Must be a valid date in the format <code>H:i</code>.'
         required: true
-        example: '07:14'
+        example: '23:21'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -523,7 +523,7 @@ endpoints:
         name: EndTime
         description: 'Must be a valid date in the format <code>H:i</code>. Must be a date after <code>StartTime</code>.'
         required: true
-        example: '2107-09-02'
+        example: '2107-09-06'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -584,9 +584,9 @@ endpoints:
       StartDate: '2024-01-01'
       EndDate: '2024-02-15'
       DaysOfWeek:
-        - Sun
-      StartTime: '07:14'
-      EndTime: '2107-09-02'
+        - Fri
+      StartTime: '23:21'
+      EndTime: '2107-09-06'
       Price: '130000'
       Status: Active
       CinemaId: 1

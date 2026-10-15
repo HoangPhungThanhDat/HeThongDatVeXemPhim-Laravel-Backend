@@ -10,6 +10,149 @@ endpoints:
   -
     custom: []
     httpMethods:
+      - POST
+    uri: api/movies/auto-update-status
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: '✅ Tự động cập nhật trạng thái cho tất cả phim'
+      description: 'Cập nhật trạng thái của tất cả phim dựa trên ngày chiếu và suất chiếu hiện tại.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Đã cập nhật trạng thái cho 5 phim",
+            "updated_count": 5,
+            "updates": [
+              {
+                "movie_id": 1,
+                "title": "Avengers: Endgame",
+                "old_status": "ComingSoon",
+                "new_status": "NowShowing"
+              }
+            ]
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Có lỗi xảy ra khi cập nhật trạng thái phim"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/movies/update-status/{movieId}'
+    metadata:
+      custom: []
+      groupName: Movies
+      groupDescription: |-
+
+        APIs for managing movies. Includes CRUD operations, 
+        filtering by status (Now Showing, Coming Soon, Ended),
+        search, and statistics.
+      subgroup: null
+      subgroupDescription: null
+      title: '✅ Cập nhật trạng thái cho một phim cụ thể'
+      description: 'Cập nhật trạng thái của một phim dựa trên ngày chiếu và suất chiếu hiện tại.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer Bearer {your_jwt_token_here}'
+    urlParameters:
+      movieId:
+        custom: []
+        name: movieId
+        description: 'ID của phim cần cập nhật.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      movieId: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": {
+              "MovieId": 1,
+              "Title": "Avengers: Endgame",
+              "Status": "NowShowing"
+            },
+            "changed": true,
+            "old_status": "ComingSoon",
+            "new_status": "NowShowing",
+            "message": "Đã cập nhật trạng thái"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Không tìm thấy phim"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 3V5EgbkvZcDPa166h8fd4ae'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
       - GET
     uri: api/movies/now-showing/all
     metadata:
@@ -542,7 +685,8 @@ endpoints:
               "ended": 25,
               "total_showtimes": 120,
               "total_reviews": 500,
-              "average_rating": 4.5
+              "average_rating": 4.5,
+              "total_cast_members": 120
             }
           }
         headers: []
@@ -649,8 +793,8 @@ endpoints:
         name: id
         description: 'The ID of the movie.'
         required: true
-        example: consequatur
-        type: string
+        example: 5
+        type: integer
         enumValues: []
         exampleWasSpecified: false
         nullable: false
@@ -667,7 +811,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      id: consequatur
+      id: 5
       movieId: 1
     queryParameters: []
     cleanQueryParameters: []
@@ -891,8 +1035,8 @@ endpoints:
         name: MovieId
         description: ''
         required: true
-        example: consequatur
-        type: string
+        example: 5
+        type: integer
         enumValues: []
         exampleWasSpecified: false
         nullable: false
@@ -909,7 +1053,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      MovieId: consequatur
+      MovieId: 5
       movieId: 1
     queryParameters: []
     cleanQueryParameters: []
@@ -930,7 +1074,8 @@ endpoints:
             "Duration": 180,
             "Language": "English",
             "Rated": "PG-13",
-            "Status": "NowShowing"
+            "Status": "NowShowing",
+            "castMembers": [...]
           }
         headers: []
         description: ''
@@ -1085,7 +1230,7 @@ endpoints:
         name: Status
         description: ''
         required: false
-        example: Ended
+        example: ComingSoon
         type: string
         enumValues:
           - NowShowing
@@ -1116,6 +1261,40 @@ endpoints:
         exampleWasSpecified: true
         nullable: false
         deprecated: false
+      CastMembers:
+        custom: []
+        name: CastMembers
+        description: 'The cast members list (new format).'
+        required: false
+        example:
+          - consequatur
+        type: 'string[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'CastMembers[].name':
+        custom: []
+        name: 'CastMembers[].name'
+        description: 'The cast member name.'
+        required: false
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'CastMembers[].role':
+        custom: []
+        name: 'CastMembers[].role'
+        description: 'The role (Actor, Director, Producer, Writer).'
+        required: false
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
     cleanBodyParameters:
       Title: 'Avengers: Endgame'
       Description: 'After the devastating events of Infinity War...'
@@ -1125,9 +1304,11 @@ endpoints:
       TrailerUrl: 'http://dibbert.com/eius-est-dolor-dolores-minus-voluptatem-quisquam'
       Language: English
       Rated: PG-13
-      Status: Ended
+      Status: ComingSoon
       Director: 'Anthony Russo'
       Cast: 'Robert Downey Jr., Chris Evans'
+      CastMembers:
+        - consequatur
     fileParameters:
       PosterUrl: null
     responses:
@@ -1142,7 +1323,8 @@ endpoints:
             "PosterUrl": "https://res.cloudinary.com/.../movies/posters/avengers.jpg",
             "ReleaseDate": "2019-04-26",
             "Duration": 180,
-            "Status": "NowShowing"
+            "Status": "NowShowing",
+            "castMembers": [...]
           }
         headers: []
         description: ''
@@ -1206,8 +1388,8 @@ endpoints:
         name: MovieId
         description: ''
         required: true
-        example: consequatur
-        type: string
+        example: 5
+        type: integer
         enumValues: []
         exampleWasSpecified: false
         nullable: false
@@ -1224,7 +1406,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      MovieId: consequatur
+      MovieId: 5
       movieId: 1
     queryParameters: []
     cleanQueryParameters: []
@@ -1347,6 +1529,40 @@ endpoints:
         exampleWasSpecified: true
         nullable: true
         deprecated: false
+      CastMembers:
+        custom: []
+        name: CastMembers
+        description: 'The cast members list.'
+        required: false
+        example:
+          - consequatur
+        type: 'string[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'CastMembers[].name':
+        custom: []
+        name: 'CastMembers[].name'
+        description: 'The cast member name.'
+        required: false
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      'CastMembers[].role':
+        custom: []
+        name: 'CastMembers[].role'
+        description: 'The role (Actor, Director, Producer, Writer).'
+        required: false
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
     cleanBodyParameters:
       Title: "Avengers: Endgame - Director's Cut"
       Description: 'Dolores dolorum amet iste laborum eius est dolor.'
@@ -1357,6 +1573,8 @@ endpoints:
       Language: English
       Rated: PG-13
       Status: NowShowing
+      CastMembers:
+        - consequatur
     fileParameters:
       PosterUrl: null
     responses:
@@ -1367,7 +1585,8 @@ endpoints:
           {
             "MovieId": 1,
             "Title": "Avengers: Endgame - Director's Cut",
-            "Status": "NowShowing"
+            "Status": "NowShowing",
+            "castMembers": [...]
           }
         headers: []
         description: ''
@@ -1426,8 +1645,8 @@ endpoints:
         name: MovieId
         description: ''
         required: true
-        example: consequatur
-        type: string
+        example: 5
+        type: integer
         enumValues: []
         exampleWasSpecified: false
         nullable: false
@@ -1444,7 +1663,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanUrlParameters:
-      MovieId: consequatur
+      MovieId: 5
       movieId: 1
     queryParameters: []
     cleanQueryParameters: []
@@ -1458,7 +1677,7 @@ endpoints:
         content: |-
           {
             "success": true,
-            "message": "Xóa phim thành công"
+            "message": "Xóa phim và các diễn viên/đạo diễn liên quan thành công"
           }
         headers: []
         description: ''
