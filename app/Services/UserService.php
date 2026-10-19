@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash; 
+use Illuminate\Support\Facades\Hash;
 
 class UserService
 {
@@ -20,28 +20,52 @@ class UserService
         return $this->repository->all();
     }
 
+    public function getPaged($page, $limit, $search = '', $status = '')
+    {
+        return $this->repository->getPaged($page, $limit, $search, $status);
+    }
+
     public function find($UserId)
     {
         return $this->repository->find($UserId);
     }
 
+    public function checkEmailExists($email, $excludeUserId = null)
+    {
+        return $this->repository->checkEmailExists($email, $excludeUserId);
+    }
+
+    public function checkPhoneExists($phone, $excludeUserId = null)
+    {
+        return $this->repository->checkPhoneExists($phone, $excludeUserId);
+    }
+
     public function create(array $data)
     {
         $data['PasswordHash'] = Hash::make($data['PasswordHash']);
-        $data['CreatedBy'] = Auth::user()->UserId;
+        if (Auth::check()) {
+            $data['CreatedBy'] = Auth::user()->UserId;
+        }
+        $data['CreatedAt'] = now();
+        $data['UpdatedAt'] = now();
         return $this->repository->create($data);
     }
 
     public function update($UserId, array $data)
     {
-        if (isset($data['PasswordHash'])) {
-            $data['PasswordHash'] = Hash::make($data['PasswordHash']);
-        }
-        $data['UpdatedBy'] = Auth::user()->UserId;
         $user = $this->repository->find($UserId);
         if (!$user) {
             return null;
         }
+
+        if (isset($data['PasswordHash'])) {
+            $data['PasswordHash'] = Hash::make($data['PasswordHash']);
+        }
+        if (Auth::check()) {
+            $data['UpdatedBy'] = Auth::user()->UserId;
+        }
+        $data['UpdatedAt'] = now();
+        
         return $this->repository->update($user, $data);
     }
 
@@ -65,6 +89,7 @@ class UserService
             return null;
         }
         
+        $data['UpdatedAt'] = now();
         return $this->repository->update($user, $data);
     }
 
@@ -82,7 +107,6 @@ class UserService
             ];
         }
 
-        // Kiểm tra mật khẩu hiện tại có đúng không
         if (!Hash::check($currentPassword, $user->PasswordHash)) {
             return [
                 'success' => false,
@@ -90,7 +114,6 @@ class UserService
             ];
         }
 
-        // Kiểm tra mật khẩu mới không được trùng mật khẩu cũ
         if (Hash::check($newPassword, $user->PasswordHash)) {
             return [
                 'success' => false,
@@ -98,10 +121,10 @@ class UserService
             ];
         }
 
-        // Cập nhật mật khẩu mới
         $data = [
             'PasswordHash' => Hash::make($newPassword),
-            'UpdatedBy' => $userId
+            'UpdatedBy' => $userId,
+            'UpdatedAt' => now()
         ];
 
         $updatedUser = $this->repository->update($user, $data);

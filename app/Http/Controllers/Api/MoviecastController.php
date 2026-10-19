@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMoviecastRequest;
 use App\Http\Resources\MoviecastResource;
 use App\Services\MoviecastService;
-use App\Models\Moviecast;
 use Illuminate\Http\Request;
 
 /**
@@ -42,16 +41,6 @@ class MoviecastController extends Controller
      *     "ImageUrl": "https://res.cloudinary.com/.../casts/robert.jpg",
      *     "Status": "Active",
      *     "CreatedAt": "2024-01-01 10:00:00"
-     *   },
-     *   {
-     *     "CastId": 2,
-     *     "Name": "Christopher Nolan",
-     *     "Role": "Director",
-     *     "Character": null,
-     *     "Biography": "British-American filmmaker",
-     *     "ImageUrl": "https://res.cloudinary.com/.../casts/nolan.jpg",
-     *     "Status": "Active",
-     *     "CreatedAt": "2024-01-01 10:05:00"
      *   }
      * ]
      */
@@ -95,29 +84,15 @@ class MoviecastController extends Controller
         $search = $request->query('search', '');
         $role   = $request->query('role', '');
 
-        $query = Moviecast::with('movie');
-
-        if ($search) {
-            $query->where('Name', 'like', "%{$search}%");
-        }
-
-        if ($role) {
-            $query->where('Role', $role);
-        }
-
-        $total      = $query->count();
-        $totalPages = (int) ceil($total / $limit);
-        $items      = $query->orderBy('CastId', 'desc')
-                            ->skip(($page - 1) * $limit)
-                            ->take($limit)
-                            ->get();
+        // ✅ Gọi xuống Service -> Repository (đã có Redis Cache)
+        $result = $this->service->getPaged($page, $limit, $search, $role);
 
         return response()->json([
-            'data'       => MoviecastResource::collection($items),
-            'total'      => $total,
-            'page'       => $page,
-            'limit'      => $limit,
-            'totalPages' => $totalPages,
+            'data'       => MoviecastResource::collection($result['data']),
+            'total'      => $result['total'],
+            'page'       => $result['page'],
+            'limit'      => $result['limit'],
+            'totalPages' => $result['totalPages'],
         ]);
     }
 

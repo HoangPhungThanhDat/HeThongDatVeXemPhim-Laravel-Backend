@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\MoviecastRepository;
 use Illuminate\Support\Facades\Auth;
+
 class MoviecastService
 {
     protected $repository;
@@ -18,6 +19,14 @@ class MoviecastService
         return $this->repository->all();
     }
 
+    /**
+     * ✅ Lấy dữ liệu phân trang từ Repository
+     */
+    public function getPaged($page, $limit, $search = '', $role = '')
+    {
+        return $this->repository->getPaged($page, $limit, $search, $role);
+    }
+
     public function find($CastId)
     {
         return $this->repository->find($CastId);
@@ -25,17 +34,26 @@ class MoviecastService
 
     public function create(array $data)
     {
-        $data['CreatedBy'] = Auth::user()->UserId;
+        if (Auth::check()) {
+            $data['CreatedBy'] = Auth::user()->UserId;
+        }
+        $data['CreatedAt'] = now();
+        $data['UpdatedAt'] = now();
         return $this->repository->create($data);
     }
 
     public function update($CastId, array $data)
     {
-        $data['UpdatedBy'] = Auth::user()->UserId;
         $moviecast = $this->repository->find($CastId);
         if (!$moviecast) {
             return null;
         }
+        
+        if (Auth::check()) {
+            $data['UpdatedBy'] = Auth::user()->UserId;
+        }
+        $data['UpdatedAt'] = now();
+        
         return $this->repository->update($moviecast, $data);
     }
 

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Room;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreRoomRequest;
 use App\Http\Resources\RoomResource;
@@ -42,28 +41,6 @@ class RoomController extends Controller
      *     "Description": "Standard 2D room with comfortable seating",
      *     "CinemaName": "CGV Vincom Center",
      *     "CreatedAt": "2024-01-01 10:00:00"
-     *   },
-     *   {
-     *     "RoomId": 2,
-     *     "CinemaId": 1,
-     *     "Name": "Room 2 - IMAX",
-     *     "RoomType": "IMAX",
-     *     "Capacity": 200,
-     *     "Status": "Active",
-     *     "Description": "IMAX room with large screen and premium sound",
-     *     "CinemaName": "CGV Vincom Center",
-     *     "CreatedAt": "2024-01-01 10:05:00"
-     *   },
-     *   {
-     *     "RoomId": 3,
-     *     "CinemaId": 2,
-     *     "Name": "Room A - 3D",
-     *     "RoomType": "3D",
-     *     "Capacity": 80,
-     *     "Status": "Inactive",
-     *     "Description": "3D room under maintenance",
-     *     "CinemaName": "Lotte Cinema",
-     *     "CreatedAt": "2024-01-01 10:10:00"
      *   }
      * ]
      */

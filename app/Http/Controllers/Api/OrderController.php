@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Resources\OrderResource;
@@ -22,7 +21,7 @@ class OrderController extends Controller
     public function __construct(OrderService $orderService)
     {
         $this->orderService = $orderService;
-        $this->middleware(['auth:api','checkrole:Admin'])->only(['store', 'update', 'destroy']);
+        $this->middleware(['auth:api', 'checkrole:Admin'])->only(['store', 'update', 'destroy']);
     }
 
     /**
@@ -54,8 +53,8 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $orders = $this->orderService->getAll();
-        return OrderResource::collection($orders);
+        $result = $this->orderService->getAllFormatted();
+        return response()->json(['data' => $result]);
     }
 
     /**
@@ -191,38 +190,8 @@ class OrderController extends Controller
      *       "Email": "admin@gauphim.com",
      *       "PhoneNumber": "0987654321"
      *     },
-     *     "tickets": [
-     *       {
-     *         "TicketId": 1,
-     *         "Price": 120000,
-     *         "showtime": {
-     *           "StartTime": "2024-01-01 10:00:00",
-     *           "EndTime": "2024-01-01 13:00:00"
-     *         },
-     *         "movie": {
-     *           "MovieId": 1,
-     *           "Title": "Avengers: Endgame"
-     *         },
-     *         "seat": {
-     *           "SeatId": 1,
-     *           "Row": "A",
-     *           "Number": 1
-     *         },
-     *         "cinema": {
-     *           "CinemaId": 1,
-     *           "Name": "CGV Vincom Center"
-     *         }
-     *       }
-     *     ],
-     *     "food_and_drinks": [
-     *       {
-     *         "ItemId": 1,
-     *         "Name": "Bắp rang bơ",
-     *         "Price": 30000,
-     *         "Quantity": 1,
-     *         "TotalPrice": 30000
-     *       }
-     *     ],
+     *     "tickets": [...],
+     *     "food_and_drinks": [...],
      *     "summary": {
      *       "sub_total": 150000,
      *       "discount": 0,
@@ -239,145 +208,14 @@ class OrderController extends Controller
      */
     public function getOrderDetails($OrderId)
     {
-        // Lấy order với tất cả quan hệ
-        $order = Order::with([
-            'user',
-            'promotion',
-            'orderDetails.ticket.showtime.movie',
-            'orderDetails.ticket.showtime.room.cinema',
-            'orderDetails.ticket.seat',
-            'orderDetails.foodanddrink'
-        ])->find($OrderId);
-
-        if (!$order) {
+        $data = $this->orderService->getOrderDetails($OrderId);
+        
+        if (!$data) {
             return response()->json([
                 'success' => false,
                 'message' => 'Không tìm thấy đơn hàng'
             ], 404);
         }
-
-        // Xây dựng dữ liệu trả về
-        $data = [
-            'OrderId' => $order->OrderId,
-            'OrderDate' => $order->OrderDate ? date('Y-m-d H:i:s', strtotime($order->OrderDate)) : null,
-            'TotalAmount' => $order->TotalAmount,
-            'Status' => $order->Status,
-            
-            // 1. THÔNG TIN KHÁCH HÀNG
-            'customer' => [
-                'UserId' => $order->user->UserId ?? null,
-                'FullName' => $order->user->FullName ?? 'Khách hàng không xác định',
-                'Email' => $order->user->Email ?? null,
-                'PhoneNumber' => $order->user->PhoneNumber ?? null,
-            ],
-            
-            // 2. THÔNG TIN KHUYẾN MÃI
-            'promotion' => $order->promotion ? [
-                'Code' => $order->promotion->Code,
-                'Title' => $order->promotion->Title,
-                'DiscountValue' => $order->promotion->DiscountValue,
-            ] : null,
-            
-            // 3. DANH SÁCH VÉ VÀ GHẾ
-            'tickets' => [],
-            
-            // 4. DANH SÁCH ĐỒ UỐNG
-            'food_and_drinks' => []
-        ];
-
-        // Xử lý từng OrderDetail
-        $subTotal = 0;
-        foreach ($order->orderDetails as $detail) {
-            // Nếu là vé
-            if ($detail->TicketId && $detail->ticket) {
-                $ticket = $detail->ticket;
-                $showtime = $ticket->showtime;
-                
-                $subTotal += $detail->Price;
-                
-                $ticketInfo = [
-                    'TicketId' => $ticket->TicketId,
-                    'Price' => $detail->Price,
-                    'Status' => $ticket->Status,
-                    'BookingTime' => $ticket->BookingTime ? date('Y-m-d H:i:s', strtotime($ticket->BookingTime)) : null,
-                    
-                    // Thông tin suất chiếu
-                    'showtime' => $showtime ? [
-                        'StartTime' => $showtime->StartTime ? date('Y-m-d H:i:s', strtotime($showtime->StartTime)) : null,
-                        'EndTime' => $showtime->EndTime ? date('Y-m-d H:i:s', strtotime($showtime->EndTime)) : null,
-                        'Price' => $showtime->Price,
-                    ] : null,
-                    
-                    // Thông tin phim
-                    'movie' => $showtime && $showtime->movie ? [
-                        'MovieId' => $showtime->movie->MovieId,
-                        'Title' => $showtime->movie->Title,
-                        'Duration' => $showtime->movie->Duration,
-                        'PosterUrl' => $showtime->movie->PosterUrl,
-                    ] : null,
-                    
-                    // Thông tin GHẾ ĐÃ ĐẶT
-                    'seat' => $ticket->seat ? [
-                        'SeatId' => $ticket->seat->SeatId,
-                        'Row' => $ticket->seat->Row,
-                        'Number' => $ticket->seat->Number,
-                        'SeatType' => $ticket->seat->SeatType,
-                    ] : null,
-                    
-                    // Thông tin PHÒNG CHIẾU
-                    'room' => $showtime && $showtime->room ? [
-                        'RoomId' => $showtime->room->RoomId,
-                        'Name' => $showtime->room->Name,
-                        'RoomType' => $showtime->room->RoomType,
-                    ] : null,
-                    
-                    // Thông tin RẠP CHIẾU
-                    'cinema' => $showtime && $showtime->room && $showtime->room->cinema ? [
-                        'CinemaId' => $showtime->room->cinema->CinemaId,
-                        'Name' => $showtime->room->cinema->Name,
-                        'Address' => $showtime->room->cinema->Address,
-                        'City' => $showtime->room->cinema->City,
-                        'Phone' => $showtime->room->cinema->Phone,
-                    ] : null
-                ];
-                
-                $data['tickets'][] = $ticketInfo;
-            }
-            
-            // Nếu là đồ ăn/uống
-            if ($detail->ItemId && $detail->foodanddrink) {
-                $subTotal += $detail->Price * $detail->Quantity;
-                
-                $foodInfo = [
-                    'ItemId' => $detail->foodanddrink->ItemId,
-                    'Name' => $detail->foodanddrink->Name,
-                    'Price' => $detail->foodanddrink->Price,
-                    'Quantity' => $detail->Quantity,
-                    'TotalPrice' => $detail->Price * $detail->Quantity,
-                    'ImageUrl' => $detail->foodanddrink->ImageUrl,
-                ];
-                
-                $data['food_and_drinks'][] = $foodInfo;
-            }
-        }
-
-        // Tính tổng tiền
-        $discount = 0;
-        if ($order->promotion) {
-            if ($order->promotion->DiscountType === 'Percentage') {
-                $discount = ($subTotal * $order->promotion->DiscountValue) / 100;
-            } else {
-                $discount = $order->promotion->DiscountValue;
-            }
-        }
-
-        $data['summary'] = [
-            'sub_total' => $subTotal,
-            'discount' => $discount,
-            'final_total' => $subTotal - $discount,
-            'total_tickets' => count($data['tickets']),
-            'total_food_items' => count($data['food_and_drinks'])
-        ];
 
         return response()->json([
             'success' => true,
@@ -394,29 +232,17 @@ class OrderController extends Controller
      * 
      * @response 200 {
      *   "success": true,
-     *   "data": [
-     *     {
-     *       "OrderId": 1,
-     *       "OrderDate": "2024-01-01 10:00:00",
-     *       "TotalAmount": 150000,
-     *       "Status": "Paid",
-     *       "customer": {
-     *         "FullName": "Nguyễn Văn A"
-     *       },
-     *       "total_tickets": 2,
-     *       "total_food_items": 1
-     *     }
-     *   ]
+     *   "data": [...]
      * }
      * @response 401 {
      *   "success": false,
      *   "message": "Vui lòng đăng nhập"
      * }
      */
-    public function getMyOrders()
+    public function getMyOrders(Request $request)
     {
         $user = auth()->user();
-        
+
         if (!$user) {
             return response()->json([
                 'success' => false,
@@ -424,35 +250,13 @@ class OrderController extends Controller
             ], 401);
         }
 
-        $orders = Order::with([
-            'user',
-            'promotion',
-            'orderDetails.ticket.showtime.movie',
-            'orderDetails.ticket.seat',
-            'orderDetails.foodanddrink'
-        ])
-        ->where('UserId', $user->UserId)
-        ->orderBy('OrderDate', 'desc')
-        ->get();
-
-        $result = [];
-        foreach ($orders as $order) {
-            $result[] = [
-                'OrderId' => $order->OrderId,
-                'OrderDate' => $order->OrderDate ? date('Y-m-d H:i:s', strtotime($order->OrderDate)) : null,
-                'TotalAmount' => $order->TotalAmount,
-                'Status' => $order->Status,
-                'customer' => [
-                    'FullName' => $order->user->FullName ?? null,
-                ],
-                'total_tickets' => $order->orderDetails->whereNotNull('TicketId')->count(),
-                'total_food_items' => $order->orderDetails->whereNotNull('ItemId')->count()
-            ];
-        }
+        $limit = (int) $request->query('limit', 10);
+        $result = $this->orderService->getMyOrders($user->UserId, $limit);
 
         return response()->json([
             'success' => true,
-            'data' => $result
+            'data' => $result['data'],
+            'pagination' => $result['pagination']
         ]);
     }
 
@@ -481,7 +285,7 @@ class OrderController extends Controller
     public function getMyOrderDetails($OrderId)
     {
         $user = auth()->user();
-        
+
         if (!$user) {
             return response()->json([
                 'success' => false,
@@ -489,25 +293,16 @@ class OrderController extends Controller
             ], 401);
         }
 
-        $order = Order::with([
-            'user',
-            'promotion',
-            'orderDetails.ticket.showtime.movie',
-            'orderDetails.ticket.showtime.room.cinema',
-            'orderDetails.ticket.seat',
-            'orderDetails.foodanddrink'
-        ])
-        ->where('UserId', $user->UserId)
-        ->where('OrderId', $OrderId)
-        ->first();
-
-        if (!$order) {
+        // Kiểm tra quyền sở hữu đơn hàng
+        $isOwner = $this->orderService->checkOrderOwnership($OrderId, $user->UserId);
+        if (!$isOwner) {
             return response()->json([
                 'success' => false,
                 'message' => 'Không tìm thấy đơn hàng'
             ], 404);
         }
 
+        // Tái sử dụng hàm getOrderDetails
         return $this->getOrderDetails($OrderId);
     }
 
@@ -531,37 +326,13 @@ class OrderController extends Controller
      */
     public function getUserOrders($UserId)
     {
-        $orders = Order::with([
-            'user',
-            'promotion',
-            'orderDetails.ticket.showtime.movie',
-            'orderDetails.ticket.seat',
-            'orderDetails.foodanddrink'
-        ])
-        ->where('UserId', $UserId)
-        ->orderBy('OrderDate', 'desc')
-        ->get();
+        $result = $this->orderService->getUserOrders($UserId);
 
-        if ($orders->isEmpty()) {
+        if ($result === null) {
             return response()->json([
                 'success' => false,
                 'message' => 'Không tìm thấy đơn hàng'
             ], 404);
-        }
-
-        $result = [];
-        foreach ($orders as $order) {
-            $result[] = [
-                'OrderId' => $order->OrderId,
-                'OrderDate' => $order->OrderDate ? date('Y-m-d H:i:s', strtotime($order->OrderDate)) : null,
-                'TotalAmount' => $order->TotalAmount,
-                'Status' => $order->Status,
-                'customer' => [
-                    'FullName' => $order->user->FullName ?? null,
-                    'Email' => $order->user->Email ?? null,
-                ],
-                'total_tickets' => $order->orderDetails->whereNotNull('TicketId')->count()
-            ];
         }
 
         return response()->json([

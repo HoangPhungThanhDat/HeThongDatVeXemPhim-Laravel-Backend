@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\OrderdetailRepository;
 use Illuminate\Support\Facades\Auth;
+
 class OrderdetailService
 {
     protected $repository;
@@ -25,17 +26,26 @@ class OrderdetailService
 
     public function create(array $data)
     {
-        $data['CreatedBy'] = Auth::user()->UserId;
+        if (Auth::check()) {
+            $data['CreatedBy'] = Auth::user()->UserId;
+        }
+        $data['CreatedAt'] = now();
+        $data['UpdatedAt'] = now();
         return $this->repository->create($data);
     }
 
     public function update($OrderDetailId, array $data)
     {
-        $data['UpdatedBy'] = Auth::user()->UserId;
         $orderDetail = $this->repository->find($OrderDetailId);
         if (!$orderDetail) {
             return null;
         }
+        
+        if (Auth::check()) {
+            $data['UpdatedBy'] = Auth::user()->UserId;
+        }
+        $data['UpdatedAt'] = now();
+        
         return $this->repository->update($orderDetail, $data);
     }
 

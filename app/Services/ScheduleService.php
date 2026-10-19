@@ -1,63 +1,8 @@
 <?php
 
-// namespace App\Services;
-
-// use App\Repositories\ScheduleRepository;
-// use Illuminate\Support\Facades\Auth;
-
-
-// class ScheduleService
-// {
-//     protected $scheduleRepository;
-
-//     public function __construct(ScheduleRepository $scheduleRepository)
-//     {
-//         $this->scheduleRepository = $scheduleRepository;
-//     }
-
-//     public function getAll()
-//     {
-//         return $this->scheduleRepository->getAll();
-//     }
-
-//     public function getById($id)
-//     {
-//         return $this->scheduleRepository->getById($id);
-//     }
-
-//     public function create(array $data)
-//     {
-//         $data['CreatedBy'] = Auth::user()->UserId;
-//         return $this->scheduleRepository->create($data);
-//     }
-
-//     public function update($id, array $data)
-//     {
-//         $data['UpdatedBy'] = Auth::user()->UserId;
-//         return $this->scheduleRepository->update($id, $data);
-//     }
-
-//     public function delete($id)
-//     {
-//         return $this->scheduleRepository->delete($id);
-//     }
-// }
-
-
-
-
-
-
-
-
-
-
-
 namespace App\Services;
 
 use App\Repositories\ScheduleRepository;
-use App\Models\Showtime;
-use App\Models\Seat;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -66,25 +11,10 @@ use Illuminate\Support\Facades\Log;
 class ScheduleService
 {
     protected $scheduleRepository;
-    protected $showtimeseatService;
 
-    // Map tên ngày (frontend gửi) → Carbon dayOfWeek constant
-    private const DAY_MAP = [
-        'Mon' => Carbon::MONDAY,
-        'Tue' => Carbon::TUESDAY,
-        'Wed' => Carbon::WEDNESDAY,
-        'Thu' => Carbon::THURSDAY,
-        'Fri' => Carbon::FRIDAY,
-        'Sat' => Carbon::SATURDAY,
-        'Sun' => Carbon::SUNDAY,
-    ];
-
-    public function __construct(
-        ScheduleRepository $scheduleRepository,
-        ShowtimeseatService $showtimeseatService   // ← inject thêm
-    ) {
-        $this->scheduleRepository  = $scheduleRepository;
-        $this->showtimeseatService = $showtimeseatService;
+    public function __construct(ScheduleRepository $scheduleRepository)
+    {
+        $this->scheduleRepository = $scheduleRepository;
     }
 
     public function getAll()
@@ -97,16 +27,8 @@ class ScheduleService
         return $this->scheduleRepository->getById($id);
     }
 
-    /**
-     * Tạo Schedule → sinh Showtime theo DaysOfWeek → generate ShowtimeSeats cho mỗi Showtime
-     *
-     * @param  array $data  validated data từ StoreScheduleRequest
-     * @return array{schedule: Schedule, showtimes_created: int, seats_created: int}
-     */
     public function create(array $data): array
     {
-        // DaysOfWeek từ frontend là array ['Mon','Tue',...] 
-        // → lưu DB dạng string "Mon,Tue,..." (SET column)
         $daysArray = $data['DaysOfWeek'] ?? [];
         if (is_array($daysArray)) {
             $data['DaysOfWeek'] = implode(',', $daysArray);
@@ -117,10 +39,8 @@ class ScheduleService
 
         DB::beginTransaction();
         try {
-            // 1. Tạo Schedule
             $schedule = $this->scheduleRepository->create($data);
 
-            // 2. Sinh Showtimes + ShowtimeSeats trong transaction
             [$showtimesCreated, $seatsCreated] = $this->generateShowtimesAndSeats(
                 $schedule,
                 $daysArray,
@@ -145,7 +65,6 @@ class ScheduleService
 
     public function update($id, array $data)
     {
-        // DaysOfWeek cũng có thể được gửi dạng array khi update
         if (isset($data['DaysOfWeek']) && is_array($data['DaysOfWeek'])) {
             $data['DaysOfWeek'] = implode(',', $data['DaysOfWeek']);
         }
@@ -159,28 +78,15 @@ class ScheduleService
         return $this->scheduleRepository->delete($id);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Private helpers
-    // ─────────────────────────────────────────────────────────────────────────
-
-    /**
-     * Duyệt từng ngày trong khoảng StartDate → EndDate,
-     * nếu ngày đó nằm trong DaysOfWeek thì tạo Showtime rồi generate ghế.
-     *
-     * @return array{0: int, 1: int}  [số showtime đã tạo, tổng số ghế đã tạo]
-     */
-    private function generateShowtimesAndSeats(
-        $schedule,
-        array $daysArray,
-        array $data
-    ): array {
+    private function generateShowtimesAndSeats($schedule, array $daysArray, array $data): array
+    {
         if (empty($daysArray)) {
             return [0, 0];
         }
 
         $startDate  = Carbon::parse($data['StartDate'])->startOfDay();
         $endDate    = Carbon::parse($data['EndDate'])->startOfDay();
-        $startTime  = $data['StartTime']; // "HH:MM" hoặc "HH:MM:SS"
+        $startTime  = $data['StartTime'];
         $endTime    = $data['EndTime'];
         $movieId    = $data['MovieId'];
         $roomId     = $data['RoomId'];
@@ -190,18 +96,17 @@ class ScheduleService
         $showtimesCreated = 0;
         $seatsCreated     = 0;
         $current          = $startDate->copy();
+        $showtimesData    = [];
 
+        // 1. Chuẩn bị dữ liệu Showtime
         while ($current->lte($endDate)) {
-            // Carbon::format('D') → 'Mon','Tue',... (locale-independent)
             $dayAbbr = $current->format('D');
 
             if (in_array($dayAbbr, $daysArray, true)) {
-                // Ghép ngày hiện tại + giờ từ schedule
                 $showtimeStart = Carbon::parse($current->toDateString() . ' ' . $startTime);
                 $showtimeEnd   = Carbon::parse($current->toDateString() . ' ' . $endTime);
 
-                // 2a. Tạo Showtime
-                $showtime = Showtime::create([
+                $showtimesData[] = [
                     'MovieId'   => $movieId,
                     'RoomId'    => $roomId,
                     'StartTime' => $showtimeStart,
@@ -210,57 +115,43 @@ class ScheduleService
                     'Status'    => 'Scheduled',
                     'CreatedAt' => now(),
                     'CreatedBy' => $createdBy,
-                ]);
-
-                $showtimesCreated++;
-
-                // 2b. Generate ShowtimeSeats dựa vào tất cả ghế của phòng
-                $seatsCount = $this->generateShowtimeSeatsForRoom(
-                    $showtime->ShowtimeId,
-                    $roomId,
-                    $createdBy
-                );
-                $seatsCreated += $seatsCount;
+                ];
             }
-
             $current->addDay();
         }
 
-        return [$showtimesCreated, $seatsCreated];
-    }
+        // 2. Gọi Repository để lưu Showtimes
+        if (!empty($showtimesData)) {
+            $createdShowtimes = $this->scheduleRepository->insertShowtimes($showtimesData);
+            $showtimesCreated = count($createdShowtimes);
 
-    /**
-     * Lấy toàn bộ ghế của phòng → bulk insert vào showtimeseats.
-     * Chỉ lấy ghế có Status != 'Inactive' (ghế đang hoạt động).
-     *
-     * @return int  số ghế đã tạo
-     */
-    private function generateShowtimeSeatsForRoom(
-        int $showtimeId,
-        int $roomId,
-        ?int $createdBy
-    ): int {
-        $seats = Seat::where('RoomId', $roomId)
-                     ->where('Status', '!=', 'Inactive')
-                     ->get(['SeatId']);
+            // 3. Chuẩn bị dữ liệu ShowtimeSeats (Dựa vào ghế của phòng)
+            $seatIds = $this->scheduleRepository->getActiveSeatIdsByRoom($roomId);
+            
+            if (!empty($seatIds)) {
+                $seatsData = [];
+                $now = now();
+                foreach ($createdShowtimes as $showtime) {
+                    foreach ($seatIds as $seatId) {
+                        $seatsData[] = [
+                            'ShowtimeId' => $showtime->ShowtimeId,
+                            'SeatId'     => $seatId,
+                            'Status'     => 'Available',
+                            'CreatedAt'  => $now,
+                            'UpdatedAt'  => $now,
+                            'CreatedBy'  => $createdBy,
+                        ];
+                    }
+                }
 
-        if ($seats->isEmpty()) {
-            return 0;
+                // 4. Gọi Repository để bulk insert ghế
+                if (!empty($seatsData)) {
+                    $this->scheduleRepository->insertShowtimeSeats($seatsData);
+                    $seatsCreated = count($seatsData);
+                }
+            }
         }
 
-        $now  = now();
-        $rows = $seats->map(fn ($seat) => [
-            'ShowtimeId' => $showtimeId,
-            'SeatId'     => $seat->SeatId,
-            'Status'     => 'Available',
-            'CreatedAt'  => $now,
-            'UpdatedAt'  => $now,
-            'CreatedBy'  => $createdBy,
-        ])->toArray();
-
-        // Bulk insert — nhanh, không kích hoạt Eloquent events
-        \App\Models\Showtimeseat::insert($rows);
-
-        return count($rows);
+        return [$showtimesCreated, $seatsCreated];
     }
 }

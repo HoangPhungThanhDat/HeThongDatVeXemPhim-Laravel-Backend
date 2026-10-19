@@ -85,38 +85,20 @@ class UserController extends Controller
      */
     public function getPaged(Request $request)
     {
-        $page = max(1, (int) $request->query('page', 1));
-        $limit = min(100, max(1, (int) $request->query('limit', 10)));
+        $page   = max(1, (int) $request->query('page', 1));
+        $limit  = min(100, max(1, (int) $request->query('limit', 10)));
         $search = $request->query('search', '');
         $status = $request->query('status', '');
 
-        $query = \App\Models\User::with('role');
-
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('FullName', 'like', "%{$search}%")
-                    ->orWhere('Email', 'like', "%{$search}%")
-                    ->orWhere('PhoneNumber', 'like', "%{$search}%");
-            });
-        }
-
-        if ($status) {
-            $query->where('Status', $status);
-        }
-
-        $total = $query->count();
-        $totalPages = (int) ceil($total / $limit);
-        $items = $query->orderBy('UserId', 'desc')
-            ->skip(($page - 1) * $limit)
-            ->take($limit)
-            ->get();
+        // ✅ Gọi xuống Service -> Repository
+        $result = $this->service->getPaged($page, $limit, $search, $status);
 
         return response()->json([
-            'data' => UserResource::collection($items),
-            'total' => $total,
-            'page' => $page,
-            'limit' => $limit,
-            'totalPages' => $totalPages,
+            'data'       => UserResource::collection($result['data']),
+            'total'      => $result['total'],
+            'page'       => $result['page'],
+            'limit'      => $result['limit'],
+            'totalPages' => $result['totalPages'],
         ]);
     }
 
@@ -326,10 +308,8 @@ class UserController extends Controller
 
             $userId = $user->UserId;
 
-            $existingEmail = \App\Models\User::where('Email', $request->Email)
-                ->where('UserId', '!=', $userId)
-                ->first();
-
+            // ✅ Gọi xuống Service -> Repository kiểm tra trùng
+            $existingEmail = $this->service->checkEmailExists($request->Email, $userId);
             if ($existingEmail) {
                 return response()->json([
                     'success' => false,
@@ -338,10 +318,7 @@ class UserController extends Controller
                 ], 422);
             }
 
-            $existingPhone = \App\Models\User::where('PhoneNumber', $request->PhoneNumber)
-                ->where('UserId', '!=', $userId)
-                ->first();
-
+            $existingPhone = $this->service->checkPhoneExists($request->PhoneNumber, $userId);
             if ($existingPhone) {
                 return response()->json([
                     'success' => false,

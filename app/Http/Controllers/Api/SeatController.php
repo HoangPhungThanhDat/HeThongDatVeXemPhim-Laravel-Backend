@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Seat;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreSeatRequest;
 use App\Http\Requests\BulkStoreSeatRequest;
@@ -41,15 +40,6 @@ class SeatController extends Controller
      *       "RoomId": 1,
      *       "Row": "A",
      *       "Number": 1,
-     *       "SeatType": "Normal",
-     *       "Status": "Available",
-     *       "CreatedAt": "2024-01-01 10:00:00"
-     *     },
-     *     {
-     *       "SeatId": 2,
-     *       "RoomId": 1,
-     *       "Row": "A",
-     *       "Number": 2,
      *       "SeatType": "Normal",
      *       "Status": "Available",
      *       "CreatedAt": "2024-01-01 10:00:00"
@@ -108,9 +98,7 @@ class SeatController extends Controller
      * @response 422 {
      *   "message": "The given data was invalid.",
      *   "errors": {
-     *     "RoomId": ["The room id field is required."],
-     *     "Row": ["The row field is required."],
-     *     "Number": ["The number field is required."]
+     *     "RoomId": ["The room id field is required."]
      *   }
      * }
      * @response 500 {

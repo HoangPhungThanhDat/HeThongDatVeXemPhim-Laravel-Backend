@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\PromotionRepository;
 use Illuminate\Support\Facades\Auth;
+
 class PromotionService
 {
     protected $repository;
@@ -18,6 +19,14 @@ class PromotionService
         return $this->repository->all();
     }
 
+    /**
+     * ✅ Hàm phân trang
+     */
+    public function getPaged($page, $limit, $search = '', $status = '')
+    {
+        return $this->repository->getPaged($page, $limit, $search, $status);
+    }
+
     public function find($PromotionId)
     {
         return $this->repository->find($PromotionId);
@@ -25,17 +34,26 @@ class PromotionService
 
     public function create(array $data)
     {
-        $data['CreatedBy'] = Auth::user()->UserId;
+        if (Auth::check()) {
+            $data['CreatedBy'] = Auth::user()->UserId;
+        }
+        $data['CreatedAt'] = now();
+        $data['UpdatedAt'] = now();
         return $this->repository->create($data);
     }
 
     public function update($PromotionId, array $data)
     {
-        $data['UpdatedBy'] = Auth::user()->UserId;
         $promotion = $this->repository->find($PromotionId);
         if (!$promotion) {
             return null;
         }
+        
+        if (Auth::check()) {
+            $data['UpdatedBy'] = Auth::user()->UserId;
+        }
+        $data['UpdatedAt'] = now();
+        
         return $this->repository->update($promotion, $data);
     }
 

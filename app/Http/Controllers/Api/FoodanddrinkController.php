@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreFoodanddrinkRequest;
 use App\Http\Resources\FoodanddrinkResource;
 use App\Services\FoodanddrinkService;
-use App\Models\Foodanddrink;
 use Cloudinary\Cloudinary;
 use Illuminate\Support\Facades\Log;
 
@@ -26,7 +25,6 @@ class FoodanddrinkController extends Controller
         $this->service = $service;
         $this->middleware(['auth:api', 'checkrole:Admin'])->only(['store', 'update', 'destroy']);
         
-        // Khởi tạo Cloudinary
         $this->cloudinary = new Cloudinary([
             'cloud' => [
                 'cloud_name' => config('cloudinary.cloud_name'),
@@ -56,16 +54,6 @@ class FoodanddrinkController extends Controller
      *     "ImageUrl": "https://res.cloudinary.com/.../foodanddrinks/popcorn.jpg",
      *     "Status": "Available",
      *     "CreatedAt": "2024-01-01 10:00:00"
-     *   },
-     *   {
-     *     "ItemId": 2,
-     *     "Name": "Coca Cola",
-     *     "Description": "Nước ngọt có gas",
-     *     "Price": 25000,
-     *     "Category": "Beverages",
-     *     "ImageUrl": "https://res.cloudinary.com/.../foodanddrinks/coca.jpg",
-     *     "Status": "Available",
-     *     "CreatedAt": "2024-01-01 10:05:00"
      *   }
      * ]
      */
@@ -117,7 +105,6 @@ class FoodanddrinkController extends Controller
         if ($request->hasFile('ImageUrl')) {
             try {
                 $file = $request->file('ImageUrl');
-                
                 $result = $this->cloudinary->uploadApi()->upload($file->getRealPath(), [
                     'folder' => 'foodanddrinks',
                     'transformation' => [
@@ -128,22 +115,16 @@ class FoodanddrinkController extends Controller
                         'fetch_format' => 'auto'
                     ]
                 ]);
-                
                 $data['ImageUrl'] = $result['secure_url'];
             } catch (\Exception $e) {
                 Log::error('Upload ảnh foodanddrink thất bại: ' . $e->getMessage());
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Upload ảnh thất bại: ' . $e->getMessage()
-                ], 500);
+                return response()->json(['success' => false, 'message' => 'Upload ảnh thất bại: ' . $e->getMessage()], 500);
             }
         } else {
-            // ✅ Khi tạo mới không có ảnh, để null
             $data['ImageUrl'] = null;
         }
 
         $foodanddrink = $this->service->create($data);
-
         return new FoodanddrinkResource($foodanddrink);
     }
 
@@ -173,7 +154,7 @@ class FoodanddrinkController extends Controller
     public function show($ItemId)
     {
         $foodanddrink = $this->service->find($ItemId);
-        if (! $foodanddrink) {
+        if (!$foodanddrink) {
             return response()->json(['message' => 'Food and drink item not found'], 404);
         }
 
@@ -213,10 +194,13 @@ class FoodanddrinkController extends Controller
     public function update(StoreFoodanddrinkRequest $request, $ItemId)
     {
         $data = $request->validated();
-        $foodanddrink = Foodanddrink::findOrFail($ItemId);
+        $foodanddrink = $this->service->find($ItemId);
+
+        if (!$foodanddrink) {
+            return response()->json(['message' => 'Food and drink item not found'], 404);
+        }
 
         if ($request->hasFile('ImageUrl')) {
-            // Xóa ảnh cũ trên Cloudinary
             if ($foodanddrink->ImageUrl && strpos($foodanddrink->ImageUrl, 'cloudinary.com') !== false) {
                 try {
                     $publicId = $this->extractPublicId($foodanddrink->ImageUrl);
@@ -228,7 +212,6 @@ class FoodanddrinkController extends Controller
                 }
             }
             
-            // Upload ảnh mới
             try {
                 $file = $request->file('ImageUrl');
                 $result = $this->cloudinary->uploadApi()->upload($file->getRealPath(), [
@@ -241,22 +224,16 @@ class FoodanddrinkController extends Controller
                         'fetch_format' => 'auto'
                     ]
                 ]);
-                
                 $data['ImageUrl'] = $result['secure_url'];
             } catch (\Exception $e) {
                 Log::error('Upload ảnh foodanddrink thất bại: ' . $e->getMessage());
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Upload ảnh thất bại: ' . $e->getMessage()
-                ], 500);
+                return response()->json(['success' => false, 'message' => 'Upload ảnh thất bại: ' . $e->getMessage()], 500);
             }
         } else {
-            // ✅ KHÔNG CÓ FILE MỚI → GIỮ NGUYÊN ẢNH CŨ
             $data['ImageUrl'] = $foodanddrink->ImageUrl;
         }
 
         $foodanddrink = $this->service->update($ItemId, $data);
-
         return new FoodanddrinkResource($foodanddrink);
     }
 
@@ -278,9 +255,8 @@ class FoodanddrinkController extends Controller
      */
     public function destroy($ItemId)
     {
-        $foodanddrink = Foodanddrink::find($ItemId);
+        $foodanddrink = $this->service->find($ItemId);
         
-        // Xóa ảnh trên Cloudinary
         if ($foodanddrink && $foodanddrink->ImageUrl && strpos($foodanddrink->ImageUrl, 'cloudinary.com') !== false) {
             try {
                 $publicId = $this->extractPublicId($foodanddrink->ImageUrl);
@@ -293,19 +269,13 @@ class FoodanddrinkController extends Controller
         }
         
         $deleted = $this->service->delete($ItemId);
-        if (! $deleted) {
+        if (!$deleted) {
             return response()->json(['message' => 'Food and drink item not found'], 404);
         }
 
         return response()->json(['message' => 'Food and drink item deleted successfully']);
     }
 
-    /**
-     * Extract public ID from Cloudinary URL
-     * 
-     * @param string $url
-     * @return string|null
-     */
     private function extractPublicId($url)
     {
         preg_match('/\/upload\/v\d+\/(.+)\.\w+$/', $url, $matches);

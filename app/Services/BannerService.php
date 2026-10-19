@@ -17,7 +17,6 @@ class BannerService
     {
         $this->bannerRepository = $bannerRepository;
         
-        // Khởi tạo Cloudinary để xử lý ảnh
         $this->cloudinary = new Cloudinary([
             'cloud' => [
                 'cloud_name' => config('cloudinary.cloud_name'),
@@ -44,11 +43,9 @@ class BannerService
     {
         try {
             $banner = $this->bannerRepository->getById($id);
-            
             if (!$banner) {
                 throw new \Exception('Không tìm thấy banner với ID: ' . $id);
             }
-            
             return $banner;
         } catch (\Exception $e) {
             Log::error('Lỗi lấy banner: ' . $e->getMessage());
@@ -60,7 +57,6 @@ class BannerService
     {
         DB::beginTransaction();
         try {
-            // Thêm thông tin người tạo
             if (Auth::check()) {
                 $data['CreatedBy'] = Auth::user()->UserId;
                 $data['UserId'] = Auth::user()->UserId;
@@ -69,10 +65,7 @@ class BannerService
             $data['CreatedAt'] = now();
             $data['UpdatedAt'] = now();
             
-            // Nếu ImageUrl là file path, upload lên Cloudinary
-            if (isset($data['ImageUrl']) && is_string($data['ImageUrl']) && 
-                strpos($data['ImageUrl'], 'cloudinary.com') === false) {
-                // Kiểm tra xem có phải là file upload không
+            if (isset($data['ImageUrl']) && is_string($data['ImageUrl']) && strpos($data['ImageUrl'], 'cloudinary.com') === false) {
                 if (isset($data['ImageFile']) && $data['ImageFile']) {
                     $result = $this->uploadToCloudinary($data['ImageFile'], 'banners');
                     if ($result) {
@@ -82,7 +75,6 @@ class BannerService
             }
             
             $banner = $this->bannerRepository->create($data);
-            
             DB::commit();
             Log::info('Tạo banner thành công: ' . $banner->BannerId);
             
@@ -99,26 +91,21 @@ class BannerService
         DB::beginTransaction();
         try {
             $banner = $this->bannerRepository->getById($id);
-            
             if (!$banner) {
                 throw new \Exception('Không tìm thấy banner với ID: ' . $id);
             }
             
-            // Thêm thông tin người cập nhật
             if (Auth::check()) {
                 $data['UpdatedBy'] = Auth::user()->UserId;
             }
             
             $data['UpdatedAt'] = now();
             
-            // Nếu có ảnh mới, xóa ảnh cũ và upload ảnh mới
             if (isset($data['ImageFile']) && $data['ImageFile']) {
-                // Xóa ảnh cũ trên Cloudinary
                 if ($banner->ImageUrl && strpos($banner->ImageUrl, 'cloudinary.com') !== false) {
                     $this->deleteFromCloudinary($banner->ImageUrl);
                 }
                 
-                // Upload ảnh mới
                 $result = $this->uploadToCloudinary($data['ImageFile'], 'banners');
                 if ($result) {
                     $data['ImageUrl'] = $result;
@@ -126,7 +113,6 @@ class BannerService
             }
             
             $banner = $this->bannerRepository->update($id, $data);
-            
             DB::commit();
             Log::info('Cập nhật banner thành công: ' . $id);
             
@@ -143,18 +129,15 @@ class BannerService
         DB::beginTransaction();
         try {
             $banner = $this->bannerRepository->getById($id);
-            
             if (!$banner) {
                 throw new \Exception('Không tìm thấy banner với ID: ' . $id);
             }
             
-            // Xóa ảnh trên Cloudinary
             if ($banner->ImageUrl && strpos($banner->ImageUrl, 'cloudinary.com') !== false) {
                 $this->deleteFromCloudinary($banner->ImageUrl);
             }
             
             $result = $this->bannerRepository->delete($id);
-            
             DB::commit();
             Log::info('Xóa banner thành công: ' . $id);
             
@@ -166,9 +149,6 @@ class BannerService
         }
     }
 
-    /**
-     * Upload ảnh lên Cloudinary
-     */
     protected function uploadToCloudinary($file, $folder)
     {
         try {
@@ -182,7 +162,6 @@ class BannerService
                     'fetch_format' => 'auto'
                 ]
             ]);
-            
             return $result['secure_url'] ?? null;
         } catch (\Exception $e) {
             Log::error('Upload ảnh lên Cloudinary thất bại: ' . $e->getMessage());
@@ -190,9 +169,6 @@ class BannerService
         }
     }
 
-    /**
-     * Xóa ảnh trên Cloudinary
-     */
     protected function deleteFromCloudinary($url)
     {
         try {
@@ -207,9 +183,6 @@ class BannerService
         }
     }
 
-    /**
-     * Lấy public_id từ URL Cloudinary
-     */
     protected function extractPublicId($url)
     {
         preg_match('/\/upload\/v\d+\/(.+)\.\w+$/', $url, $matches);

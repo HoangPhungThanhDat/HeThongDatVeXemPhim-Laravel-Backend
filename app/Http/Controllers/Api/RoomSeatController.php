@@ -118,18 +118,37 @@ class RoomSeatController extends Controller
                 'Status'
             )->get();
 
-            // Lấy thống kê ghế cho từng phòng
-            $roomsWithStats = $rooms->map(function($room) {
-                $seatStats = Seat::where('RoomId', $room->id)
+            // ✅ SỬA LỖI N+1: Lấy tất cả thống kê ghế trong 1 query duy nhất
+            $roomIds = $rooms->pluck('id')->toArray();
+            
+            $stats = [];
+            if (!empty($roomIds)) {
+                $seatStats = Seat::whereIn('RoomId', $roomIds)
                     ->selectRaw('
+                        RoomId,
                         COUNT(*) as total,
                         SUM(CASE WHEN Status = "Available" THEN 1 ELSE 0 END) as available,
                         SUM(CASE WHEN Status = "Booked" THEN 1 ELSE 0 END) as booked,
                         SUM(CASE WHEN Status = "Broken" THEN 1 ELSE 0 END) as broken,
                         SUM(CASE WHEN Status = "Inactive" THEN 1 ELSE 0 END) as inactive
                     ')
-                    ->first();
+                    ->groupBy('RoomId')
+                    ->get()
+                    ->keyBy('RoomId');
 
+                foreach ($seatStats as $stat) {
+                    $stats[$stat->RoomId] = [
+                        'total' => $stat->total ?? 0,
+                        'available' => $stat->available ?? 0,
+                        'booked' => $stat->booked ?? 0,
+                        'broken' => $stat->broken ?? 0,
+                        'inactive' => $stat->inactive ?? 0,
+                    ];
+                }
+            }
+
+            // Map dữ liệu trả về
+            $roomsWithStats = $rooms->map(function($room) use ($stats) {
                 return [
                     'id' => $room->id,
                     'name' => $room->name,
@@ -137,12 +156,12 @@ class RoomSeatController extends Controller
                     'room_type' => $room->RoomType,
                     'seat_count' => $room->SeatCount,
                     'status' => $room->Status,
-                    'stats' => [
-                        'total' => $seatStats->total ?? 0,
-                        'available' => $seatStats->available ?? 0,
-                        'booked' => $seatStats->booked ?? 0,
-                        'broken' => $seatStats->broken ?? 0,
-                        'inactive' => $seatStats->inactive ?? 0,
+                    'stats' => $stats[$room->id] ?? [
+                        'total' => 0,
+                        'available' => 0,
+                        'booked' => 0,
+                        'broken' => 0,
+                        'inactive' => 0,
                     ]
                 ];
             });

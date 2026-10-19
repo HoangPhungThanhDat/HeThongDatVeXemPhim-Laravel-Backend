@@ -26,13 +26,20 @@ class NewsService
 
     public function create(array $data)
     {
-        $data['CreatedBy'] = Auth::user()->UserId;
+        if (Auth::check()) {
+            $data['CreatedBy'] = Auth::user()->UserId;
+        }
+        $data['CreatedAt'] = now();
+        $data['UpdatedAt'] = now();
         return $this->newsRepository->create($data);
     }
 
     public function update($id, array $data)
     {
-        $data['UpdatedBy'] = Auth::user()->UserId;
+        if (Auth::check()) {
+            $data['UpdatedBy'] = Auth::user()->UserId;
+        }
+        $data['UpdatedAt'] = now();
         return $this->newsRepository->update($id, $data);
     }
 

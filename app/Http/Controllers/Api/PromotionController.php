@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePromotionRequest;
 use App\Http\Resources\PromotionResource;
 use App\Services\PromotionService;
-use App\Models\Promotion;
 use Illuminate\Http\Request;
 use Cloudinary\Cloudinary;
 use Illuminate\Support\Facades\Log;
@@ -26,7 +25,6 @@ class PromotionController extends Controller
     {
         $this->service = $service;
         
-        // Khởi tạo Cloudinary
         $this->cloudinary = new Cloudinary([
             'cloud' => [
                 'cloud_name' => config('cloudinary.cloud_name'),
@@ -62,22 +60,6 @@ class PromotionController extends Controller
      *     "UsageLimit": 1000,
      *     "UsedCount": 150,
      *     "CreatedAt": "2024-06-01 10:00:00"
-     *   },
-     *   {
-     *     "PromotionId": 2,
-     *     "Title": "New User Discount",
-     *     "Code": "NEWUSER50",
-     *     "Description": "Get 50,000 VND off for new users",
-     *     "DiscountType": "Fixed",
-     *     "DiscountValue": 50000,
-     *     "MinOrderAmount": 0,
-     *     "StartDate": "2024-01-01 00:00:00",
-     *     "EndDate": "2024-12-31 23:59:59",
-     *     "ImageUrl": null,
-     *     "Status": "Active",
-     *     "UsageLimit": 500,
-     *     "UsedCount": 320,
-     *     "CreatedAt": "2024-01-01 10:00:00"
      *   }
      * ]
      */
@@ -127,32 +109,15 @@ class PromotionController extends Controller
         $search = $request->query('search', '');
         $status = $request->query('status', '');
 
-        $query = Promotion::query();
-
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('Title', 'like', "%{$search}%")
-                  ->orWhere('Code', 'like', "%{$search}%");
-            });
-        }
-
-        if ($status) {
-            $query->where('Status', $status);
-        }
-
-        $total      = $query->count();
-        $totalPages = (int) ceil($total / $limit);
-        $items      = $query->orderBy('PromotionId', 'desc')
-                            ->skip(($page - 1) * $limit)
-                            ->take($limit)
-                            ->get();
+        // ✅ Gọi xuống Service -> Repository
+        $result = $this->service->getPaged($page, $limit, $search, $status);
 
         return response()->json([
-            'data'       => PromotionResource::collection($items),
-            'total'      => $total,
-            'page'       => $page,
-            'limit'      => $limit,
-            'totalPages' => $totalPages,
+            'data'       => PromotionResource::collection($result['data']),
+            'total'      => $result['total'],
+            'page'       => $result['page'],
+            'limit'      => $result['limit'],
+            'totalPages' => $result['totalPages'],
         ]);
     }
 
@@ -204,7 +169,6 @@ class PromotionController extends Controller
         if ($request->hasFile('ImageUrl')) {
             try {
                 $file = $request->file('ImageUrl');
-                
                 $result = $this->cloudinary->uploadApi()->upload($file->getRealPath(), [
                     'folder' => 'promotions',
                     'transformation' => [
@@ -215,13 +179,10 @@ class PromotionController extends Controller
                         'fetch_format' => 'auto'
                     ]
                 ]);
-                
                 $data['ImageUrl'] = $result['secure_url'];
             } catch (\Exception $e) {
                 Log::error('Upload ảnh promotion thất bại: ' . $e->getMessage());
-                return response()->json([
-                    'message' => 'Upload ảnh thất bại: ' . $e->getMessage()
-                ], 500);
+                return response()->json(['message' => 'Upload ảnh thất bại: ' . $e->getMessage()], 500);
             }
         }
 
@@ -302,11 +263,14 @@ class PromotionController extends Controller
      */
     public function update(StorePromotionRequest $request, $PromotionId)
     {
-        $promotion = Promotion::findOrFail($PromotionId);
         $data = $request->validated();
+        $promotion = $this->service->find($PromotionId); // Lấy từ Service
+
+        if (!$promotion) {
+            return response()->json(['message' => 'Promotion not found'], 404);
+        }
 
         if ($request->hasFile('ImageUrl')) {
-            // Xóa ảnh cũ trên Cloudinary
             if ($promotion->ImageUrl && strpos($promotion->ImageUrl, 'cloudinary.com') !== false) {
                 try {
                     $publicId = $this->extractPublicId($promotion->ImageUrl);
@@ -318,7 +282,6 @@ class PromotionController extends Controller
                 }
             }
             
-            // Upload ảnh mới
             try {
                 $file = $request->file('ImageUrl');
                 $result = $this->cloudinary->uploadApi()->upload($file->getRealPath(), [
@@ -331,13 +294,10 @@ class PromotionController extends Controller
                         'fetch_format' => 'auto'
                     ]
                 ]);
-                
                 $data['ImageUrl'] = $result['secure_url'];
             } catch (\Exception $e) {
                 Log::error('Upload ảnh promotion thất bại: ' . $e->getMessage());
-                return response()->json([
-                    'message' => 'Upload ảnh thất bại: ' . $e->getMessage()
-                ], 500);
+                return response()->json(['message' => 'Upload ảnh thất bại: ' . $e->getMessage()], 500);
             }
         } else {
             $data['ImageUrl'] = $promotion->ImageUrl;
@@ -365,19 +325,16 @@ class PromotionController extends Controller
      */
     public function destroy($PromotionId)
     {
-        $promotion = Promotion::find($PromotionId);
+        $promotion = $this->service->find($PromotionId);
         
-        if ($promotion) {
-            // Xóa ảnh trên Cloudinary
-            if ($promotion->ImageUrl && strpos($promotion->ImageUrl, 'cloudinary.com') !== false) {
-                try {
-                    $publicId = $this->extractPublicId($promotion->ImageUrl);
-                    if ($publicId) {
-                        $this->cloudinary->uploadApi()->destroy($publicId);
-                    }
-                } catch (\Exception $e) {
-                    Log::error('Xóa ảnh Cloudinary thất bại: ' . $e->getMessage());
+        if ($promotion && $promotion->ImageUrl && strpos($promotion->ImageUrl, 'cloudinary.com') !== false) {
+            try {
+                $publicId = $this->extractPublicId($promotion->ImageUrl);
+                if ($publicId) {
+                    $this->cloudinary->uploadApi()->destroy($publicId);
                 }
+            } catch (\Exception $e) {
+                Log::error('Xóa ảnh Cloudinary thất bại: ' . $e->getMessage());
             }
         }
         
@@ -388,12 +345,6 @@ class PromotionController extends Controller
         return response()->json(['message' => 'Promotion deleted successfully']);
     }
 
-    /**
-     * Extract public ID from Cloudinary URL
-     * 
-     * @param string $url
-     * @return string|null
-     */
     private function extractPublicId($url)
     {
         preg_match('/\/upload\/v\d+\/(.+)\.\w+$/', $url, $matches);

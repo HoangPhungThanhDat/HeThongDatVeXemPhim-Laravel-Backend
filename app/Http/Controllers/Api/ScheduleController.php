@@ -40,13 +40,7 @@ class ScheduleController extends Controller
      *       "CinemaId": 1,
      *       "StartDate": "2024-01-01",
      *       "EndDate": "2024-01-31",
-     *       "Showtimes": [
-     *         {
-     *           "ShowtimeId": 1,
-     *           "StartTime": "10:00:00",
-     *           "EndTime": "13:00:00"
-     *         }
-     *       ],
+     *       "Showtimes": [...],
      *       "MovieTitle": "Avengers: Endgame",
      *       "CinemaName": "CGV Vincom Center",
      *       "RoomName": "Room 1",
@@ -97,12 +91,7 @@ class ScheduleController extends Controller
      * @response 422 {
      *   "message": "The given data was invalid.",
      *   "errors": {
-     *     "MovieId": ["The movie id field is required."],
-     *     "CinemaId": ["The cinema id field is required."],
-     *     "RoomId": ["The room id field is required."],
-     *     "StartDate": ["The start date field is required."],
-     *     "EndDate": ["The end date field is required."],
-     *     "Showtimes": ["The showtimes field is required."]
+     *     "MovieId": ["The movie id field is required."]
      *   }
      * }
      * @response 500 {
@@ -119,7 +108,6 @@ class ScheduleController extends Controller
                 'success' => true,
                 'message' => 'Tạo lịch chiếu thành công',
                 'data'    => new ScheduleResource($result['schedule']),
-                // Thông tin bổ sung để frontend hiển thị toast chi tiết
                 'meta'    => [
                     'showtimes_created' => $result['showtimes_created'],
                     'seats_created'     => $result['seats_created'],

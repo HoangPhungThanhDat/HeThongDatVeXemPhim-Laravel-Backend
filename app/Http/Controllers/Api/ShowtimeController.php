@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreShowtimeRequest;
 use App\Http\Resources\ShowtimeResource;
 use App\Services\ShowtimeService;
-use App\Models\Showtime;
 use Illuminate\Http\Request;
 
 /**
@@ -41,19 +40,6 @@ class ShowtimeController extends Controller
      *     "RoomId": 1,
      *     "StartTime": "2024-01-01 10:00:00",
      *     "EndTime": "2024-01-01 13:00:00",
-     *     "Price": 120000,
-     *     "Status": "Scheduled",
-     *     "MovieTitle": "Avengers: Endgame",
-     *     "RoomName": "Room 1",
-     *     "CreatedAt": "2024-01-01 10:00:00"
-     *   },
-     *   {
-     *     "ShowtimeId": 2,
-     *     "ScheduleId": 1,
-     *     "MovieId": 1,
-     *     "RoomId": 1,
-     *     "StartTime": "2024-01-01 13:00:00",
-     *     "EndTime": "2024-01-01 16:00:00",
      *     "Price": 120000,
      *     "Status": "Scheduled",
      *     "MovieTitle": "Avengers: Endgame",
@@ -101,32 +87,15 @@ class ShowtimeController extends Controller
         $search = $request->query('search', '');
         $status = $request->query('status', '');
 
-        // Eager load Movie và Room để hiện tên phim + phòng
-        $query = Showtime::with(['Movie', 'Room']);
-
-        if ($search) {
-            $query->whereHas('Movie', function ($q) use ($search) {
-                $q->where('Title', 'like', "%{$search}%");
-            });
-        }
-
-        if ($status) {
-            $query->where('Status', $status);
-        }
-
-        $total      = $query->count();
-        $totalPages = (int) ceil($total / $limit);
-        $items      = $query->orderBy('StartTime', 'desc')
-                            ->skip(($page - 1) * $limit)
-                            ->take($limit)
-                            ->get();
+        // ✅ Gọi xuống Service -> Repository (đã có Redis Cache)
+        $result = $this->service->getPaged($page, $limit, $search, $status);
 
         return response()->json([
-            'data'       => ShowtimeResource::collection($items),
-            'total'      => $total,
-            'page'       => $page,
-            'limit'      => $limit,
-            'totalPages' => $totalPages,
+            'data'       => ShowtimeResource::collection($result['data']),
+            'total'      => $result['total'],
+            'page'       => $result['page'],
+            'limit'      => $result['limit'],
+            'totalPages' => $result['totalPages'],
         ]);
     }
 
@@ -159,11 +128,7 @@ class ShowtimeController extends Controller
      * @response 422 {
      *   "message": "The given data was invalid.",
      *   "errors": {
-     *     "MovieId": ["The movie id field is required."],
-     *     "RoomId": ["The room id field is required."],
-     *     "StartTime": ["The start time field is required."],
-     *     "EndTime": ["The end time field is required."],
-     *     "Price": ["The price field is required."]
+     *     "MovieId": ["The movie id field is required."]
      *   }
      * }
      * @response 401 {

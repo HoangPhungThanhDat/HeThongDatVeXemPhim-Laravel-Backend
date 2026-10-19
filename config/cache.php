@@ -15,7 +15,8 @@ return [
     |
     */
 
-    'default' => env('CACHE_DRIVER', 'file'),
+    // ✅ SỬA: Ưu tiên CACHE_STORE (Laravel 11+), fallback về CACHE_DRIVER (Laravel 10-), cuối cùng là 'file'
+    'default' => env('CACHE_STORE', env('CACHE_DRIVER', 'file')),
 
     /*
     |--------------------------------------------------------------------------

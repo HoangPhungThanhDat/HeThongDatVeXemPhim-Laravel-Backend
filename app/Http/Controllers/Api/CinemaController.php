@@ -6,10 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCinemaRequest;
 use App\Http\Resources\CinemaResource;
 use App\Http\Resources\RoomResource;
-use App\Models\Cinema;
-use App\Models\Movie;
-use App\Models\Room;
-use App\Models\Showtime;
 use App\Services\CinemaService;
 use Illuminate\Http\Request;
 use Cloudinary\Cloudinary;
@@ -30,7 +26,6 @@ class CinemaController extends Controller
     {
         $this->cinemaService = $cinemaService;
         
-        // Khởi tạo Cloudinary
         $this->cloudinary = new Cloudinary([
             'cloud' => [
                 'cloud_name' => config('cloudinary.cloud_name'),
@@ -66,7 +61,7 @@ class CinemaController extends Controller
      */
     public function index()
     {
-        $cinemas = $this->cinemaService->getAll(['rooms', 'rooms.seats']);
+        $cinemas = $this->cinemaService->getAllWithRelations();
         return CinemaResource::collection($cinemas);
     }
 
@@ -113,7 +108,6 @@ class CinemaController extends Controller
         if ($request->hasFile('ImageUrl')) {
             try {
                 $file = $request->file('ImageUrl');
-                
                 $result = $this->cloudinary->uploadApi()->upload($file->getRealPath(), [
                     'folder' => 'cinemas',
                     'transformation' => [
@@ -124,14 +118,10 @@ class CinemaController extends Controller
                         'fetch_format' => 'auto'
                     ]
                 ]);
-                
                 $data['ImageUrl'] = $result['secure_url'];
             } catch (\Exception $e) {
                 Log::error('Upload ảnh cinema thất bại: ' . $e->getMessage());
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Upload ảnh thất bại: ' . $e->getMessage()
-                ], 500);
+                return response()->json(['success' => false, 'message' => 'Upload ảnh thất bại: ' . $e->getMessage()], 500);
             }
         } else {
             $data['ImageUrl'] = null;
@@ -169,13 +159,10 @@ class CinemaController extends Controller
      */
     public function show($CinemaId)
     {
-        $cinema = $this->cinemaService->getById($CinemaId, ['rooms', 'rooms.seats']);
+        $cinema = $this->cinemaService->getByIdWithRelations($CinemaId);
         
         if (!$cinema) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Không tìm thấy rạp chiếu'
-            ], 404);
+            return response()->json(['success' => false, 'message' => 'Không tìm thấy rạp chiếu'], 404);
         }
         
         return new CinemaResource($cinema);
@@ -219,14 +206,10 @@ class CinemaController extends Controller
         $cinema = $this->cinemaService->getById($CinemaId);
 
         if (!$cinema) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Không tìm thấy rạp chiếu'
-            ], 404);
+            return response()->json(['success' => false, 'message' => 'Không tìm thấy rạp chiếu'], 404);
         }
 
         if ($request->hasFile('ImageUrl')) {
-            // Xóa ảnh cũ trên Cloudinary
             if ($cinema->ImageUrl && strpos($cinema->ImageUrl, 'cloudinary.com') !== false) {
                 try {
                     $publicId = $this->extractPublicId($cinema->ImageUrl);
@@ -238,7 +221,6 @@ class CinemaController extends Controller
                 }
             }
             
-            // Upload ảnh mới
             try {
                 $file = $request->file('ImageUrl');
                 $result = $this->cloudinary->uploadApi()->upload($file->getRealPath(), [
@@ -251,14 +233,10 @@ class CinemaController extends Controller
                         'fetch_format' => 'auto'
                     ]
                 ]);
-                
                 $data['ImageUrl'] = $result['secure_url'];
             } catch (\Exception $e) {
                 Log::error('Upload ảnh cinema thất bại: ' . $e->getMessage());
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Upload ảnh thất bại: ' . $e->getMessage()
-                ], 500);
+                return response()->json(['success' => false, 'message' => 'Upload ảnh thất bại: ' . $e->getMessage()], 500);
             }
         } else {
             $data['ImageUrl'] = $cinema->ImageUrl;
@@ -297,13 +275,9 @@ class CinemaController extends Controller
         $cinema = $this->cinemaService->getById($CinemaId);
         
         if (!$cinema) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Không tìm thấy rạp chiếu'
-            ], 404);
+            return response()->json(['success' => false, 'message' => 'Không tìm thấy rạp chiếu'], 404);
         }
 
-        // Xóa ảnh trên Cloudinary
         if ($cinema->ImageUrl && strpos($cinema->ImageUrl, 'cloudinary.com') !== false) {
             try {
                 $publicId = $this->extractPublicId($cinema->ImageUrl);
@@ -324,10 +298,7 @@ class CinemaController extends Controller
 
         $this->cinemaService->delete($CinemaId);
         
-        return response()->json([
-            'success' => true,
-            'message' => 'Xóa rạp chiếu thành công'
-        ]);
+        return response()->json(['success' => true, 'message' => 'Xóa rạp chiếu thành công']);
     }
 
     /**
@@ -358,13 +329,10 @@ class CinemaController extends Controller
      */
     public function getRooms($cinemaId)
     {
-        $cinema = $this->cinemaService->getById($cinemaId, ['rooms', 'rooms.seats']);
+        $cinema = $this->cinemaService->getByIdWithRelations($cinemaId);
         
         if (!$cinema) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Không tìm thấy rạp chiếu'
-            ], 404);
+            return response()->json(['success' => false, 'message' => 'Không tìm thấy rạp chiếu'], 404);
         }
 
         return response()->json([
@@ -395,67 +363,8 @@ class CinemaController extends Controller
      */
     public function getStats($cinemaId = null)
     {
-        if ($cinemaId) {
-            $cinema = $this->cinemaService->getById($cinemaId, ['rooms', 'rooms.seats']);
-            
-            if (!$cinema) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Không tìm thấy rạp chiếu'
-                ], 404);
-            }
-
-            $totalRooms = $cinema->rooms->count();
-            $totalSeats = 0;
-            $activeRooms = 0;
-
-            foreach ($cinema->rooms as $room) {
-                $totalSeats += $room->seats->count();
-                if ($room->Status === 'Active') {
-                    $activeRooms++;
-                }
-            }
-
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'CinemaId' => $cinema->CinemaId,
-                    'Name' => $cinema->Name,
-                    'TotalRooms' => $totalRooms,
-                    'ActiveRooms' => $activeRooms,
-                    'TotalSeats' => $totalSeats,
-                ]
-            ]);
-        }
-
-        $cinemas = $this->cinemaService->getAll(['rooms', 'rooms.seats']);
-        $stats = [];
-
-        foreach ($cinemas as $cinema) {
-            $totalRooms = $cinema->rooms->count();
-            $totalSeats = 0;
-            $activeRooms = 0;
-
-            foreach ($cinema->rooms as $room) {
-                $totalSeats += $room->seats->count();
-                if ($room->Status === 'Active') {
-                    $activeRooms++;
-                }
-            }
-
-            $stats[] = [
-                'CinemaId' => $cinema->CinemaId,
-                'Name' => $cinema->Name,
-                'TotalRooms' => $totalRooms,
-                'ActiveRooms' => $activeRooms,
-                'TotalSeats' => $totalSeats,
-            ];
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => $stats
-        ]);
+        $result = $this->cinemaService->getStats($cinemaId);
+        return response()->json($result);
     }
 
     /**
@@ -494,48 +403,8 @@ class CinemaController extends Controller
     public function showtimes($cinemaId, Request $request)
     {
         $date = $request->get('date', now()->toDateString());
-
-        $showtimes = $this->cinemaService->getShowtimes($cinemaId, $date);
-
-        if ($showtimes->isEmpty()) {
-            return response()->json([
-                'cinemaId' => $cinemaId,
-                'date' => $date,
-                'movies' => []
-            ]);
-        }
-
-        $movies = $showtimes->groupBy('MovieId')->map(function ($items) {
-            $movie = $items->first()->movie;
-
-            if (!$movie) return null;
-
-            return [
-                'MovieId' => $movie->MovieId,
-                'Title' => $movie->Title,
-                'PosterUrl' => $movie->PosterUrl,
-                'Duration' => $movie->Duration,
-                'Description' => $movie->Description,
-                'Directors' => $movie->directors->pluck('Name')->all(),
-                'Actors' => $movie->actors->pluck('Name')->all(),
-                'showtimes' => $items->map(function ($showtime) {
-                    return [
-                        'ShowtimeId' => $showtime->ShowtimeId,
-                        'StartTime' => $showtime->StartTime->format('H:i'),
-                        'EndTime' => $showtime->EndTime->format('H:i'),
-                        'Room' => $showtime->room->Name,
-                        'RoomType' => $showtime->room->RoomType,
-                        'Price' => $showtime->Price,
-                    ];
-                })->values()
-            ];
-        })->filter()->values();
-
-        return response()->json([
-            'cinemaId' => $cinemaId,
-            'date' => $date,
-            'movies' => $movies
-        ]);
+        $data = $this->cinemaService->getShowtimesGroupedByMovie($cinemaId, $date);
+        return response()->json($data);
     }
 
     /**
@@ -552,13 +421,7 @@ class CinemaController extends Controller
      *   "CinemasByCity": [
      *     {
      *       "city": "Hồ Chí Minh",
-     *       "cinemas": [
-     *         {
-     *           "cinemaId": 1,
-     *           "name": "CGV Vincom Center",
-     *           "showtimes": [...]
-     *         }
-     *       ]
+     *       "cinemas": [...]
      *     }
      *   ]
      * }
@@ -566,16 +429,11 @@ class CinemaController extends Controller
     public function showtimesByMovie($movieId)
     {
         $data = $this->cinemaService->getShowtimesGroupedByCity($movieId);
-
         return response()->json([
             'MovieId' => $movieId,
             'CinemasByCity' => $data
         ]);
     }
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // 🆕 CÁC METHOD MỚI CHO TIMRAP
-    // ═══════════════════════════════════════════════════════════════════════
 
     /**
      * Get movies by cinema
@@ -588,60 +446,13 @@ class CinemaController extends Controller
      * 
      * @response 200 {
      *   "success": true,
-     *   "data": [
-     *     {
-     *       "MovieId": 1,
-     *       "Title": "Avengers: Endgame",
-     *       "PosterUrl": "https://...",
-     *       "Duration": 180,
-     *       "Rated": "T16"
-     *     }
-     *   ]
+     *   "data": [...]
      * }
      */
     public function getMoviesByCinema($cinemaId)
     {
-        $cinema = Cinema::find($cinemaId);
-        
-        if (!$cinema) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Không tìm thấy rạp'
-            ], 404);
-        }
-
-        // Lấy danh sách phim đang chiếu tại rạp này
-        $movieIds = Showtime::whereHas('room', function($query) use ($cinemaId) {
-                $query->where('CinemaId', $cinemaId);
-            })
-            ->where('StartTime', '>=', now())
-            ->where('Status', 'Scheduled')
-            ->pluck('MovieId')
-            ->unique();
-
-        $movies = Movie::whereIn('MovieId', $movieIds)
-            ->where('Status', 'NowShowing')
-            ->with(['genres', 'directors', 'actors'])
-            ->get()
-            ->map(function($movie) {
-                return [
-                    'MovieId' => $movie->MovieId,
-                    'Title' => $movie->Title,
-                    'Slug' => $movie->Slug,
-                    'PosterUrl' => $movie->PosterUrl,
-                    'Duration' => $movie->Duration,
-                    'Rated' => $movie->Rated,
-                    'Description' => $movie->Description,
-                    'Genre' => $movie->genres->pluck('Name')->implode(', '),
-                    'Directors' => $movie->directors->pluck('Name')->all(),
-                    'Actors' => $movie->actors->pluck('Name')->all(),
-                ];
-            });
-
-        return response()->json([
-            'success' => true,
-            'data' => $movies
-        ]);
+        $result = $this->cinemaService->getMoviesByCinema($cinemaId);
+        return response()->json($result, $result['success'] ? 200 : 404);
     }
 
     /**
@@ -656,39 +467,13 @@ class CinemaController extends Controller
      * 
      * @response 200 {
      *   "success": true,
-     *   "data": ["2024-01-01", "2024-01-02", "2024-01-03"]
+     *   "data": ["2024-01-01", "2024-01-02"]
      * }
      */
     public function getDatesByCinemaAndMovie($cinemaId, $movieId)
     {
-        $cinema = Cinema::find($cinemaId);
-        $movie = Movie::find($movieId);
-        
-        if (!$cinema || !$movie) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Không tìm thấy rạp hoặc phim'
-            ], 404);
-        }
-
-        // Lấy danh sách ngày chiếu từ 7 ngày tới
-        $dates = Showtime::whereHas('room', function($query) use ($cinemaId) {
-                $query->where('CinemaId', $cinemaId);
-            })
-            ->where('MovieId', $movieId)
-            ->where('StartTime', '>=', now())
-            ->where('StartTime', '<=', now()->addDays(7))
-            ->where('Status', 'Scheduled')
-            ->selectRaw('DATE(StartTime) as date')
-            ->distinct()
-            ->orderBy('date', 'asc')
-            ->pluck('date')
-            ->values();
-
-        return response()->json([
-            'success' => true,
-            'data' => $dates
-        ]);
+        $result = $this->cinemaService->getDatesByCinemaAndMovie($cinemaId, $movieId);
+        return response()->json($result, $result['success'] ? 200 : 404);
     }
 
     /**
@@ -704,16 +489,7 @@ class CinemaController extends Controller
      * 
      * @response 200 {
      *   "success": true,
-     *   "data": [
-     *     {
-     *       "ShowtimeId": 1,
-     *       "StartTime": "10:00",
-     *       "EndTime": "13:00",
-     *       "Room": "Room 1",
-     *       "RoomType": "2D",
-     *       "Price": 120000
-     *     }
-     *   ]
+     *   "data": [...]
      * }
      */
     public function getShowtimesByMovieAndDate($cinemaId, $movieId, Request $request)
@@ -721,55 +497,13 @@ class CinemaController extends Controller
         $date = $request->get('date');
         
         if (!$date) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Thiếu tham số date'
-            ], 400);
+            return response()->json(['success' => false, 'message' => 'Thiếu tham số date'], 400);
         }
 
-        $cinema = Cinema::find($cinemaId);
-        $movie = Movie::find($movieId);
-        
-        if (!$cinema || !$movie) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Không tìm thấy rạp hoặc phim'
-            ], 404);
-        }
-
-        $showtimes = Showtime::where('MovieId', $movieId)
-            ->whereHas('room', function($query) use ($cinemaId) {
-                $query->where('CinemaId', $cinemaId);
-            })
-            ->whereDate('StartTime', $date)
-            ->where('StartTime', '>=', now())
-            ->where('Status', 'Scheduled')
-            ->with(['room'])
-            ->orderBy('StartTime', 'asc')
-            ->get()
-            ->map(function($showtime) {
-                return [
-                    'ShowtimeId' => $showtime->ShowtimeId,
-                    'StartTime' => $showtime->StartTime->format('H:i'),
-                    'EndTime' => $showtime->EndTime->format('H:i'),
-                    'Room' => $showtime->room->Name,
-                    'RoomType' => $showtime->room->RoomType,
-                    'Price' => $showtime->Price,
-                ];
-            });
-
-        return response()->json([
-            'success' => true,
-            'data' => $showtimes
-        ]);
+        $result = $this->cinemaService->getShowtimesByMovieAndDate($cinemaId, $movieId, $date);
+        return response()->json($result, $result['success'] ? 200 : 404);
     }
 
-    /**
-     * Extract public ID from Cloudinary URL
-     * 
-     * @param string $url
-     * @return string|null
-     */
     private function extractPublicId($url)
     {
         preg_match('/\/upload\/v\d+\/(.+)\.\w+$/', $url, $matches);

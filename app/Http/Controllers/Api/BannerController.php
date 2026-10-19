@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Banner;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBannerRequest;
 use App\Http\Resources\BannerResource;
@@ -25,7 +24,6 @@ class BannerController extends Controller
     {
         $this->bannerService = $bannerService;
         
-        // Khởi tạo Cloudinary từ config
         $this->cloudinary = new Cloudinary([
             'cloud' => [
                 'cloud_name' => config('cloudinary.cloud_name'),
@@ -55,16 +53,6 @@ class BannerController extends Controller
      *     "Status": "Active",
      *     "Order": 1,
      *     "CreatedAt": "2024-01-01 10:00:00"
-     *   },
-     *   {
-     *     "BannerId": 2,
-     *     "Title": "New Movie Release",
-     *     "Description": "Avengers: Endgame now showing",
-     *     "ImageUrl": "https://res.cloudinary.com/.../banners/avengers.jpg",
-     *     "Link": "https://example.com/movies/1",
-     *     "Status": "Active",
-     *     "Order": 2,
-     *     "CreatedAt": "2024-01-01 10:05:00"
      *   }
      * ]
      */
@@ -114,10 +102,8 @@ class BannerController extends Controller
         $data = $request->validated();
 
         if ($request->hasFile('ImageUrl')) {
-            $file = $request->file('ImageUrl');
-            
-            // Upload lên Cloudinary
             try {
+                $file = $request->file('ImageUrl');
                 $result = $this->cloudinary->uploadApi()->upload($file->getRealPath(), [
                     'folder' => 'banners',
                     'transformation' => [
@@ -128,15 +114,11 @@ class BannerController extends Controller
                         'fetch_format' => 'auto'
                     ]
                 ]);
-                
                 $data['ImageUrl'] = $result['secure_url'];
             } catch (\Exception $e) {
-                return response()->json([
-                    'message' => 'Upload ảnh thất bại: ' . $e->getMessage()
-                ], 500);
+                return response()->json(['message' => 'Upload ảnh thất bại: ' . $e->getMessage()], 500);
             }
         } else {
-            // Nếu không có ảnh mới, giữ ảnh cũ hoặc để null
             $data['ImageUrl'] = $request->input('ImageUrl') ?? null;
         }
 
@@ -208,12 +190,9 @@ class BannerController extends Controller
     public function update(StoreBannerRequest $request, $BannerId)
     {
         $data = $request->validated();
-        $banner = Banner::findOrFail($BannerId);
+        $banner = $this->bannerService->getById($BannerId); // Lấy từ Service
 
         if ($request->hasFile('ImageUrl')) {
-            $file = $request->file('ImageUrl');
-            
-            // Xóa ảnh cũ trên Cloudinary nếu có
             if ($banner->ImageUrl && strpos($banner->ImageUrl, 'cloudinary.com') !== false) {
                 try {
                     $publicId = $this->extractPublicId($banner->ImageUrl);
@@ -221,13 +200,12 @@ class BannerController extends Controller
                         $this->cloudinary->uploadApi()->destroy($publicId);
                     }
                 } catch (\Exception $e) {
-                    // Log lỗi nhưng không dừng quá trình
                     Log::error('Xóa ảnh Cloudinary thất bại: ' . $e->getMessage());
                 }
             }
             
-            // Upload ảnh mới lên Cloudinary
             try {
+                $file = $request->file('ImageUrl');
                 $result = $this->cloudinary->uploadApi()->upload($file->getRealPath(), [
                     'folder' => 'banners',
                     'transformation' => [
@@ -238,15 +216,11 @@ class BannerController extends Controller
                         'fetch_format' => 'auto'
                     ]
                 ]);
-                
                 $data['ImageUrl'] = $result['secure_url'];
             } catch (\Exception $e) {
-                return response()->json([
-                    'message' => 'Upload ảnh thất bại: ' . $e->getMessage()
-                ], 500);
+                return response()->json(['message' => 'Upload ảnh thất bại: ' . $e->getMessage()], 500);
             }
         } else {
-            // Nếu không upload ảnh mới, giữ nguyên ảnh cũ
             $data['ImageUrl'] = $banner->ImageUrl;
         }
 
@@ -272,9 +246,8 @@ class BannerController extends Controller
      */
     public function destroy($BannerId)
     {
-        $banner = Banner::findOrFail($BannerId);
+        $banner = $this->bannerService->getById($BannerId);
         
-        // Xóa ảnh trên Cloudinary nếu có
         if ($banner->ImageUrl && strpos($banner->ImageUrl, 'cloudinary.com') !== false) {
             try {
                 $publicId = $this->extractPublicId($banner->ImageUrl);
@@ -290,16 +263,8 @@ class BannerController extends Controller
         return response()->json(['message' => 'Banner deleted successfully']);
     }
 
-    /**
-     * Extract public ID from Cloudinary URL
-     * 
-     * @param string $url
-     * @return string|null
-     */
     private function extractPublicId($url)
     {
-        // Lấy public_id từ URL Cloudinary
-        // Ví dụ: https://res.cloudinary.com/g3ixv7xj/image/upload/v1234567890/banners/xxx.jpg
         preg_match('/\/upload\/v\d+\/(.+)\.\w+$/', $url, $matches);
         return $matches[1] ?? null;
     }

@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Repositories\RoomRepository;
-use App\Models\Seat;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -29,19 +28,24 @@ class RoomService
 
     public function create(array $data)
     {
-        $data['CreatedBy'] = Auth::user()->UserId;
-        // SeatCount mặc định là 0 khi tạo phòng mới
+        if (Auth::check()) {
+            $data['CreatedBy'] = Auth::user()->UserId;
+        }
         $data['SeatCount'] = 0;
+        $data['CreatedAt'] = now();
+        $data['UpdatedAt'] = now();
         
         return $this->roomRepository->create($data);
     }
 
     public function update($id, array $data)
     {
-        $data['UpdatedBy'] = Auth::user()->UserId;
+        if (Auth::check()) {
+            $data['UpdatedBy'] = Auth::user()->UserId;
+        }
+        $data['UpdatedAt'] = now();
         
         // Không cho phép cập nhật SeatCount thủ công
-        // SeatCount sẽ được tự động cập nhật khi thêm/xóa ghế
         unset($data['SeatCount']);
         
         return $this->roomRepository->update($id, $data);
@@ -51,8 +55,8 @@ class RoomService
     {
         DB::beginTransaction();
         try {
-            // Xóa tất cả ghế của phòng trước
-            Seat::where('RoomId', $id)->delete();
+            // ✅ Gọi xuống Repository để xóa ghế (tuân thủ MVC)
+            $this->roomRepository->deleteSeatsByRoomId($id);
             
             // Sau đó xóa phòng
             $this->roomRepository->delete($id);

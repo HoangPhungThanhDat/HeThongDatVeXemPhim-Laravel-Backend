@@ -40,26 +40,6 @@ class OrderdetailController extends Controller
      *     "Price": 120000,
      *     "SubTotal": 120000,
      *     "CreatedAt": "2024-01-01 10:00:00"
-     *   },
-     *   {
-     *     "OrderDetailId": 2,
-     *     "OrderId": 1,
-     *     "TicketId": null,
-     *     "ItemId": 1,
-     *     "Quantity": 2,
-     *     "Price": 30000,
-     *     "SubTotal": 60000,
-     *     "CreatedAt": "2024-01-01 10:00:00"
-     *   },
-     *   {
-     *     "OrderDetailId": 3,
-     *     "OrderId": 2,
-     *     "TicketId": 2,
-     *     "ItemId": null,
-     *     "Quantity": 1,
-     *     "Price": 100000,
-     *     "SubTotal": 100000,
-     *     "CreatedAt": "2024-01-01 10:30:00"
      *   }
      * ]
      * @response 401 {
@@ -109,7 +89,6 @@ class OrderdetailController extends Controller
     public function store(StoreOrderdetailRequest $request)
     {
         $orderDetail = $this->service->create($request->validated());
-
         return new OrderdetailResource($orderDetail);
     }
 

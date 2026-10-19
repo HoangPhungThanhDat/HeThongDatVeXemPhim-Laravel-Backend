@@ -40,16 +40,6 @@ class ContactController extends Controller
      *     "Message": "Tôi muốn hỏi về cách đặt vé online...",
      *     "Status": "Pending",
      *     "CreatedAt": "2024-01-01 10:00:00"
-     *   },
-     *   {
-     *     "ContactId": 2,
-     *     "FullName": "Trần Thị B",
-     *     "Email": "tranb@example.com",
-     *     "Phone": "0987654322",
-     *     "Subject": "Góp ý về dịch vụ",
-     *     "Message": "Tôi muốn góp ý về chất lượng dịch vụ...",
-     *     "Status": "Resolved",
-     *     "CreatedAt": "2024-01-01 10:05:00"
      *   }
      * ]
      * @response 401 {

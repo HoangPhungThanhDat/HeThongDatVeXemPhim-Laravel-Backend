@@ -27,17 +27,28 @@ class ContactService
     public function create(array $data)
     {
         $user = Auth::user();
-        $data['CreatedBy'] = $user ? $user->UserId : $data['UserId'];
+        
+        // ✅ Chỉ gán CreatedBy nếu có user (Admin), còn khách thì để null
+        if ($user) {
+            $data['CreatedBy'] = $user->UserId;
+        } elseif (isset($data['UserId'])) {
+            $data['CreatedBy'] = $data['UserId'];
+        }
+        
         $data['CreatedAt'] = now();
         $data['UpdatedAt'] = now();
+        
         return $this->contactRepository->create($data);
     }
 
     public function update($id, array $data)
     {
         $user = Auth::user();
-        $data['UpdatedBy'] = $user ? $user->UserId : null;
+        if ($user) {
+            $data['UpdatedBy'] = $user->UserId;
+        }
         $data['UpdatedAt'] = now();
+        
         return $this->contactRepository->update($id, $data);
     }
 

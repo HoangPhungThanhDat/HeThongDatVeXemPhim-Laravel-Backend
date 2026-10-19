@@ -1,93 +1,35 @@
 <?php
 
-// namespace App\Services;
-
-// use App\Repositories\ShowtimeRepository;
-// use Illuminate\Support\Facades\Auth;
-// class ShowtimeService
-// {
-//     protected $repository;
-
-//     public function __construct(ShowtimeRepository $repository)
-//     {
-//         $this->repository = $repository;
-//     }
-
-//     public function getAll()
-//     {
-//         return $this->repository->all();
-//     }
-
-//     public function find($ShowtimeId)
-//     {
-//         return $this->repository->find($ShowtimeId);
-//     }
-
-//     public function create(array $data)
-//     {
-//         $data['CreatedBy'] = Auth::user()->UserId;
-//         return $this->repository->create($data);
-//     }
-
-//     public function update($ShowtimeId, array $data)
-//     {
-//         $data['UpdatedBy'] = Auth::user()->UserId;
-//         $showtime = $this->repository->find($ShowtimeId);
-//         if (!$showtime) {
-//             return null;
-//         }
-//         return $this->repository->update($showtime, $data);
-//     }
-
-//     public function delete($ShowtimeId)
-//     {
-//         $showtime = $this->repository->find($ShowtimeId);
-//         if (!$showtime) {
-//             return null;
-//         }
-//         return $this->repository->delete($showtime);
-//     }
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 namespace App\Services;
 
 use App\Repositories\ShowtimeRepository;
+use App\Services\ShowtimeseatService;
 use Illuminate\Support\Facades\Auth;
 
 class ShowtimeService
 {
     protected $repository;
-    protected $showtimeseatService; // ✅ THÊM
+    protected $showtimeseatService;
 
     public function __construct(
         ShowtimeRepository $repository,
-        ShowtimeseatService $showtimeseatService // ✅ THÊM
+        ShowtimeseatService $showtimeseatService
     ) {
         $this->repository = $repository;
-        $this->showtimeseatService = $showtimeseatService; // ✅ THÊM
+        $this->showtimeseatService = $showtimeseatService;
     }
 
     public function getAll()
     {
         return $this->repository->all();
+    }
+
+    /**
+     * ✅ Hàm phân trang
+     */
+    public function getPaged($page, $limit, $search = '', $status = '')
+    {
+        return $this->repository->getPaged($page, $limit, $search, $status);
     }
 
     public function find($ShowtimeId)
@@ -97,10 +39,15 @@ class ShowtimeService
 
     public function create(array $data)
     {
-        $data['CreatedBy'] = Auth::user()->UserId;
+        if (Auth::check()) {
+            $data['CreatedBy'] = Auth::user()->UserId;
+        }
+        $data['CreatedAt'] = now();
+        $data['UpdatedAt'] = now();
+
         $showtime = $this->repository->create($data);
 
-        // ✅ THÊM: Auto tạo ghế cho suất chiếu mới
+        // Tự động tạo ghế cho suất chiếu mới
         $this->showtimeseatService->generateSeatsForShowtime(
             $showtime->ShowtimeId,
             $showtime->RoomId
@@ -111,11 +58,16 @@ class ShowtimeService
 
     public function update($ShowtimeId, array $data)
     {
-        $data['UpdatedBy'] = Auth::user()->UserId;
         $showtime = $this->repository->find($ShowtimeId);
         if (!$showtime) {
             return null;
         }
+
+        if (Auth::check()) {
+            $data['UpdatedBy'] = Auth::user()->UserId;
+        }
+        $data['UpdatedAt'] = now();
+        
         return $this->repository->update($showtime, $data);
     }
 

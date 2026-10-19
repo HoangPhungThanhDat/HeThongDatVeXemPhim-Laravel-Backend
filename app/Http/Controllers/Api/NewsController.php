@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\News;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreNewsRequest;
 use App\Http\Resources\NewsResource;
@@ -26,7 +25,6 @@ class NewsController extends Controller
     {
         $this->newsService = $newsService;
         
-        // Khởi tạo Cloudinary
         $this->cloudinary = new Cloudinary([
             'cloud' => [
                 'cloud_name' => config('cloudinary.cloud_name'),
@@ -57,17 +55,6 @@ class NewsController extends Controller
      *     "ViewCount": 1500,
      *     "PublishedAt": "2024-06-01 10:00:00",
      *     "CreatedAt": "2024-06-01 09:00:00"
-     *   },
-     *   {
-     *     "NewsId": 2,
-     *     "Title": "New Movie Releases This Week",
-     *     "Content": "Check out the latest movies hitting theaters...",
-     *     "ImageUrl": "https://res.cloudinary.com/.../news/new-releases.jpg",
-     *     "Author": "Staff",
-     *     "Status": "Published",
-     *     "ViewCount": 850,
-     *     "PublishedAt": "2024-06-02 08:00:00",
-     *     "CreatedAt": "2024-06-02 07:30:00"
      *   }
      * ]
      */
@@ -120,7 +107,6 @@ class NewsController extends Controller
         if ($request->hasFile('ImageUrl')) {
             try {
                 $file = $request->file('ImageUrl');
-                
                 $result = $this->cloudinary->uploadApi()->upload($file->getRealPath(), [
                     'folder' => 'news',
                     'transformation' => [
@@ -131,13 +117,10 @@ class NewsController extends Controller
                         'fetch_format' => 'auto'
                     ]
                 ]);
-                
                 $data['ImageUrl'] = $result['secure_url'];
             } catch (\Exception $e) {
                 Log::error('Upload ảnh news thất bại: ' . $e->getMessage());
-                return response()->json([
-                    'message' => 'Upload ảnh thất bại: ' . $e->getMessage()
-                ], 500);
+                return response()->json(['message' => 'Upload ảnh thất bại: ' . $e->getMessage()], 500);
             }
         } else {
             $data['ImageUrl'] = null;
@@ -209,10 +192,9 @@ class NewsController extends Controller
     public function update(StoreNewsRequest $request, $NewsId)
     {
         $data = $request->validated();
-        $news = News::findOrFail($NewsId);
+        $news = $this->newsService->getById($NewsId); // Lấy từ Service
 
         if ($request->hasFile('ImageUrl')) {
-            // Xóa ảnh cũ trên Cloudinary
             if ($news->ImageUrl && strpos($news->ImageUrl, 'cloudinary.com') !== false) {
                 try {
                     $publicId = $this->extractPublicId($news->ImageUrl);
@@ -224,7 +206,6 @@ class NewsController extends Controller
                 }
             }
             
-            // Upload ảnh mới
             try {
                 $file = $request->file('ImageUrl');
                 $result = $this->cloudinary->uploadApi()->upload($file->getRealPath(), [
@@ -237,13 +218,10 @@ class NewsController extends Controller
                         'fetch_format' => 'auto'
                     ]
                 ]);
-                
                 $data['ImageUrl'] = $result['secure_url'];
             } catch (\Exception $e) {
                 Log::error('Upload ảnh news thất bại: ' . $e->getMessage());
-                return response()->json([
-                    'message' => 'Upload ảnh thất bại: ' . $e->getMessage()
-                ], 500);
+                return response()->json(['message' => 'Upload ảnh thất bại: ' . $e->getMessage()], 500);
             }
         } else {
             $data['ImageUrl'] = $news->ImageUrl;
@@ -271,9 +249,8 @@ class NewsController extends Controller
      */
     public function destroy($NewsId)
     {
-        $news = News::find($NewsId);
+        $news = $this->newsService->getById($NewsId);
         
-        // Xóa ảnh trên Cloudinary
         if ($news && $news->ImageUrl && strpos($news->ImageUrl, 'cloudinary.com') !== false) {
             try {
                 $publicId = $this->extractPublicId($news->ImageUrl);
@@ -289,12 +266,6 @@ class NewsController extends Controller
         return response()->json(['message' => 'News deleted successfully']);
     }
 
-    /**
-     * Extract public ID from Cloudinary URL
-     * 
-     * @param string $url
-     * @return string|null
-     */
     private function extractPublicId($url)
     {
         preg_match('/\/upload\/v\d+\/(.+)\.\w+$/', $url, $matches);

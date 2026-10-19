@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Distributor;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreDistributorRequest;
 use App\Http\Resources\DistributorResource;
@@ -42,17 +41,6 @@ class DistributorController extends Controller
      *     "Phone": "+1 123-456-7890",
      *     "Status": "Active",
      *     "CreatedAt": "2024-01-01 10:00:00"
-     *   },
-     *   {
-     *     "DistributorId": 2,
-     *     "Name": "Warner Bros",
-     *     "Description": "Global entertainment company",
-     *     "Country": "United States",
-     *     "Website": "https://www.warnerbros.com",
-     *     "Email": "contact@warnerbros.com",
-     *     "Phone": "+1 123-456-7891",
-     *     "Status": "Active",
-     *     "CreatedAt": "2024-01-01 10:05:00"
      *   }
      * ]
      */

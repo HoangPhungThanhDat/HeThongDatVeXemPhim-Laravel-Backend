@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use App\Repositories\ShowtimeseatRepository;
@@ -18,6 +19,14 @@ class ShowtimeseatService
         return $this->showtimeseatRepository->getAll();
     }
 
+    /**
+     * ✅ Hàm phân trang
+     */
+    public function getPaged($page, $limit, $showtimeId = '', $status = '')
+    {
+        return $this->showtimeseatRepository->getPaged($page, $limit, $showtimeId, $status);
+    }
+
     public function getById($id)
     {
         return $this->showtimeseatRepository->getById($id);
@@ -25,13 +34,20 @@ class ShowtimeseatService
 
     public function create(array $data)
     {
-        $data['CreatedBy'] = Auth::user()->UserId;
+        if (Auth::check()) {
+            $data['CreatedBy'] = Auth::user()->UserId;
+        }
+        $data['CreatedAt'] = now();
+        $data['UpdatedAt'] = now();
         return $this->showtimeseatRepository->create($data);
     }
 
     public function update($id, array $data)
     {
-        $data['UpdatedBy'] = Auth::user()->UserId;
+        if (Auth::check()) {
+            $data['UpdatedBy'] = Auth::user()->UserId;
+        }
+        $data['UpdatedAt'] = now();
         return $this->showtimeseatRepository->update($id, $data);
     }
 
@@ -40,16 +56,25 @@ class ShowtimeseatService
         return $this->showtimeseatRepository->delete($id);
     }
 
-    // ✅ THÊM MỚI: Lấy ghế theo ShowtimeId
     public function getSeatsByShowtimeId($showtimeId)
     {
         return $this->showtimeseatRepository->getSeatsByShowtimeId($showtimeId);
     }
 
-    // ✅ THÊM MỚI: Auto-generate ghế khi tạo showtime
-    public function generateSeatsForShowtime($showtimeId, $roomId)
+    public function generateSeatsForShowtime($showtimeId)
     {
+        $showtime = $this->showtimeseatRepository->getShowtime($showtimeId);
+        if (!$showtime) {
+            return ['error' => true, 'message' => 'Không tìm thấy suất chiếu'];
+        }
+
         $createdBy = Auth::check() ? Auth::user()->UserId : null;
-        $this->showtimeseatRepository->generateSeatsForShowtime($showtimeId, $roomId, $createdBy);
+        $this->showtimeseatRepository->generateSeatsForShowtime(
+            $showtime->ShowtimeId,
+            $showtime->RoomId,
+            $createdBy
+        );
+        
+        return ['success' => true];
     }
 }

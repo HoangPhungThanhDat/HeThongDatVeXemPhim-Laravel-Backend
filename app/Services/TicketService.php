@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\TicketRepository;
 use Illuminate\Support\Facades\Auth;
+
 class TicketService
 {
     protected $repository;
@@ -25,17 +26,26 @@ class TicketService
 
     public function create(array $data)
     {
-        $data['CreatedBy'] = Auth::user()->UserId;
+        if (Auth::check()) {
+            $data['CreatedBy'] = Auth::user()->UserId;
+        }
+        $data['CreatedAt'] = now();
+        $data['UpdatedAt'] = now();
         return $this->repository->create($data);
     }
 
     public function update($TicketId, array $data)
     {
-        $data['UpdatedBy'] = Auth::user()->UserId;
         $ticket = $this->repository->find($TicketId);
         if (!$ticket) {
             return null;
         }
+
+        if (Auth::check()) {
+            $data['UpdatedBy'] = Auth::user()->UserId;
+        }
+        $data['UpdatedAt'] = now();
+        
         return $this->repository->update($ticket, $data);
     }
 

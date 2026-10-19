@@ -7,12 +7,11 @@ use App\Http\Requests\StoreMovieRequest;
 use App\Http\Resources\MovieResource;
 use App\Services\MovieService;
 use App\Models\Movie;
-use App\Models\Moviecast; // ✅ THÊM DÒNG NÀY
+use App\Models\Moviecast;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Cloudinary\Cloudinary;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 
 /**
  * @group Movies
@@ -48,9 +47,6 @@ class MovieController extends Controller
 
     // ==================== PHƯƠNG THỨC HỖ TRỢ CAST MEMBERS ====================
 
-    /**
-     * ✅ Lưu danh sách cast members cho một phim
-     */
     private function saveCastMembers($movieId, array $castMembers): array
     {
         if (empty($castMembers)) {
@@ -65,7 +61,6 @@ class MovieController extends Controller
             }
 
             try {
-                // Kiểm tra tồn tại
                 $existing = Moviecast::where('MovieId', $movieId)
                     ->where('Name', trim($member['name']))
                     ->where('Role', $member['role'])
@@ -95,9 +90,6 @@ class MovieController extends Controller
         return $results;
     }
 
-    /**
-     * ✅ Xóa tất cả cast members của một phim
-     */
     private function deleteCastMembers($movieId): int
     {
         try {
@@ -108,9 +100,6 @@ class MovieController extends Controller
         }
     }
 
-    /**
-     * ✅ Chuyển đổi Cast string cũ sang format mới
-     */
     private function parseCastStringToArray(?string $castString, string $defaultRole = 'Actor'): array
     {
         if (empty($castString)) {
@@ -209,11 +198,8 @@ class MovieController extends Controller
     public function index(Request $request)
     {
         try {
-            $this->movieService->autoUpdateStatus();
-            
             $movies = $this->movieService->getAll();
             if ($movies['success']) {
-                // ✅ Load cast members
                 $movies['data']->load('castMembers');
                 return MovieResource::collection($movies['data']);
             }
@@ -253,36 +239,25 @@ class MovieController extends Controller
         $search = $request->query('search', '');
         $status = $request->query('status', '');
 
-        $this->movieService->autoUpdateStatus();
+        try {
+            // ✅ Gọi qua Service (đã có Redis Cache trong Repository)
+            $result = $this->movieService->getPaged($page, $limit, $search, $status);
 
-        // ✅ Load cast members
-        $query = Movie::with('castMembers');
-
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('Title', 'like', "%{$search}%")
-                  ->orWhere('Description', 'like', "%{$search}%");
-            });
+            return response()->json([
+                'data'       => MovieResource::collection($result['data']),
+                'total'      => $result['total'],
+                'page'       => $result['page'],
+                'limit'      => $result['limit'],
+                'totalPages' => $result['totalPages'],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in getPaged: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Có lỗi xảy ra khi lấy danh sách phim', 
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        if ($status) {
-            $query->where('Status', $status);
-        }
-
-        $total      = $query->count();
-        $totalPages = (int) ceil($total / $limit);
-        $items      = $query->orderBy('MovieId', 'desc')
-                            ->skip(($page - 1) * $limit)
-                            ->take($limit)
-                            ->get();
-
-        return response()->json([
-            'data'       => MovieResource::collection($items),
-            'total'      => $total,
-            'page'       => $page,
-            'limit'      => $limit,
-            'totalPages' => $totalPages,
-        ]);
     }
 
     /**
@@ -314,7 +289,6 @@ class MovieController extends Controller
         try {
             $data = $request->validated();
 
-            // Upload poster to Cloudinary
             if ($request->hasFile('PosterUrl')) {
                 try {
                     $file = $request->file('PosterUrl');
@@ -342,15 +316,12 @@ class MovieController extends Controller
                 $data['PosterUrl'] = null;
             }
 
-            // ✅ Lấy danh sách cast members từ request
             $castMembers = $request->input('CastMembers', []);
             
-            // ✅ Nếu có Cast string cũ, chuyển đổi
             if (empty($castMembers) && $request->has('Cast')) {
                 $castMembers = $this->parseCastStringToArray($request->input('Cast', ''));
             }
 
-            // ✅ Thêm Director vào cast members nếu có
             if ($request->has('Director') && !empty($request->input('Director'))) {
                 $directorName = trim($request->input('Director'));
                 $hasDirector = false;
@@ -379,12 +350,10 @@ class MovieController extends Controller
                 $movie->updateStatus();
             }
 
-            // ✅ Lưu cast members
             if (!empty($castMembers)) {
                 $this->saveCastMembers($movie->MovieId, $castMembers);
             }
 
-            // ✅ Load cast members
             $movie->load('castMembers');
 
             return new MovieResource($movie);
@@ -420,7 +389,6 @@ class MovieController extends Controller
             }
             
             $movie = $result['data'];
-            // ✅ Load cast members
             $movie->load('castMembers');
             
             return new MovieResource($movie);
@@ -461,7 +429,6 @@ class MovieController extends Controller
             }
             $movie = $movieResult['data'];
 
-            // Xử lý upload poster
             if ($request->hasFile('PosterUrl')) {
                 if ($movie->PosterUrl && strpos($movie->PosterUrl, 'cloudinary.com') !== false) {
                     try {
@@ -498,7 +465,6 @@ class MovieController extends Controller
                 $data['PosterUrl'] = $movie->PosterUrl;
             }
 
-            // ✅ Lấy danh sách cast members từ request
             $castMembers = $request->input('CastMembers', []);
             
             if (empty($castMembers) && $request->has('Cast')) {
@@ -533,14 +499,12 @@ class MovieController extends Controller
                 $updatedMovie->updateStatus();
             }
 
-            // ✅ Xóa tất cả cast cũ và thêm cast mới
             $this->deleteCastMembers($movieId);
             
             if (!empty($castMembers)) {
                 $this->saveCastMembers($movieId, $castMembers);
             }
 
-            // ✅ Load cast members
             $updatedMovie->load('castMembers');
 
             return new MovieResource($updatedMovie);
@@ -657,7 +621,6 @@ class MovieController extends Controller
             $statusCode = $result['success'] ? 200 : 404;
             
             if ($result['success'] && isset($result['data'])) {
-                // ✅ Load cast members
                 $result['data']->load('castMembers');
             }
             
@@ -906,7 +869,6 @@ class MovieController extends Controller
         try {
             $result = $this->movieService->getStatistics();
             
-            // ✅ Thêm thống kê cast members
             if ($result['success']) {
                 $totalCast = Moviecast::count();
                 $result['data']['total_cast_members'] = $totalCast;
@@ -948,7 +910,6 @@ class MovieController extends Controller
             
             $result = $this->movieService->getByStatus($status);
             
-            // ✅ Load cast members
             if ($result['success'] && isset($result['data'])) {
                 $result['data']->load('castMembers');
             }
@@ -966,12 +927,6 @@ class MovieController extends Controller
 
     // ==================== PRIVATE HELPERS ====================
 
-    /**
-     * Extract public ID from Cloudinary URL
-     * 
-     * @param string $url
-     * @return string|null
-     */
     private function extractPublicId($url)
     {
         preg_match('/\/upload\/v\d+\/(.+)\.\w+$/', $url, $matches);

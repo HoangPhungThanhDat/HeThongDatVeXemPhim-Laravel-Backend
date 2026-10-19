@@ -50,25 +50,6 @@ class TicketController extends Controller
      *     "SeatLabel": "A1",
      *     "SeatType": "Normal",
      *     "CreatedAt": "2024-01-01 10:00:00"
-     *   },
-     *   {
-     *     "TicketId": 2,
-     *     "OrderDetailId": 2,
-     *     "ShowtimeId": 1,
-     *     "SeatId": 2,
-     *     "UserId": 2,
-     *     "FullName": "Trần Thị B",
-     *     "Email": "user2@example.com",
-     *     "TicketCode": "TKT-2024-002",
-     *     "Price": 120000,
-     *     "Status": "Used",
-     *     "BookingTime": "2024-01-01 10:30:00",
-     *     "MovieTitle": "Avengers: Endgame",
-     *     "ShowtimeStart": "2024-01-01 10:00:00",
-     *     "RoomName": "Room 1",
-     *     "SeatLabel": "A2",
-     *     "SeatType": "Normal",
-     *     "CreatedAt": "2024-01-01 10:30:00"
      *   }
      * ]
      * @response 401 {
@@ -114,19 +95,13 @@ class TicketController extends Controller
      * @response 422 {
      *   "message": "The given data was invalid.",
      *   "errors": {
-     *     "OrderDetailId": ["The order detail id field is required."],
-     *     "ShowtimeId": ["The showtime id field is required."],
-     *     "SeatId": ["The seat id field is required."],
-     *     "UserId": ["The user id field is required."],
-     *     "TicketCode": ["The ticket code field is required."],
-     *     "Price": ["The price field is required."]
+     *     "OrderDetailId": ["The order detail id field is required."]
      *   }
      * }
      */
     public function store(StoreTicketRequest $request)
     {
         $ticket = $this->service->create($request->validated());
-
         return new TicketResource($ticket);
     }
 
