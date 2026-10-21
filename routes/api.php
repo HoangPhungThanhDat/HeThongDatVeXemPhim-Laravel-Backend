@@ -60,15 +60,13 @@ Route::prefix('auth')->group(function () {
 
 // ========================================================
 // 📽️ MOVIES
+// ✅ Đã sắp xếp: route TĨNH trước, route có {param} sau
 // ========================================================
 Route::prefix('movies')->group(function () {
-     // ✅ AUTO UPDATE STATUS - Thêm 2 routes mới
-     Route::post('/auto-update-status', [MovieController::class, 'autoUpdateStatus'])
-     ->middleware(['auth:api', 'checkrole:Admin']);
- 
-    Route::post('/update-status/{movieId}', [MovieController::class, 'updateSingleStatus'])
-     ->middleware(['auth:api', 'checkrole:Admin']);
+    // ✅ ĐÃ XÓA: Route auto-update-status và update-status
 
+    // ✅ ROUTE TĨNH (cụ thể) - ĐẶT TRƯỚC
+    Route::get('/paged',                        [MovieController::class, 'getPaged']);
     Route::get('/now-showing/all',              [MovieController::class, 'getNowShowing']);
     Route::get('/now-showing/filters',          [MovieController::class, 'getNowShowingFilters']);
     Route::post('/now-showing/filter',          [MovieController::class, 'filterNowShowing']);
@@ -79,9 +77,10 @@ Route::prefix('movies')->group(function () {
     Route::get('/latest',                       [MovieController::class, 'getLatestMovies']);
     Route::get('/statistics/overview',          [MovieController::class, 'getStatistics']);
     Route::get('/by-status/{status}',           [MovieController::class, 'getByStatus']);
+
+    // ✅ ROUTE CÓ THAM SỐ - ĐẶT SAU
     Route::get('/{id}/detail',                  [MovieController::class, 'getDetail']);
     Route::get('/',                             [MovieController::class, 'index']);
-    Route::get('/paged',                        [MovieController::class, 'getPaged']);
     Route::get('/{MovieId}',                    [MovieController::class, 'show']);
 });
 
@@ -117,7 +116,6 @@ Route::prefix('cinemas')->group(function () {
     Route::get('/',                      [CinemaController::class, 'index']);
     Route::get('/{CinemaId}',            [CinemaController::class, 'show']);
     Route::get('/{cinemaId}/showtimes',  [CinemaController::class, 'showtimes']);
-
 
     Route::get('/{cinemaId}/movies', [CinemaController::class, 'getMoviesByCinema']);
     Route::get('/{cinemaId}/movies/{movieId}/dates', [CinemaController::class, 'getDatesByCinemaAndMovie']);
@@ -317,7 +315,14 @@ Route::prefix('room-management')->middleware(['auth:api', 'checkrole:Admin'])->g
     Route::get('/dashboard', [RoomManagementController::class, 'getDashboardData']);
     Route::get('/statistics', [RoomManagementController::class, 'getStatistics']);
     Route::get('/rooms/{roomId}/detail', [RoomManagementController::class, 'getRoomDetail']);
+
+    Route::post('/rooms', [RoomManagementController::class, 'createRoom']);
+    Route::put('/rooms/{roomId}', [RoomManagementController::class, 'updateRoom']);
+    Route::delete('/rooms/{roomId}', [RoomManagementController::class, 'deleteRoom']);
+
     Route::put('/rooms/{roomId}/seats', [RoomManagementController::class, 'updateSeats']);
+
+   
 });
 
 // ========================================================

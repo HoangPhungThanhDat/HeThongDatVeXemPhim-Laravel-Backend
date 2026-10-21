@@ -41,8 +41,9 @@ class MovieController extends Controller
             ],
         ]);
 
+        // ✅ Đã xóa autoUpdateStatus và updateSingleStatus khỏi middleware
         $this->middleware(['auth:api', 'checkrole:Admin'])
-            ->only(['store', 'update', 'destroy', 'autoUpdateStatus', 'updateSingleStatus']);
+            ->only(['store', 'update', 'destroy']);
     }
 
     // ==================== PHƯƠNG THỨC HỖ TRỢ CAST MEMBERS ====================
@@ -117,74 +118,7 @@ class MovieController extends Controller
         return $result;
     }
 
-    // ==================== AUTO UPDATE STATUS ====================
-
-    /**
-     * ✅ Tự động cập nhật trạng thái cho tất cả phim
-     * 
-     * @authenticated
-     * 
-     * @response 200 {
-     *   "success": true,
-     *   "message": "Đã cập nhật trạng thái cho 5 phim",
-     *   "updated_count": 5,
-     *   "updates": [...]
-     * }
-     */
-    public function autoUpdateStatus(): JsonResponse
-    {
-        try {
-            $result = $this->movieService->autoUpdateStatus();
-            
-            if ($result['success']) {
-                return response()->json($result, 200);
-            }
-            
-            return response()->json($result, 500);
-        } catch (\Exception $e) {
-            Log::error('Lỗi autoUpdateStatus: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Có lỗi xảy ra khi cập nhật trạng thái phim',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * ✅ Cập nhật trạng thái cho một phim cụ thể
-     * 
-     * @authenticated
-     * 
-     * @urlParam movieId int required ID của phim cần cập nhật
-     * 
-     * @response 200 {
-     *   "success": true,
-     *   "data": {...},
-     *   "changed": true,
-     *   "old_status": "ComingSoon",
-     *   "new_status": "NowShowing"
-     * }
-     */
-    public function updateSingleStatus($movieId): JsonResponse
-    {
-        try {
-            $result = $this->movieService->updateSingleStatus((int)$movieId);
-            
-            if ($result['success']) {
-                return response()->json($result, 200);
-            }
-            
-            return response()->json($result, 404);
-        } catch (\Exception $e) {
-            Log::error('Lỗi updateSingleStatus: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Có lỗi xảy ra',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
+    // ✅ ĐÃ XÓA HOÀN TOÀN PHẦN AUTO UPDATE STATUS
 
     // ==================== CRUD CƠ BẢN ====================
 
@@ -346,9 +280,7 @@ class MovieController extends Controller
 
             $movie = $result['data'];
             
-            if ($movie && method_exists($movie, 'updateStatus')) {
-                $movie->updateStatus();
-            }
+            // ✅ ĐÃ XÓA: $movie->updateStatus()
 
             if (!empty($castMembers)) {
                 $this->saveCastMembers($movie->MovieId, $castMembers);
@@ -495,9 +427,7 @@ class MovieController extends Controller
 
             $updatedMovie = $result['data'];
             
-            if ($updatedMovie && method_exists($updatedMovie, 'updateStatus')) {
-                $updatedMovie->updateStatus();
-            }
+            // ✅ ĐÃ XÓA: $updatedMovie->updateStatus()
 
             $this->deleteCastMembers($movieId);
             

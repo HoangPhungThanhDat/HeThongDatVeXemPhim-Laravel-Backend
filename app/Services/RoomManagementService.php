@@ -84,4 +84,51 @@ class RoomManagementService
             ];
         }
     }
+
+    /**
+     * ✅ Thêm phòng chiếu
+     */
+    public function createRoom(array $data)
+    {
+        try {
+            return $this->repository->createRoom($data);
+        } catch (\Exception $e) {
+            Log::error('RoomManagementService::createRoom', [
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * ✅ Cập nhật phòng chiếu
+     */
+    public function updateRoom($roomId, array $data)
+    {
+        try {
+            return $this->repository->updateRoom($roomId, $data);
+        } catch (\Exception $e) {
+            Log::error('RoomManagementService::updateRoom', [
+                'roomId' => $roomId,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * ✅ Xóa phòng chiếu
+     */
+    public function deleteRoom($roomId)
+    {
+        try {
+            return $this->repository->deleteRoom($roomId);
+        } catch (\Exception $e) {
+            Log::error('RoomManagementService::deleteRoom', [
+                'roomId' => $roomId,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
 }

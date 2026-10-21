@@ -22,9 +22,9 @@ class MoviecastService
     /**
      * ✅ Lấy dữ liệu phân trang từ Repository
      */
-    public function getPaged($page, $limit, $search = '', $role = '')
+    public function getPaged($page, $limit, $search = '', $role = '', $status = '') // ✅ Thêm $status
     {
-        return $this->repository->getPaged($page, $limit, $search, $role);
+        return $this->repository->getPaged($page, $limit, $search, $role, $status);
     }
 
     public function find($CastId)

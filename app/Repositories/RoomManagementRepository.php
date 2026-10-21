@@ -11,11 +11,10 @@ use Illuminate\Support\Facades\DB;
 
 class RoomManagementRepository
 {
-    const CACHE_TIME = 300; // Cache 5 phút (vì thống kê ghế thay đổi liên tục)
+    const CACHE_TIME = 300; // Cache 5 phút
 
     public function getDashboardData()
     {
-        // Dùng Cache cho Dashboard vì ít khi thay đổi trong vài phút
         return Cache::remember('room_management_dashboard', self::CACHE_TIME, function () {
             $cinemas = Cinema::where('Status', 'Active')
                 ->orderBy('Name')
@@ -126,7 +125,6 @@ class RoomManagementRepository
 
     public function getRoomDetail($roomId)
     {
-        // Cache chi tiết phòng trong 5 phút
         return Cache::remember("room_management_detail_{$roomId}", self::CACHE_TIME, function () use ($roomId) {
             $room = Room::with(['cinema' => function($q) {
                 $q->select('CinemaId', 'Name', 'Address');
@@ -262,7 +260,7 @@ class RoomManagementRepository
             DB::commit();
 
             // ✅ Xóa Cache vì dữ liệu ghế đã thay đổi
-            $this->clearCache();
+            $this->clearCache($roomId);
 
             return [
                 'success' => true,
@@ -273,6 +271,32 @@ class RoomManagementRepository
             DB::rollBack();
             throw $e;
         }
+    }
+
+    // ✅ THÊM HÀM CREATE ROOM (Nếu bạn chưa có ở file khác)
+    public function createRoom(array $data)
+    {
+        $room = Room::create($data);
+        $this->clearCache(); // ✅ Xóa cache dashboard
+        return $room;
+    }
+
+    // ✅ THÊM HÀM UPDATE ROOM (Nếu bạn chưa có ở file khác)
+    public function updateRoom($roomId, array $data)
+    {
+        $room = Room::findOrFail($roomId);
+        $room->update($data);
+        $this->clearCache($roomId); // ✅ Xóa cache dashboard và detail
+        return $room;
+    }
+
+    // ✅ THÊM HÀM DELETE ROOM (Nếu bạn chưa có ở file khác)
+    public function deleteRoom($roomId)
+    {
+        $room = Room::findOrFail($roomId);
+        $result = $room->delete();
+        $this->clearCache($roomId); // ✅ Xóa cache dashboard và detail
+        return $result;
     }
 
     private function calculateCinemaStats($rooms)
@@ -305,10 +329,14 @@ class RoomManagementRepository
     /**
      * ✅ Xóa Cache khi có thay đổi dữ liệu
      */
-    public function clearCache()
+    public function clearCache($roomId = null)
     {
         Cache::forget('room_management_dashboard');
         Cache::forget('room_management_statistics');
-        // Với cache detail theo roomId, xóa theo pattern hoặc để tự hết hạn
+        
+        // ✅ Xóa cache chi tiết phòng nếu có ID
+        if ($roomId) {
+            Cache::forget("room_management_detail_{$roomId}");
+        }
     }
 }

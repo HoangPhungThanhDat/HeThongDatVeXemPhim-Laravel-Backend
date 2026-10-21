@@ -29,22 +29,6 @@ class MovieService
         }
     }
 
-    private function safeUpdateStatus($movie): bool
-    {
-        if (!$movie || !is_object($movie) || !$movie instanceof \App\Models\Movie) {
-            return false;
-        }
-        if (!method_exists($movie, 'updateStatus')) {
-            return false;
-        }
-        try {
-            return $movie->updateStatus();
-        } catch (\Exception $e) {
-            Log::warning('Failed to update status for movie ID ' . ($movie->MovieId ?? 'unknown') . ': ' . $e->getMessage());
-            return false;
-        }
-    }
-
     private function findMovieOrFail(int $movieId): array
     {
         try {
@@ -61,49 +45,14 @@ class MovieService
         }
     }
 
-    public function autoUpdateStatus(): array
-    {
-        try {
-            return Movie::autoUpdateAllStatus();
-        } catch (\Exception $e) {
-            Log::error('Lỗi autoUpdateStatus: ' . $e->getMessage());
-            return [
-                'success' => false,
-                'message' => 'Có lỗi xảy ra khi cập nhật trạng thái phim: ' . $e->getMessage(),
-                'updated_count' => 0,
-                'updates' => []
-            ];
-        }
-    }
-
-    public function updateSingleStatus(int $movieId): array
-    {
-        try {
-            $result = $this->findMovieOrFail($movieId);
-            if (!$result['success']) return ['success' => false, 'message' => $result['message']];
-            
-            $movie = $result['movie'];
-            $oldStatus = $movie->Status;
-            $changed = $this->safeUpdateStatus($movie);
-            
-            return [
-                'success' => true,
-                'data' => $movie,
-                'changed' => $changed,
-                'old_status' => $oldStatus,
-                'new_status' => $movie->Status,
-                'message' => $changed ? 'Đã cập nhật trạng thái' : 'Trạng thái không thay đổi'
-            ];
-        } catch (\Exception $e) {
-            Log::error('Lỗi updateSingleStatus: ' . $e->getMessage());
-            return ['success' => false, 'message' => 'Có lỗi xảy ra: ' . $e->getMessage()];
-        }
-    }
+    // ✅ ĐÃ XÓA HOÀN TOÀN HÀM autoUpdateStatus()
+    // ✅ ĐÃ XÓA HOÀN TOÀN HÀM updateSingleStatus()
+    // ✅ ĐÃ XÓA HOÀN TOÀN HÀM safeUpdateStatus()
 
     public function getAll()
     {
         try {
-            $this->autoUpdateStatus();
+            // ✅ ĐÃ XÓA LỆNH TỰ ĐỘNG CẬP NHẬT: $this->autoUpdateStatus();
             $movies = $this->movieRepository->all();
             return [
                 'success' => true,
@@ -124,7 +73,8 @@ class MovieService
             if (!$result['success']) return ['success' => false, 'data' => null, 'message' => $result['message']];
             
             $movie = $result['movie'];
-            $this->safeUpdateStatus($movie);
+            // ✅ ĐÃ XÓA: $this->safeUpdateStatus($movie);
+            
             return ['success' => true, 'data' => $movie, 'message' => 'Lấy thông tin phim thành công'];
         } catch (\Exception $e) {
             Log::error('Error finding movie: ' . $e->getMessage());
@@ -137,14 +87,10 @@ class MovieService
         try {
             if (Auth::check()) $data['CreatedBy'] = Auth::user()->UserId;
             
-            if (isset($data['ReleaseDate'])) {
-                $releaseDate = Carbon::parse($data['ReleaseDate'])->startOfDay();
-                $today = Carbon::now()->startOfDay();
-                $data['Status'] = $releaseDate->gt($today) ? 'ComingSoon' : 'NowShowing';
-            }
+            // ✅ ĐÃ XÓA LOGIC TỰ ĐỘNG TÍNH TRẠNG THÁI DỰA VÀO NGÀY
             
             $movie = $this->movieRepository->create($data);
-            if ($movie) $this->safeUpdateStatus($movie);
+            // ✅ ĐÃ XÓA: if ($movie) $this->safeUpdateStatus($movie);
             
             return ['success' => true, 'data' => $movie, 'message' => 'Tạo phim mới thành công'];
         } catch (\Exception $e) {
@@ -163,27 +109,10 @@ class MovieService
             
             $movie = $result['movie'];
             
-            if (isset($data['ReleaseDate'])) {
-                $releaseDate = Carbon::parse($data['ReleaseDate'])->startOfDay();
-                $today = Carbon::now()->startOfDay();
-                
-                $hasShowtime = false;
-                if (method_exists($movie, 'showtimes')) {
-                    $hasShowtime = $movie->showtimes()->where('StartTime', '>=', Carbon::now())->exists();
-                }
-                    
-                if ($releaseDate->gt($today)) {
-                    $data['Status'] = 'ComingSoon';
-                } elseif ($hasShowtime) {
-                    $data['Status'] = 'NowShowing';
-                } else {
-                    $daysSinceRelease = $today->diffInDays($releaseDate);
-                    $data['Status'] = $daysSinceRelease >= 60 ? 'Ended' : 'NowShowing';
-                }
-            }
+            // ✅ ĐÃ XÓA TOÀN BỘ LOGIC TỰ ĐỘNG TÍNH TRẠNG THÁI DỰA VÀO NGÀY
             
             $updatedMovie = $this->movieRepository->update($movie, $data);
-            if ($updatedMovie) $this->safeUpdateStatus($updatedMovie);
+            // ✅ ĐÃ XÓA: if ($updatedMovie) $this->safeUpdateStatus($updatedMovie);
             
             return ['success' => true, 'data' => $updatedMovie, 'message' => 'Cập nhật phim thành công'];
         } catch (\Exception $e) {
@@ -210,7 +139,7 @@ class MovieService
     public function getNowShowingMovies()
     {
         try {
-            $this->autoUpdateStatus();
+            // ✅ ĐÃ XÓA LỆNH TỰ ĐỘNG CẬP NHẬT
             $movies = $this->movieRepository->getNowShowingWithDetails();
             return ['success' => true, 'data' => $movies, 'message' => 'Lấy danh sách phim đang chiếu thành công', 'total' => $movies->count()];
         } catch (\Exception $e) {
@@ -226,7 +155,8 @@ class MovieService
             if (!$result['success']) return ['success' => false, 'data' => null, 'message' => $result['message']];
             
             $movie = $result['movie'];
-            $this->safeUpdateStatus($movie);
+            // ✅ ĐÃ XÓA: $this->safeUpdateStatus($movie);
+            
             return ['success' => true, 'data' => $movie, 'message' => 'Lấy chi tiết phim thành công'];
         } catch (\Exception $e) {
             Log::error('Error getting movie detail: ' . $e->getMessage());
@@ -260,7 +190,7 @@ class MovieService
     public function getComingSoonMovies()
     {
         try {
-            $this->autoUpdateStatus();
+            // ✅ ĐÃ XÓA LỆNH TỰ ĐỘNG CẬP NHẬT
             $movies = $this->movieRepository->getComingSoon();
             return ['success' => true, 'data' => $movies, 'message' => 'Lấy danh sách phim sắp chiếu thành công', 'total' => $movies->count()];
         } catch (\Exception $e) {
@@ -294,7 +224,7 @@ class MovieService
     public function getByStatus($status)
     {
         try {
-            $this->autoUpdateStatus();
+            // ✅ ĐÃ XÓA LỆNH TỰ ĐỘNG CẬP NHẬT
             $movies = $this->movieRepository->getByStatus($status);
             return ['success' => true, 'data' => $movies, 'total' => $movies->count(), 'status' => $status, 'message' => 'Lấy danh sách phim theo trạng thái thành công'];
         } catch (\Exception $e) {
@@ -328,27 +258,13 @@ class MovieService
     public function getStatistics()
     {
         try {
-            $this->autoUpdateStatus();
+            // ✅ ĐÃ XÓA LỆNH TỰ ĐỘNG CẬP NHẬT
             $stats = $this->movieRepository->countByStatus();
             return ['success' => true, 'data' => $stats, 'message' => 'Lấy thống kê thành công'];
         } catch (\Exception $e) {
             Log::error('Error getting statistics: ' . $e->getMessage());
             return ['success' => false, 'data' => null, 'message' => 'Có lỗi xảy ra khi lấy thống kê: ' . $e->getMessage(), 'error' => $e->getMessage()];
         }
-    }
-
-    public function updateMovieStatus($movie): bool
-    {
-        return $this->safeUpdateStatus($movie);
-    }
-
-    public function updateMultipleStatus(array $movieIds): array
-    {
-        $results = [];
-        foreach ($movieIds as $movieId) {
-            $results[$movieId] = $this->updateSingleStatus($movieId);
-        }
-        return $results;
     }
 
     private function validateMovieData(array $data): array

@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Genre;
+use App\Models\Movie;
 use Illuminate\Support\Facades\Cache;
 
 class GenreRepository
@@ -10,12 +11,21 @@ class GenreRepository
     const CACHE_TIME = 300; // 5 phút
 
     /**
-     * Lấy tất cả Genre - ✅ ĐÃ CACHE
+     * Lấy tất cả Genre - ✅ ĐÃ CACHE VÀ ĐẾM SỐ LƯỢNG PHIM
      */
     public function getAll()
     {
-        return Cache::remember('genres_all', self::CACHE_TIME, function () {
-            return Genre::orderBy('Name')->get();
+        return Cache::remember('genres_all_v2', self::CACHE_TIME, function () {
+            // Lấy tất cả thể loại
+            $genres = Genre::orderBy('Name')->get();
+
+            // Duyệt qua từng thể loại để đếm số lượng phim (dựa vào cột GenreId trong bảng movies)
+            $genres->map(function ($genre) {
+                $genre->movieCount = Movie::where('GenreId', $genre->GenreId)->count();
+                return $genre;
+            });
+
+            return $genres;
         });
     }
 
@@ -66,7 +76,9 @@ class GenreRepository
      */
     public function clearCache($id = null)
     {
-        Cache::forget('genres_all');
+        // Xóa cache danh sách (đã đổi tên thành v2)
+        Cache::forget('genres_all_v2');
+        Cache::forget('genres_all'); // Xóa luôn cả cache cũ đề phòng
         
         // Nếu có ID cụ thể, xóa luôn cache chi tiết của thể loại đó
         if ($id) {

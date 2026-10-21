@@ -20,14 +20,15 @@ class MovieRepository
     /**
      * ✅ Lấy phim có phân trang + Cache (Dùng cho Admin)
      */
-    public function getPaged($page, $limit, $search = '', $status = '')
+    public function getPaged($page, $limit, $search = '', $status = '', $genre = '')
     {
-        // Tạo cache key dựa trên tham số tìm kiếm
-        $cacheKey = "movies_paged_p{$page}_l{$limit}_" . md5($search . $status);
+        // ✅ Đã đổi tên cache thành v4 để chắc chắn không dính cache cũ của lần sửa trước
+        $cacheKey = "movies_paged_v4_p{$page}_l{$limit}_" . md5($search . $status . $genre);
 
-        return Cache::remember($cacheKey, self::CACHE_TIME, function () use ($page, $limit, $search, $status) {
+        return Cache::remember($cacheKey, self::CACHE_TIME, function () use ($page, $limit, $search, $status, $genre) {
             $query = $this->movie->with('castMembers');
 
+            // 1. Lọc theo từ khóa tìm kiếm
             if ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('Title', 'like', "%{$search}%")
@@ -35,8 +36,22 @@ class MovieRepository
                 });
             }
 
+            // 2. Lọc theo trạng thái
             if ($status) {
                 $query->where('Status', $status);
+            }
+
+            // 3. Lọc theo thể loại (Genre)
+            if ($genre) {
+                $query->where(function($q) use ($genre) {
+                    // Trường hợp 1: Nếu Frontend gửi lên ID (UUID hoặc số)
+                    $q->where('GenreId', $genre)
+                      // Trường hợp 2: Nếu Frontend gửi lên Tên (vd: "Hành động")
+                      // Ta sẽ tìm trong bảng 'genres' xem có tên này không, nếu có thì lấy Movie đó
+                      ->orWhereHas('genre', function($subQ) use ($genre) {
+                          $subQ->where('Name', 'LIKE', "%{$genre}%");
+                      });
+                });
             }
 
             $total      = $query->count();
@@ -60,7 +75,7 @@ class MovieRepository
     /**
      * Lấy tất cả phim (CÓ PHÂN TRANG)
      */
-    public function all($perPage = 20)
+    public function all($perPage = 1000)
     {
         $page = request()->get('page', 1);
         $cacheKey = "movies_all_page_{$page}_per_{$perPage}";
@@ -103,6 +118,9 @@ class MovieRepository
     {
         $movie->update($data);
         $this->clearCache();
+        Cache::forget("movie_detail_{$movie->MovieId}");
+        Cache::forget("movie_slug_{$movie->MovieId}");
+        
         return $movie->fresh([
             'genre:GenreId,Name,Description',
             'directors:CastId,MovieId,Name,Role',
@@ -112,7 +130,10 @@ class MovieRepository
 
     public function delete(Movie $movie)
     {
+        $movieId = $movie->MovieId;
         $movie->delete();
+        Cache::forget("movie_detail_{$movieId}");
+        Cache::forget("movie_slug_{$movieId}");
         $this->clearCache();
         return true;
     }
@@ -414,26 +435,27 @@ class MovieRepository
         Cache::forget('movies_coming_soon');
         Cache::forget('movies_now_showing_filters');
         Cache::forget('movies_count_by_status');
+        Cache::forget('movies_status_NowShowing');
+        Cache::forget('movies_status_ComingSoon');
+        Cache::forget('movies_status_Ended');
 
         foreach ([5, 10, 20, 50] as $limit) {
             Cache::forget("movies_latest_{$limit}");
             Cache::forget("movies_hot_{$limit}");
         }
 
-        foreach (['NowShowing', 'ComingSoon', 'Ended'] as $status) {
-            Cache::forget("movies_status_{$status}");
-        }
-
-        // Xóa cache của các trang trong all() và getPaged()
         for ($page = 1; $page <= 20; $page++) {
             Cache::forget("movies_all_page_{$page}_per_20");
             Cache::forget("movies_all_page_{$page}_per_10");
-            
+        }
+
+        // Quét xóa vét cạn cho các trang 1->20, limit 10->100, các trạng thái (bao gồm cả phiên bản v4)
+        for ($page = 1; $page <= 20; $page++) {
             for ($limit = 10; $limit <= 100; $limit += 10) {
-                Cache::forget("movies_paged_p{$page}_l{$limit}_" . md5('' . ''));
-                Cache::forget("movies_paged_p{$page}_l{$limit}_" . md5('' . 'NowShowing'));
-                Cache::forget("movies_paged_p{$page}_l{$limit}_" . md5('' . 'ComingSoon'));
-                Cache::forget("movies_paged_p{$page}_l{$limit}_" . md5('' . 'Ended'));
+                Cache::forget("movies_paged_v4_p{$page}_l{$limit}_" . md5('' . ''));
+                Cache::forget("movies_paged_v4_p{$page}_l{$limit}_" . md5('' . 'NowShowing'));
+                Cache::forget("movies_paged_v4_p{$page}_l{$limit}_" . md5('' . 'ComingSoon'));
+                Cache::forget("movies_paged_v4_p{$page}_l{$limit}_" . md5('' . 'Ended'));
             }
         }
     }

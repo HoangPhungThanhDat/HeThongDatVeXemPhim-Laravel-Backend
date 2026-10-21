@@ -7,34 +7,39 @@ use Illuminate\Support\Facades\Cache;
 
 class MoviecastRepository
 {
-    const CACHE_TIME = 3600; // Cache 1 tiếng (Diễn viên ít thay đổi)
+    const CACHE_TIME = 3600; // Cache 1 tiếng
 
-    /**
-     * Lấy tất cả - ✅ ĐÃ CACHE
-     */
     public function all()
     {
-        return Cache::remember('moviecasts_all', self::CACHE_TIME, function () {
+        return Cache::remember('moviecasts_all_v2', self::CACHE_TIME, function () {
             return Moviecast::with('movie')->orderBy('Name', 'asc')->get();
         });
     }
 
     /**
-     * ✅ Lấy dữ liệu phân trang (Đã đưa câu query từ Controller xuống đây)
+     * ✅ Lấy dữ liệu phân trang (Đã thêm lọc STATUS)
      */
-    public function getPaged($page, $limit, $search = '', $role = '')
+    public function getPaged($page, $limit, $search = '', $role = '', $status = '')
     {
-        $cacheKey = "moviecasts_paged_p{$page}_l{$limit}_" . md5($search . $role);
+        // ✅ Đưa $status vào cache key để tránh lỗi lấy dữ liệu cũ
+        $cacheKey = "moviecasts_paged_v2_p{$page}_l{$limit}_" . md5($search . $role . $status);
 
-        return Cache::remember($cacheKey, self::CACHE_TIME, function () use ($page, $limit, $search, $role) {
+        return Cache::remember($cacheKey, self::CACHE_TIME, function () use ($page, $limit, $search, $role, $status) {
             $query = Moviecast::with('movie');
 
+            // 1. Lọc theo tên
             if ($search) {
                 $query->where('Name', 'like', "%{$search}%");
             }
 
+            // 2. Lọc theo vai trò
             if ($role) {
                 $query->where('Role', $role);
+            }
+
+            // 3. ✅ Lọc theo trạng thái (Active/Inactive)
+            if ($status) {
+                $query->where('Status', $status);
             }
 
             $total      = $query->count();
@@ -55,9 +60,6 @@ class MoviecastRepository
         });
     }
 
-    /**
-     * Tìm theo ID - ✅ ĐÃ CACHE
-     */
     public function find($CastId)
     {
         return Cache::remember("moviecast_detail_{$CastId}", self::CACHE_TIME, function () use ($CastId) {
@@ -65,9 +67,6 @@ class MoviecastRepository
         });
     }
 
-    /**
-     * Tạo mới - ✅ XÓA CACHE
-     */
     public function create(array $data)
     {
         $moviecast = Moviecast::create($data);
@@ -75,9 +74,6 @@ class MoviecastRepository
         return $moviecast;
     }
 
-    /**
-     * Cập nhật - ✅ XÓA CACHE
-     */
     public function update(Moviecast $moviecast, array $data)
     {
         $moviecast->update($data);
@@ -85,9 +81,6 @@ class MoviecastRepository
         return $moviecast;
     }
 
-    /**
-     * Xóa - ✅ XÓA CACHE
-     */
     public function delete(Moviecast $moviecast)
     {
         $id = $moviecast->CastId;
@@ -101,14 +94,16 @@ class MoviecastRepository
      */
     public function clearCache($id = null)
     {
-        Cache::forget('moviecasts_all');
+        Cache::forget('moviecasts_all_v2');
         
-        // Xóa cache phân trang (dọn dẹp các trang)
+        // Xóa cache phân trang v2
         for ($page = 1; $page <= 10; $page++) {
             for ($limit = 10; $limit <= 100; $limit += 10) {
-                Cache::forget("moviecasts_paged_p{$page}_l{$limit}_" . md5('' . ''));
-                Cache::forget("moviecasts_paged_p{$page}_l{$limit}_" . md5('' . 'Actor'));
-                Cache::forget("moviecasts_paged_p{$page}_l{$limit}_" . md5('' . 'Director'));
+                Cache::forget("moviecasts_paged_v2_p{$page}_l{$limit}_" . md5('' . ''));
+                Cache::forget("moviecasts_paged_v2_p{$page}_l{$limit}_" . md5('' . 'Actor'));
+                Cache::forget("moviecasts_paged_v2_p{$page}_l{$limit}_" . md5('' . 'Director'));
+                Cache::forget("moviecasts_paged_v2_p{$page}_l{$limit}_" . md5('' . 'Active'));
+                Cache::forget("moviecasts_paged_v2_p{$page}_l{$limit}_" . md5('' . 'Inactive'));
             }
         }
 

@@ -14,36 +14,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // ✅ Cách 1: Chạy Artisan Command mỗi ngày lúc 00:00
-        $schedule->command('movies:update-status')->daily();
+        // ✅ ĐÃ XÓA HOÀN TOÀN CÁC LỊCH CHẠY TỰ ĐỘNG CẬP NHẬT TRẠNG THÁI PHIM
+        // Trạng thái phim giờ đây sẽ được cập nhật thủ công từ giao diện Admin.
         
-        // ✅ Cách 2: Chạy mỗi 6 giờ (nếu cần cập nhật thường xuyên hơn)
-        // $schedule->command('movies:update-status')->everySixHours();
-        
-        // ✅ Cách 3: Chạy mỗi giờ (nếu có nhiều thay đổi)
-        // $schedule->command('movies:update-status')->hourly();
-        
-        // ✅ Cách 4: Gọi API nội bộ
-        // $schedule->call(function () {
-        //     try {
-        //         $token = config('app.scheduler_token', '');
-        //         $response = Http::withHeaders([
-        //             'Authorization' => 'Bearer ' . $token,
-        //             'Accept' => 'application/json'
-        //         ])->post(config('app.url') . '/api/movies/auto-update-status');
-                
-        //         if ($response->successful()) {
-        //             Log::info('Auto update movie status executed successfully', $response->json());
-        //         } else {
-        //             Log::error('Auto update movie status failed', [
-        //                 'status' => $response->status(),
-        //                 'body' => $response->body()
-        //             ]);
-        //         }
-        //     } catch (\Exception $e) {
-        //         Log::error('Auto update movie status exception: ' . $e->getMessage());
-        //     }
-        // })->daily();
+        // Nếu sau này bạn cần thêm các lịch chạy ngầm khác (ví dụ: xóa vé rác, gửi mail...),
+        // bạn có thể thêm vào bên dưới dòng này.
     }
 
     /**
