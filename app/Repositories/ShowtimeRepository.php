@@ -7,21 +7,21 @@ use Illuminate\Support\Facades\Cache;
 
 class ShowtimeRepository
 {
-    // Cache ngắn hơn vì suất chiếu thay đổi liên tục
     const CACHE_TIME = 300; // 5 phút
 
     /**
-     * Lấy tất cả - ✅ ĐÃ CACHE
+     * Lấy tất cả
      */
     public function all()
     {
         return Cache::remember('showtimes_all', self::CACHE_TIME, function () {
-            return Showtime::with(['Movie', 'Room'])->orderBy('StartTime', 'desc')->get();
+            // ✅ Sắp xếp mới nhất lên đầu
+            return Showtime::with(['Movie', 'Room'])->orderBy('ShowtimeId', 'desc')->get();
         });
     }
 
     /**
-     * ✅ Lấy dữ liệu phân trang (Chuyển câu query từ Controller xuống)
+     * ✅ Lấy dữ liệu phân trang
      */
     public function getPaged($page, $limit, $search = '', $status = '')
     {
@@ -43,7 +43,8 @@ class ShowtimeRepository
             $total      = $query->count();
             $totalPages = (int) ceil($total / $limit);
             
-            $items      = $query->orderBy('StartTime', 'desc')
+            // ✅ Sắp xếp ID giảm dần (suất chiếu mới tạo luôn nằm trên cùng)
+            $items      = $query->orderBy('ShowtimeId', 'desc')
                                 ->skip(($page - 1) * $limit)
                                 ->take($limit)
                                 ->get();
@@ -58,9 +59,6 @@ class ShowtimeRepository
         });
     }
 
-    /**
-     * Tìm theo ID - ✅ ĐÃ CACHE
-     */
     public function find($ShowtimeId)
     {
         return Cache::remember("showtime_detail_{$ShowtimeId}", self::CACHE_TIME, function () use ($ShowtimeId) {
@@ -68,54 +66,87 @@ class ShowtimeRepository
         });
     }
 
-    /**
-     * Tạo mới - ✅ XÓA CACHE
-     */
     public function create(array $data)
     {
         $showtime = Showtime::create($data);
-        $this->clearCache();
+        $this->clearAllCache();
         return $showtime;
     }
 
-    /**
-     * Cập nhật - ✅ XÓA CACHE
-     */
     public function update(Showtime $showtime, array $data)
     {
         $showtime->update($data);
-        $this->clearCache($showtime->ShowtimeId);
+        $this->clearAllCache($showtime->ShowtimeId);
         return $showtime;
     }
 
-    /**
-     * Xóa - ✅ XÓA CACHE
-     */
     public function delete(Showtime $showtime)
     {
         $id = $showtime->ShowtimeId;
         $result = $showtime->delete();
-        $this->clearCache($id);
+        $this->clearAllCache($id);
         return $result;
     }
 
     /**
-     * ✅ Xóa Cache liên quan
+     * ✅ XÓA SẠCH CACHE (Tự động tìm và xóa mọi biến thể tìm kiếm)
      */
-    public function clearCache($id = null)
+    private function clearAllCache($id = null)
     {
+        // 1. Xóa cache all
         Cache::forget('showtimes_all');
-        
-        // Xóa cache phân trang
-        for ($page = 1; $page <= 10; $page++) {
-            for ($limit = 10; $limit <= 100; $limit += 10) {
-                Cache::forget("showtimes_paged_p{$page}_l{$limit}_" . md5('' . ''));
-                Cache::forget("showtimes_paged_p{$page}_l{$limit}_" . md5('' . 'Scheduled'));
-            }
-        }
-
+        // Xóa cache riêng lẻ
         if ($id) {
             Cache::forget("showtime_detail_{$id}");
         }
+
+        // 2. Xóa toàn bộ cache phân trang một cách triệt để
+        // Cách tốt nhất là dùng Cache Tag nếu bạn dùng Redis/Memcached
+        // Nếu dùng file cache, ta phải dùng cách "quét" key (chỉ khuyên dùng cho dev)
+        // Hoặc đơn giản là xóa các key phổ biến. 
+        // Nhưng để chắc chắn 100%, ta sẽ dùng mẹo "Cache Version" (thay đổi version mỗi khi create/update/delete)
+
+        $versionKey = 'showtimes_cache_version';
+        $currentVersion = Cache::get($versionKey, 1);
+        Cache::put($versionKey, $currentVersion + 1, self::CACHE_TIME);
+    }
+
+    /**
+     * ✅ Thêm Version vào Cache Key để tự động vô hiệu hóa cache cũ
+     */
+    public function getPagedWithVersion($page, $limit, $search = '', $status = '')
+    {
+        $version = Cache::get('showtimes_cache_version', 1);
+        $cacheKey = "showtimes_v{$version}_p{$page}_l{$limit}_" . md5($search . $status);
+
+        return Cache::remember($cacheKey, self::CACHE_TIME, function () use ($page, $limit, $search, $status) {
+            $query = Showtime::with(['Movie', 'Room']);
+
+            if ($search) {
+                $query->whereHas('Movie', function ($q) use ($search) {
+                    $q->where('Title', 'like', "%{$search}%");
+                });
+            }
+
+            if ($status) {
+                $query->where('Status', $status);
+            }
+
+            $total      = $query->count();
+            $totalPages = (int) ceil($total / $limit);
+            
+            $items      = $query->orderBy('ShowtimeId', 'desc')
+                                ->skip(($page - 1) * $limit)
+                                ->take($limit)
+                                ->get();
+
+            return [
+                'data'       => $items,
+                'total'      => $total,
+                'page'       => $page,
+                'limit'      => $limit,
+                'totalPages' => $totalPages,
+            ];
+        });
     }
 }

@@ -73,7 +73,7 @@ class Ticket extends Model
 
 	public function user()
 	{
-		return $this->belongsTo(User::class, 'UpdatedBy');
+		return $this->belongsTo(User::class, 'UserId', 'UserId');
 	}
 
 	public function orderdetails()

@@ -39,7 +39,7 @@ use App\Http\Controllers\Api\RoomManagementController;
 // ========================================================
 // 🔓 PUBLIC ROUTES (Không cần token)
 // ========================================================
-
+Route::get('/ping', fn() => response()->json(['ok' => true, 't' => microtime(true)]));
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);
 
@@ -306,6 +306,7 @@ Route::prefix('room-seat')->group(function () {
     Route::delete('/room/{roomId}/col/{col}', [RoomSeatController::class, 'deleteCol']);
     Route::delete('/seat/{seatId}', [RoomSeatController::class, 'deleteSeat']);
     Route::post('/room/{roomId}/reset', [RoomSeatController::class, 'resetSeats']);
+    Route::post('/room/{roomId}/add-seats', [RoomSeatController::class, 'addSeats']);
 });
 
 // ========================================================
@@ -342,6 +343,7 @@ Route::middleware(['auth:api'])->group(function () {
         Route::get('/me',          [AuthController::class, 'me']);
     });
 
+    Route::get('/dashboard/statistics', [App\Http\Controllers\Api\DashboardController::class, 'getStatistics']);
     // ========================================================
     // 👤 PROFILE
     // ========================================================

@@ -106,16 +106,37 @@ class OrderRepository
     /**
      * Hàm lấy chi tiết đơn hàng đã được format (chuyển từ Controller xuống)
      */
-    public function getOrderDetails($OrderId)
+        public function getOrderDetails($OrderId)
     {
-        // Không cache hàm này vì nó tính toán phức tạp và cần độ chính xác cao
+        // Sử dụng select() để chỉ lấy các cột cần thiết, giảm dung lượng JSON
         $order = Order::with([
-            'user',
-            'promotion',
-            'orderDetails.ticket.showtime.movie',
-            'orderDetails.ticket.showtime.room.cinema',
-            'orderDetails.ticket.seat',
-            'orderDetails.foodanddrink'
+            'user:UserId,FullName,Email,PhoneNumber',
+            'promotion:PromotionId,Code,Title,DiscountValue,DiscountType',
+            'orderDetails' => function($q) {
+                // Chỉ lấy các cột cần thiết của bảng orderdetails
+                $q->select('OrderDetailId', 'OrderId', 'TicketId', 'ItemId', 'Price', 'Quantity');
+            },
+            'orderDetails.ticket' => function($q) {
+                $q->select('TicketId', 'ShowtimeId', 'SeatId', 'Status', 'BookingTime');
+            },
+            'orderDetails.ticket.showtime' => function($q) {
+                $q->select('ShowtimeId', 'MovieId', 'RoomId', 'StartTime', 'EndTime', 'Price');
+            },
+            'orderDetails.ticket.showtime.movie' => function($q) {
+                $q->select('MovieId', 'Title', 'Duration', 'PosterUrl');
+            },
+            'orderDetails.ticket.showtime.room' => function($q) {
+                $q->select('RoomId', 'Name', 'RoomType', 'CinemaId');
+            },
+            'orderDetails.ticket.showtime.room.cinema' => function($q) {
+                $q->select('CinemaId', 'Name', 'Address', 'City', 'Phone');
+            },
+            'orderDetails.ticket.seat' => function($q) {
+                $q->select('SeatId', 'Row', 'Number', 'SeatType');
+            },
+            'orderDetails.foodanddrink' => function($q) {
+                $q->select('ItemId', 'Name', 'Price', 'ImageUrl');
+            }
         ])->find($OrderId);
 
         if (!$order) {
@@ -144,9 +165,13 @@ class OrderRepository
 
         $subTotal = 0;
         foreach ($order->orderDetails as $detail) {
+            // ⭐ BƯỚC SỬA LỖI 500: Kiểm tra null an toàn
             if ($detail->TicketId && $detail->ticket) {
                 $ticket = $detail->ticket;
                 $showtime = $ticket->showtime;
+                $movie = $showtime ? $showtime->movie : null;
+                $room = $showtime ? $showtime->room : null;
+                $cinema = $room ? $room->cinema : null;
 
                 $subTotal += $detail->Price;
 
@@ -160,11 +185,11 @@ class OrderRepository
                         'EndTime' => $showtime->EndTime ? date('Y-m-d H:i:s', strtotime($showtime->EndTime)) : null,
                         'Price' => $showtime->Price,
                     ] : null,
-                    'movie' => $showtime && $showtime->movie ? [
-                        'MovieId' => $showtime->movie->MovieId,
-                        'Title' => $showtime->movie->Title,
-                        'Duration' => $showtime->movie->Duration,
-                        'PosterUrl' => $showtime->movie->PosterUrl,
+                    'movie' => $movie ? [
+                        'MovieId' => $movie->MovieId,
+                        'Title' => $movie->Title,
+                        'Duration' => $movie->Duration,
+                        'PosterUrl' => $movie->PosterUrl,
                     ] : null,
                     'seat' => $ticket->seat ? [
                         'SeatId' => $ticket->seat->SeatId,
@@ -172,17 +197,17 @@ class OrderRepository
                         'Number' => $ticket->seat->Number,
                         'SeatType' => $ticket->seat->SeatType,
                     ] : null,
-                    'room' => $showtime && $showtime->room ? [
-                        'RoomId' => $showtime->room->RoomId,
-                        'Name' => $showtime->room->Name,
-                        'RoomType' => $showtime->room->RoomType,
+                    'room' => $room ? [
+                        'RoomId' => $room->RoomId,
+                        'Name' => $room->Name,
+                        'RoomType' => $room->RoomType,
                     ] : null,
-                    'cinema' => $showtime && $showtime->room && $showtime->room->cinema ? [
-                        'CinemaId' => $showtime->room->cinema->CinemaId,
-                        'Name' => $showtime->room->cinema->Name,
-                        'Address' => $showtime->room->cinema->Address,
-                        'City' => $showtime->room->cinema->City,
-                        'Phone' => $showtime->room->cinema->Phone,
+                    'cinema' => $cinema ? [
+                        'CinemaId' => $cinema->CinemaId,
+                        'Name' => $cinema->Name,
+                        'Address' => $cinema->Address,
+                        'City' => $cinema->City,
+                        'Phone' => $cinema->Phone,
                     ] : null
                 ];
             }

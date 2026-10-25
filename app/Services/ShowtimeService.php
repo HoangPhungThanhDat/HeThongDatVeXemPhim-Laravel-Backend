@@ -25,11 +25,12 @@ class ShowtimeService
     }
 
     /**
-     * ✅ Hàm phân trang
+     * ✅ Hàm phân trang (Dùng Version để tự động xóa cache cũ)
      */
     public function getPaged($page, $limit, $search = '', $status = '')
     {
-        return $this->repository->getPaged($page, $limit, $search, $status);
+        // Gọi hàm getPagedWithVersion mới
+        return $this->repository->getPagedWithVersion($page, $limit, $search, $status);
     }
 
     public function find($ShowtimeId)

@@ -19,12 +19,13 @@ class TicketManagementRepository
         return Cache::remember('ticket_management_dashboard', self::CACHE_TIME, function () {
             return Ticket::with([
                 'user' => fn($q) => $q->select('UserId', 'FullName', 'Email', 'PhoneNumber'),
+                // Phải select MovieId, RoomId ở bảng showtime thì Eloquent mới biết đường join
                 'showtime' => fn($q) => $q->select('ShowtimeId', 'StartTime', 'EndTime', 'Price', 'RoomId', 'MovieId'),
                 'showtime.room' => fn($q) => $q->select('RoomId', 'Name'),
                 'showtime.movie' => fn($q) => $q->select('MovieId', 'Title', 'PosterUrl'),
                 'seat' => fn($q) => $q->select('SeatId', 'Row', 'Number', 'SeatType'),
                 'orderDetails' => fn($q) => $q->whereNotNull('ItemId')->with(['item' => fn($q2) => $q2->select('ItemId', 'Name', 'Price')])
-            ])->orderBy('CreatedAt', 'desc')->get();
+            ])->orderBy('CreatedAt', 'desc')->limit(100)->get(); // Thêm limit(100) để tránh load cả ngàn vé
         });
     }
 
@@ -40,7 +41,12 @@ class TicketManagementRepository
     public function getTicketDetail($ticketId)
     {
         return Ticket::with([
-            'user', 'showtime.movie', 'showtime.room', 'seat', 'orderDetails.item', 'orderDetails.order'
+            'user',
+            'showtime.movie',
+            'showtime.room',
+            'seat',
+            'orderDetails.item',
+            'orderDetails.order'
         ])->findOrFail($ticketId);
     }
 
@@ -86,10 +92,10 @@ class TicketManagementRepository
                 DB::raw('SUM(CASE WHEN Status = "Paid" THEN 1 ELSE 0 END) as paid'),
                 DB::raw('SUM(CASE WHEN Status = "Cancelled" THEN 1 ELSE 0 END) as cancelled')
             )
-            ->where('CreatedAt', '>=', now()->subDays(7))
-            ->groupBy('date')
-            ->orderBy('date', 'desc')
-            ->get();
+                ->where('CreatedAt', '>=', now()->subDays(7))
+                ->groupBy('date')
+                ->orderBy('date', 'desc')
+                ->get();
         });
     }
 

@@ -87,7 +87,7 @@ class ShowtimeController extends Controller
         $search = $request->query('search', '');
         $status = $request->query('status', '');
 
-        // ✅ Gọi xuống Service -> Repository (đã có Redis Cache)
+        // ✅ Gọi xuống Service -> Repository (đã có Cache Version)
         $result = $this->service->getPaged($page, $limit, $search, $status);
 
         return response()->json([

@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Cache;
 
 class TicketRepository
 {
-    // Cache ngắn vì vé thay đổi liên tục (khách đặt, thanh toán...)
-    const CACHE_TIME = 60; // 1 phút
+    // Cache 1 phút để đảm bảo dữ liệu vé luôn mới
+    const CACHE_TIME = 60; 
 
     /**
      * Lấy tất cả Ticket - ✅ ĐÃ CACHE
@@ -17,10 +17,12 @@ class TicketRepository
     {
         return Cache::remember('tickets_all', self::CACHE_TIME, function () {
             return Ticket::with([
-                'showtime.movie', 
-                'showtime.room', 
-                'seat', 
-                'user'
+                // ⭐ ĐÃ THÊM 'Price' VÀO ĐÂY
+                'showtime:ShowtimeId,MovieId,RoomId,StartTime,Price', 
+                'showtime.movie:MovieId,Title,PosterUrl', 
+                'showtime.room:RoomId,Name',
+                'seat:SeatId,Row,Number,SeatType',
+                'user:UserId,FullName,Email' 
             ])->orderBy('CreatedAt', 'desc')->get();
         });
     }
@@ -32,10 +34,11 @@ class TicketRepository
     {
         return Cache::remember("ticket_detail_{$TicketId}", self::CACHE_TIME, function () use ($TicketId) {
             return Ticket::with([
-                'showtime.movie', 
-                'showtime.room', 
-                'seat', 
-                'user'
+                'showtime.movie',
+                'showtime.room',
+                'seat',
+                'user',
+                'orderDetails.item' 
             ])->find($TicketId);
         });
     }
@@ -72,13 +75,19 @@ class TicketRepository
     }
 
     /**
-     * ✅ Xóa Cache liên quan
+     * ✅ Xóa Cache liên quan (Đã tối ưu)
      */
     public function clearCache($id = null)
     {
+        // ⭐ Xóa cache danh sách vé
         Cache::forget('tickets_all');
+        
+        // ⭐ Xóa cache chi tiết của vé đó (nếu có truyền ID)
         if ($id) {
             Cache::forget("ticket_detail_{$id}");
         }
+
+        // ⭐ (Tùy chọn) Xóa cache dashboard vé nếu có dùng
+        Cache::forget('ticket_management_dashboard');
     }
 }
