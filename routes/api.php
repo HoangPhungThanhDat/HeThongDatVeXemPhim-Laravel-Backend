@@ -344,6 +344,8 @@ Route::middleware(['auth:api'])->group(function () {
     });
 
     Route::get('/dashboard/statistics', [App\Http\Controllers\Api\DashboardController::class, 'getStatistics']);
+    Route::get('/dashboard/combo-statistics', [App\Http\Controllers\Api\ComboStatisticController::class, 'getComboStatistics']);
+    Route::get('/auditlogs', [App\Http\Controllers\Api\AuditLogController::class, 'getLogs']);
     // ========================================================
     // 👤 PROFILE
     // ========================================================

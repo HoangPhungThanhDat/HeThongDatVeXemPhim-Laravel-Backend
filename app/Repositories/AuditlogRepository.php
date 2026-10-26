@@ -3,49 +3,65 @@
 namespace App\Repositories;
 
 use App\Models\Auditlog;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
-class AuditlogRepository
+class AuditLogRepository
 {
-    /**
-     * Lấy tất cả Auditlog
-     */
-    public function getAll()
+    public function getLogsQuery($search, $action, $startDate)
     {
-        return Auditlog::all();
+        $query = Auditlog::with('user')
+            ->where('CreatedAt', '>=', $startDate)
+            ->orderBy('CreatedAt', 'desc');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('Action', 'like', "%{$search}%")
+                  ->where('Description', 'like', "%{$search}%")
+                  ->orWhere('IpAddress', 'like', "%{$search}%");
+            });
+        }
+
+        if ($action) {
+            $query->where('Action', $action);
+        }
+
+        return $query;
     }
 
-    /**
-     * Tìm Auditlog theo ID
-     */
-    public function getById($id)
+    public function paginateLogs($query, $limit = 20)
     {
-        return Auditlog::findOrFail($id);
+        return $query->paginate($limit);
     }
 
-    /**
-     * Tạo mới Auditlog
-     */
-    public function create(array $data)
+    public function countTotalLogsToday()
     {
-        return Auditlog::create($data);
+        return Auditlog::whereDate('CreatedAt', Carbon::today())->count();
     }
 
-    /**
-     * Cập nhật Auditlog
-     */
-    public function update($id, array $data)
+    public function countAbnormalLogs($startDate)
     {
-        $auditlog = Auditlog::findOrFail($id);
-        $auditlog->update($data);
-        return $auditlog;
+        return Auditlog::where('CreatedAt', '>=', $startDate)
+            ->where(function($q) {
+                $q->where('Description', 'like', '%thất bại%')
+                  ->orWhere('Description', 'like', '%lỗi%');
+            })->count();
     }
 
-    /**
-     * Xóa auditlog
-     */
-    public function delete($id)
+    public function countActiveUsers($startDate)
     {
-        $auditlog = Auditlog::findOrFail($id);
-        return $auditlog->delete();
+        return Auditlog::where('CreatedAt', '>=', $startDate)
+            ->whereNotNull('UserId')
+            ->distinct('UserId')
+            ->count('UserId');
+    }
+
+    public function getActionsByType($startDate)
+    {
+        return DB::table('auditlogs')
+            ->select('Action', DB::raw('count(*) as count'))
+            ->where('CreatedAt', '>=', $startDate)
+            ->groupBy('Action')
+            ->get();
     }
 }
