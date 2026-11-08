@@ -37,20 +37,25 @@ use App\Http\Controllers\Api\RoomSeatController;
 use App\Http\Controllers\Api\RoomManagementController;
 
 // ========================================================
-// 🔓 PUBLIC ROUTES (Không cần token)
+// PUBLIC ROUTES (Khong can token)
 // ========================================================
 Route::get('/ping', fn() => response()->json(['ok' => true, 't' => microtime(true)]));
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login',    [AuthController::class, 'login']);
 
-// ⭐ REFRESH TOKEN - Public, dùng HttpOnly cookie
+// Login cho CLIENT (moi role, chi check Status active)
+Route::post('/login', [AuthController::class, 'login']);
+
+// Login cho ADMIN PANEL (chi RoleId = 1)
+Route::post('/admin/login', [AuthController::class, 'adminLogin']);
+
+// REFRESH TOKEN - Public, dung HttpOnly cookie
 Route::prefix('auth')->group(function () {
     Route::post('/refresh', [AuthController::class, 'refresh'])
         ->middleware('throttle:20,1');
 });
 
 // ========================================================
-// 🔓 GOOGLE OAUTH ROUTES
+// GOOGLE OAUTH ROUTES
 // ========================================================
 Route::prefix('auth')->group(function () {
     Route::get('/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
@@ -59,13 +64,11 @@ Route::prefix('auth')->group(function () {
 });
 
 // ========================================================
-// 📽️ MOVIES
-// ✅ Đã sắp xếp: route TĨNH trước, route có {param} sau
+// MOVIES
+// Route TINH truoc, route co {param} sau
 // ========================================================
 Route::prefix('movies')->group(function () {
-    // ✅ ĐÃ XÓA: Route auto-update-status và update-status
-
-    // ✅ ROUTE TĨNH (cụ thể) - ĐẶT TRƯỚC
+    // ROUTE TINH (cu the) - DAT TRUOC
     Route::get('/paged',                        [MovieController::class, 'getPaged']);
     Route::get('/now-showing/all',              [MovieController::class, 'getNowShowing']);
     Route::get('/now-showing/filters',          [MovieController::class, 'getNowShowingFilters']);
@@ -78,39 +81,39 @@ Route::prefix('movies')->group(function () {
     Route::get('/statistics/overview',          [MovieController::class, 'getStatistics']);
     Route::get('/by-status/{status}',           [MovieController::class, 'getByStatus']);
 
-    // ✅ ROUTE CÓ THAM SỐ - ĐẶT SAU
+    // ROUTE CO THAM SO - DAT SAU
     Route::get('/{id}/detail',                  [MovieController::class, 'getDetail']);
     Route::get('/',                             [MovieController::class, 'index']);
     Route::get('/{MovieId}',                    [MovieController::class, 'show']);
 });
 
 // ========================================================
-// 🎬 MOVIE CASTS
+// MOVIE CASTS
 // ========================================================
 Route::get('/moviecasts/paged', [MoviecastController::class, 'getPaged']);
 Route::get('/moviecasts',       [MoviecastController::class, 'index']);
 Route::get('/moviecasts/{CastId}', [MoviecastController::class, 'show']);
 
 // ========================================================
-// 🏷️ GENRES
+// GENRES
 // ========================================================
 Route::get('/genres',           [GenreController::class, 'index']);
 Route::get('/genres/{GenreId}', [GenreController::class, 'show']);
 
 // ========================================================
-// 📋 AUDITLOGS
+// AUDITLOGS
 // ========================================================
 Route::get('/auditlogs',          [AuditlogController::class, 'index']);
 Route::get('/auditlogs/{LogId}',  [AuditlogController::class, 'show']);
 
 // ========================================================
-// 🖼️ BANNERS
+// BANNERS
 // ========================================================
 Route::get('/banners',            [BannerController::class, 'index']);
 Route::get('/banners/{BannerId}', [BannerController::class, 'show']);
 
 // ========================================================
-// 🏢 CINEMAS
+// CINEMAS
 // ========================================================
 Route::prefix('cinemas')->group(function () {
     Route::get('/',                      [CinemaController::class, 'index']);
@@ -128,51 +131,51 @@ Route::prefix('movies')->group(function () {
 });
 
 // ========================================================
-// 📞 CONTACTS
+// CONTACTS
 // ========================================================
 Route::get('/contacts',             [ContactController::class, 'index']);
 Route::get('/contacts/{ContactId}', [ContactController::class, 'show']);
 Route::post('/contacts',            [ContactController::class, 'store']);
 
 // ========================================================
-// 🏢 DISTRIBUTORS
+// DISTRIBUTORS
 // ========================================================
 Route::get('/distributors',                 [DistributorController::class, 'index']);
 Route::get('/distributors/{distributorId}', [DistributorController::class, 'show']);
 
 // ========================================================
-// 📜 LOGIN HISTORY
+// LOGIN HISTORY
 // ========================================================
 Route::get('/loginhistorys',           [LoginhistoryController::class, 'index']);
 Route::get('/loginhistorys/{LoginId}', [LoginhistoryController::class, 'show']);
 
 // ========================================================
-// 🍿 FOOD & DRINKS
+// FOOD & DRINKS
 // ========================================================
 Route::get('/foodanddrinks',          [FoodanddrinkController::class, 'index']);
 Route::get('/foodanddrinks/{ItemId}', [FoodanddrinkController::class, 'show']);
 
 // ========================================================
-// 👥 ROLES
+// ROLES
 // ========================================================
 Route::get('/roles',          [RoleController::class, 'index']);
 Route::get('/roles/{RoleId}', [RoleController::class, 'show']);
 
 // ========================================================
-// 👤 USERS
+// USERS
 // ========================================================
 Route::get('/users',          [UserController::class, 'index']);
 Route::get('/users/paged',    [UserController::class, 'getPaged']);
 Route::get('/users/{UserId}', [UserController::class, 'show']);
 
 // ========================================================
-// 🔔 NOTIFICATIONS
+// NOTIFICATIONS
 // ========================================================
 Route::get('/notifications',                  [NotificationController::class, 'index']);
 Route::get('/notifications/{NotificationId}', [NotificationController::class, 'show']);
 
 // ========================================================
-// 📦 ORDERS - PUBLIC
+// ORDERS - PUBLIC
 // ========================================================
 Route::prefix('orders')->group(function () {
     Route::get('/',                           [OrderController::class, 'index']);
@@ -182,43 +185,48 @@ Route::prefix('orders')->group(function () {
 });
 
 // ========================================================
-// 📰 NEWS
+// NEWS
 // ========================================================
 Route::get('/news',          [NewsController::class, 'index']);
 Route::get('/news/{NewsId}', [NewsController::class, 'show']);
 
 // ========================================================
-// 🚪 ROOMS
+// ROOMS
 // ========================================================
 Route::get('/rooms',          [RoomController::class, 'index']);
 Route::get('/rooms/{RoomId}', [RoomController::class, 'show']);
 
 // ========================================================
-// 👑 MEMBERSHIPS
+// MEMBERSHIPS
 // ========================================================
 Route::get('/memberships',                [MembershipController::class, 'index']);
 Route::get('/memberships/{MembershipId}', [MembershipController::class, 'show']);
 
 // ========================================================
-// 🎭 MOVIE GENRES
+// MOVIE GENRES
 // ========================================================
 Route::get('/moviegenres',                [MoviegenreController::class, 'index']);
 Route::get('/moviegenres/{MovieGenreId}', [MoviegenreController::class, 'show']);
 
 // ========================================================
-// 💳 PAYMENTS
+// PAYMENTS
 // ========================================================
 Route::get('/payments',             [PaymentController::class, 'index']);
 Route::get('/payments/{PaymentId}', [PaymentController::class, 'show']);
 
+// THÊM 2 ROUTE NÀY CHO VNPAY
+Route::post('/payment/create-url',  [PaymentController::class, 'createPaymentUrl']);
+Route::get('/payment/vnpay-ipn',    [PaymentController::class, 'vnpayIpn']);
+Route::get('/payment/vnpay-return', [PaymentController::class, 'vnpayReturn']); // Optional
+
 // ========================================================
-// 💺 SEATS
+// SEATS
 // ========================================================
 Route::get('/seats',          [SeatController::class, 'index']);
 Route::get('/seats/{SeatId}', [SeatController::class, 'show']);
 
 // ========================================================
-// 🎫 SHOWTIME SEATS (Cũ - Giữ để tương thích)
+// SHOWTIME SEATS (Cu - Giu de tuong thich)
 // ========================================================
 Route::prefix('showtimeseats')->group(function () {
     Route::get('/',          [ShowtimeseatController::class, 'index']);
@@ -227,44 +235,46 @@ Route::prefix('showtimeseats')->group(function () {
 });
 
 // ========================================================
-// 📋 ORDER DETAILS
+// ORDER DETAILS
 // ========================================================
 Route::get('/orderdetails',                 [OrderdetailController::class, 'index']);
 Route::get('/orderdetails/{OrderDetailId}', [OrderdetailController::class, 'show']);
 
 // ========================================================
-// 🎁 PROMOTIONS
+// PROMOTIONS
+// Route TINH truoc, route dong sau
 // ========================================================
-Route::get('/promotions',               [PromotionController::class, 'index']);
-Route::get('/promotions/paged',         [PromotionController::class, 'getPaged']);
+Route::get('/promotions',               [PromotionController::class, 'index']);          // Client: chi Active
+Route::get('/promotions/paged',         [PromotionController::class, 'getPaged']);      // Admin: phan trang
+Route::get('/promotions/admin-all',     [PromotionController::class, 'getAllForAdmin']); // Admin: lay tat ca
 Route::get('/promotions/{PromotionId}', [PromotionController::class, 'show']);
 
 // ========================================================
-// 🎟️ TICKETS
+// TICKETS
 // ========================================================
 Route::get('/tickets',            [TicketController::class, 'index']);
 Route::get('/tickets/{TicketId}', [TicketController::class, 'show']);
 
 // ========================================================
-// 📅 SCHEDULES
+// SCHEDULES
 // ========================================================
 Route::get('/schedules',              [ScheduleController::class, 'index']);
 Route::get('/schedules/{ScheduleId}', [ScheduleController::class, 'show']);
 
 // ========================================================
-// ❤️ WISHLISTS
+// WISHLISTS
 // ========================================================
 Route::get('/wishlists',              [WishlistController::class, 'index']);
 Route::get('/wishlists/{WishlistId}', [WishlistController::class, 'show']);
 
 // ========================================================
-// ⭐ REVIEWS
+// REVIEWS
 // ========================================================
 Route::get('/reviews',            [ReviewController::class, 'index']);
 Route::get('/reviews/{ReviewId}', [ReviewController::class, 'show']);
 
 // ========================================================
-// 🕐 SHOWTIMES (Cũ - Giữ để tương thích)
+// SHOWTIMES (Cu - Giu de tuong thich)
 // ========================================================
 Route::prefix('showtimes')->group(function () {
     Route::get('/',                              [ShowtimeController::class, 'index']);
@@ -275,13 +285,13 @@ Route::prefix('showtimes')->group(function () {
 });
 
 // ========================================================
-// 👔 STAFFS
+// STAFFS
 // ========================================================
 Route::get('/staffs',           [StaffController::class, 'index']);
 Route::get('/staffs/{StaffId}', [StaffController::class, 'show']);
 
 // ========================================================
-// 🪑 QUẢN LÝ TRẠNG THÁI GHẾ (THEO SUẤT CHIẾU)
+// QUAN LY TRANG THAI GHE (THEO SUAT CHIEU)
 // ========================================================
 Route::prefix('seat-management')->group(function () {
     Route::get('/data', [SeatManagementController::class, 'getData']);
@@ -293,7 +303,7 @@ Route::prefix('seat-management')->group(function () {
 });
 
 // ========================================================
-// 🪑 QUẢN LÝ GHẾ PHÒNG CHIẾU (ROOM SEAT - MỚI)
+// QUAN LY GHE PHONG CHIEU (ROOM SEAT - MOI)
 // ========================================================
 Route::prefix('room-seat')->group(function () {
     Route::get('/cinemas', [RoomSeatController::class, 'getCinemas']);
@@ -310,7 +320,7 @@ Route::prefix('room-seat')->group(function () {
 });
 
 // ========================================================
-// 📊 QUẢN LÝ PHÒNG CHIẾU (TỔNG HỢP - MỚI)
+// QUAN LY PHONG CHIEU (TONG HOP - MOI)
 // ========================================================
 Route::prefix('room-management')->middleware(['auth:api', 'checkrole:Admin'])->group(function () {
     Route::get('/dashboard', [RoomManagementController::class, 'getDashboardData']);
@@ -322,22 +332,20 @@ Route::prefix('room-management')->middleware(['auth:api', 'checkrole:Admin'])->g
     Route::delete('/rooms/{roomId}', [RoomManagementController::class, 'deleteRoom']);
 
     Route::put('/rooms/{roomId}/seats', [RoomManagementController::class, 'updateSeats']);
-
-   
 });
 
 // ========================================================
-// 🔐 PROTECTED ROUTES (Cần JWT token)
+// PROTECTED ROUTES (Can JWT token)
 // ========================================================
 
 Route::middleware(['auth:api'])->group(function () {
 
     // ========================================================
-    // 🔑 AUTH
+    // AUTH
     // ========================================================
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // ⭐ LOGOUT ALL DEVICES + ME
+    // LOGOUT ALL DEVICES + ME
     Route::prefix('auth')->group(function () {
         Route::post('/logout-all', [AuthController::class, 'logoutAll']);
         Route::get('/me',          [AuthController::class, 'me']);
@@ -346,8 +354,9 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/dashboard/statistics', [App\Http\Controllers\Api\DashboardController::class, 'getStatistics']);
     Route::get('/dashboard/combo-statistics', [App\Http\Controllers\Api\ComboStatisticController::class, 'getComboStatistics']);
     Route::get('/auditlogs', [App\Http\Controllers\Api\AuditLogController::class, 'getLogs']);
+
     // ========================================================
-    // 👤 PROFILE
+    // PROFILE
     // ========================================================
     Route::get('/profile',                [UserController::class, 'getProfile']);
     Route::put('/profile',                [UserController::class, 'updateProfile']);
@@ -355,7 +364,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::put('/change-password',        [UserController::class, 'changePassword']);
 
     // ========================================================
-    // 📦 MY ORDERS (Người dùng xem đơn hàng của mình)
+    // MY ORDERS (Nguoi dung xem don hang cua minh)
     // ========================================================
     Route::prefix('my-orders')->group(function () {
         Route::get('/',                         [OrderController::class, 'getMyOrders']);
@@ -363,7 +372,7 @@ Route::middleware(['auth:api'])->group(function () {
     });
 
     // ========================================================
-    // 👨‍💼 ADMIN & STAFF
+    // ADMIN & STAFF
     // ========================================================
     Route::middleware(['checkrole:Admin,Staff'])->group(function () {
 
@@ -384,7 +393,7 @@ Route::middleware(['auth:api'])->group(function () {
     });
 
     // ========================================================
-    // 👑 ADMIN ONLY
+    // ADMIN ONLY
     // ========================================================
     Route::middleware(['checkrole:Admin'])->group(function () {
 
@@ -474,7 +483,7 @@ Route::middleware(['auth:api'])->group(function () {
         Route::put('/payments/{PaymentId}',   [PaymentController::class, 'update']);
         Route::delete('/payments/{PaymentId}',[PaymentController::class, 'destroy']);
 
-        // Seats (Cũ - Giữ để tương thích)
+        // Seats (Cu - Giu de tuong thich)
         Route::post('/seats/bulk',            [SeatController::class, 'bulkStore']);
         Route::post('/seats',                 [SeatController::class, 'store']);
         Route::put('/seats/{SeatId}',         [SeatController::class, 'update']);
