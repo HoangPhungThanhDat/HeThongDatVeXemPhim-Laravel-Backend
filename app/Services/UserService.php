@@ -65,7 +65,7 @@ class UserService
             $data['UpdatedBy'] = Auth::user()->UserId;
         }
         $data['UpdatedAt'] = now();
-        
+
         return $this->repository->update($user, $data);
     }
 
@@ -83,13 +83,15 @@ class UserService
         unset($data['PasswordHash']);
         unset($data['Password']);
         unset($data['RoleId']);
-        
+
         $user = $this->repository->find($userId);
         if (!$user) {
             return null;
         }
-        
+
         $data['UpdatedAt'] = now();
+        $data['UpdatedBy'] = $userId;
+
         return $this->repository->update($user, $data);
     }
 
@@ -99,7 +101,7 @@ class UserService
     public function changePassword($userId, $currentPassword, $newPassword)
     {
         $user = $this->repository->find($userId);
-        
+
         if (!$user) {
             return [
                 'success' => false,
@@ -123,8 +125,8 @@ class UserService
 
         $data = [
             'PasswordHash' => Hash::make($newPassword),
-            'UpdatedBy' => $userId,
-            'UpdatedAt' => now()
+            'UpdatedBy'    => $userId,
+            'UpdatedAt'    => now()
         ];
 
         $updatedUser = $this->repository->update($user, $data);
@@ -132,7 +134,7 @@ class UserService
         return [
             'success' => true,
             'message' => 'Đổi mật khẩu thành công',
-            'user' => $updatedUser
+            'user'    => $updatedUser
         ];
     }
 }

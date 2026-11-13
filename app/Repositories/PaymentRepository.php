@@ -2,50 +2,134 @@
 
 namespace App\Repositories;
 
+use App\Models\Order;
 use App\Models\Payment;
+use App\Models\Ticket;
+use App\Models\Orderdetail;
+use App\Models\Showtimeseat;
+use Illuminate\Support\Facades\DB;
 
 class PaymentRepository
 {
     /**
-     * Lấy tất cả Payment
+     * Lấy danh sách payment cho admin (kèm quan hệ)
      */
-    public function getAll()
+    public function getAllWithRelations()
     {
-        return Payment::all();
+        return Payment::with([
+            'ticket.user',
+            'ticket.showtime.movie',
+            'ticket.seat.room.cinema',
+            'ticket.orderdetails',
+        ])->orderBy('PaymentId', 'desc')->get();
     }
 
     /**
-     * Tìm Payment theo ID
+     * Tìm order theo id
      */
-    public function getById($id)
+    public function findOrder(int $orderId): ?Order
     {
-        return Payment::findOrFail($id);
+        return Order::find($orderId);
     }
 
     /**
-     * Tạo mới Payment
+     * Tạo order mới
      */
-    public function create(array $data)
+    public function createOrder(array $data): Order
     {
-        return Payment::create($data);
+        return Order::create($data);
     }
 
     /**
-     * Cập nhật Payment
+     * Tạo ticket mới
      */
-    public function update($id, array $data)
+    public function createTicket(array $data): Ticket
     {
-        $Payment = Payment::findOrFail($id);
-        $Payment->update($data);
-        return $Payment;
+        return Ticket::create($data);
     }
 
     /**
-     * Xóa Payment
+     * Tạo order detail
      */
-    public function delete($id)
+    public function createOrderDetail(array $data): Orderdetail
     {
-        $payment = Payment::findOrFail($id);
-        return $payment->delete();
+        return Orderdetail::create($data);
+    }
+
+    /**
+     * Cập nhật trạng thái ghế trong suất chiếu
+     */
+    public function updateShowtimeSeatStatus(int $showtimeId, int $seatId, string $status): void
+    {
+        Showtimeseat::where('ShowtimeId', $showtimeId)
+            ->where('SeatId', $seatId)
+            ->update(['Status' => $status]);
+    }
+
+    /**
+     * Lấy tất cả order detail theo order id
+     */
+    public function getOrderDetailsByOrderId(int $orderId)
+    {
+        return Orderdetail::where('OrderId', $orderId)->get();
+    }
+
+    /**
+     * Tìm ticket theo id
+     */
+    public function findTicket(int $ticketId): ?Ticket
+    {
+        return Ticket::find($ticketId);
+    }
+
+    /**
+     * Cập nhật ticket
+     */
+    public function updateTicket(Ticket $ticket, array $data): bool
+    {
+        return $ticket->update($data);
+    }
+
+    /**
+     * Cập nhật order
+     */
+    public function updateOrder(Order $order, array $data): bool
+    {
+        return $order->update($data);
+    }
+
+    /**
+     * Tạo hoặc cập nhật payment (chống lặp dữ liệu)
+     */
+    public function updateOrCreatePayment(int $ticketId, array $data): Payment
+    {
+        return Payment::updateOrCreate(
+            ['TicketId' => $ticketId],
+            $data
+        );
+    }
+
+    /**
+     * Lấy showtime theo id
+     */
+    public function findShowtime(int $showtimeId)
+    {
+        return \App\Models\Showtime::find($showtimeId);
+    }
+
+    // ========== Transaction helpers ==========
+    public function beginTransaction(): void
+    {
+        DB::beginTransaction();
+    }
+
+    public function commit(): void
+    {
+        DB::commit();
+    }
+
+    public function rollBack(): void
+    {
+        DB::rollBack();
     }
 }

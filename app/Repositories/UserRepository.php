@@ -10,7 +10,7 @@ class UserRepository
     const CACHE_TIME = 600; // Cache 10 phút
 
     /**
-     * Lấy tất cả User - ✅ ĐÃ CACHE
+     * Lấy tất cả User
      */
     public function all()
     {
@@ -20,11 +20,12 @@ class UserRepository
     }
 
     /**
-     * ✅ Lấy dữ liệu phân trang
+     * Lấy dữ liệu phân trang
      */
     public function getPaged($page, $limit, $search = '', $status = '')
     {
-        $cacheKey = "users_paged_p{$page}_l{$limit}_" . md5($search . $status);
+        $version  = Cache::get('users_paged_version', 1);
+        $cacheKey = "users_paged_v{$version}_p{$page}_l{$limit}_" . md5($search . '|' . $status);
 
         return Cache::remember($cacheKey, self::CACHE_TIME, function () use ($page, $limit, $search, $status) {
             $query = User::with('role');
@@ -59,7 +60,7 @@ class UserRepository
     }
 
     /**
-     * Tìm User theo ID - ✅ ĐÃ CACHE
+     * Tìm User theo ID
      */
     public function find($UserId)
     {
@@ -69,31 +70,37 @@ class UserRepository
     }
 
     /**
-     * ✅ Kiểm tra Email tồn tại
+     * ✅ Kiểm tra Email tồn tại (loại trừ user hiện tại)
      */
     public function checkEmailExists($email, $excludeUserId = null)
     {
         $query = User::where('Email', $email);
-        if ($excludeUserId) {
+
+        // ✅ FIX: dùng !== null thay vì if(...) để tránh bug khi $excludeUserId = 0
+        if ($excludeUserId !== null) {
             $query->where('UserId', '!=', $excludeUserId);
         }
+
         return $query->exists();
     }
 
     /**
-     * ✅ Kiểm tra SĐT tồn tại
+     * ✅ Kiểm tra SĐT tồn tại (loại trừ user hiện tại)
      */
     public function checkPhoneExists($phone, $excludeUserId = null)
     {
         $query = User::where('PhoneNumber', $phone);
-        if ($excludeUserId) {
+
+        // ✅ FIX: dùng !== null thay vì if(...)
+        if ($excludeUserId !== null) {
             $query->where('UserId', '!=', $excludeUserId);
         }
+
         return $query->exists();
     }
 
     /**
-     * Tạo mới - ✅ XÓA CACHE
+     * Tạo mới
      */
     public function create(array $data)
     {
@@ -103,7 +110,7 @@ class UserRepository
     }
 
     /**
-     * Cập nhật - ✅ XÓA CACHE
+     * Cập nhật
      */
     public function update(User $user, array $data)
     {
@@ -113,7 +120,7 @@ class UserRepository
     }
 
     /**
-     * Xóa - ✅ XÓA CACHE
+     * Xóa
      */
     public function delete(User $user)
     {
@@ -124,19 +131,14 @@ class UserRepository
     }
 
     /**
-     * ✅ Xóa Cache liên quan
+     * ✅ Xóa Cache liên quan (dùng versioning, không loop)
      */
     public function clearCache($id = null)
     {
         Cache::forget('users_all');
-        
-        // Xóa cache phân trang
-        for ($page = 1; $page <= 10; $page++) {
-            for ($limit = 10; $limit <= 100; $limit += 10) {
-                Cache::forget("users_paged_p{$page}_l{$limit}_" . md5('' . ''));
-                Cache::forget("users_paged_p{$page}_l{$limit}_" . md5('' . 'Active'));
-            }
-        }
+
+        // Tăng version → toàn bộ key "users_paged_v*" cũ trở thành mồ côi (tự expire)
+        Cache::increment('users_paged_version');
 
         if ($id) {
             Cache::forget("user_detail_{$id}");

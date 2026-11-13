@@ -10,30 +10,31 @@ use App\Http\Resources\UserResource;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 /**
  * @group Users
- * 
+ *
  * APIs for managing users.
  */
 class UserController extends Controller
 {
-    protected $service;
+    protected UserService $service;
 
     public function __construct(UserService $service)
     {
         $this->service = $service;
         $this->middleware(['auth:api', 'checkrole:Admin'])->only(['store', 'update', 'destroy']);
-        $this->middleware('auth:api')->only(['updateProfile', 'getProfile']);
+        $this->middleware('auth:api')->only(['updateProfile', 'getProfile', 'changePassword']);
     }
 
     /**
      * Get all users
-     * 
+     *
      * Get a list of all users. (Admin only)
-     * 
+     *
      * @authenticated
-     * 
+     *
      * @response 200 [
      *   {
      *     "UserId": 1,
@@ -58,16 +59,16 @@ class UserController extends Controller
 
     /**
      * Get paginated users
-     * 
+     *
      * Get a paginated list of users with search and filter options. (Admin only)
-     * 
+     *
      * @authenticated
-     * 
+     *
      * @queryParam page int The page number. Default: 1. Example: 1
      * @queryParam limit int Number of items per page. Default: 10. Max: 100. Example: 10
      * @queryParam search string Search by name, email, or phone number. Example: Nguyen
      * @queryParam status string Filter by status. Enum: Active, Inactive, Banned. Example: Active
-     * 
+     *
      * @response 200 {
      *   "data": [
      *     {
@@ -90,7 +91,6 @@ class UserController extends Controller
         $search = $request->query('search', '');
         $status = $request->query('status', '');
 
-        // ✅ Gọi xuống Service -> Repository
         $result = $this->service->getPaged($page, $limit, $search, $status);
 
         return response()->json([
@@ -104,20 +104,21 @@ class UserController extends Controller
 
     /**
      * Create a new user
-     * 
+     *
      * Create a new user with the provided data. (Admin only)
-     * 
+     *
      * @authenticated
-     * 
+     *
      * @bodyParam FullName string required The full name. Example: Nguyễn Văn B
      * @bodyParam Email string required The email address. Example: user2@example.com
-     * @bodyParam Password string required The password. Example: 123456
+     * @bodyParam PasswordHash string required The password. Example: 12345678
      * @bodyParam PhoneNumber string required The phone number. Example: 0987654321
      * @bodyParam RoleId int required The role ID. Example: 2
      * @bodyParam Gender string The gender. Enum: Male, Female, Other. Example: Male
      * @bodyParam DateOfBirth string The date of birth. Example: 2000-01-01
      * @bodyParam Address string The address. Example: Hà Nội
-     * 
+     * @bodyParam Status string The status. Enum: Active, Inactive, Banned. Example: Active
+     *
      * @response 201 {
      *   "UserId": 2,
      *   "FullName": "Nguyễn Văn B",
@@ -135,18 +136,18 @@ class UserController extends Controller
     public function store(StoreUserRequest $request)
     {
         $user = $this->service->create($request->validated());
-        return new UserResource($user);
+        return (new UserResource($user))->response()->setStatusCode(201);
     }
 
     /**
      * Get a user by ID
-     * 
+     *
      * Get detailed information about a specific user. (Admin only)
-     * 
+     *
      * @authenticated
-     * 
+     *
      * @urlParam UserId int required The ID of the user. Example: 1
-     * 
+     *
      * @response 200 {
      *   "UserId": 1,
      *   "FullName": "Nguyễn Văn A",
@@ -173,19 +174,19 @@ class UserController extends Controller
 
     /**
      * Update a user
-     * 
+     *
      * Update a user's information. (Admin only)
-     * 
+     *
      * @authenticated
-     * 
+     *
      * @urlParam UserId int required The ID of the user. Example: 1
-     * 
+     *
      * @bodyParam FullName string The full name. Example: Nguyễn Văn A Updated
      * @bodyParam Email string The email address. Example: admin@example.com
      * @bodyParam PhoneNumber string The phone number. Example: 0987654321
      * @bodyParam RoleId int The role ID. Example: 1
      * @bodyParam Status string The status. Enum: Active, Inactive, Banned. Example: Active
-     * 
+     *
      * @response 200 {
      *   "UserId": 1,
      *   "FullName": "Nguyễn Văn A Updated",
@@ -207,13 +208,13 @@ class UserController extends Controller
 
     /**
      * Delete a user
-     * 
+     *
      * Delete a user from the system. (Admin only)
-     * 
+     *
      * @authenticated
-     * 
+     *
      * @urlParam UserId int required The ID of the user. Example: 1
-     * 
+     *
      * @response 200 {
      *   "message": "User deleted successfully"
      * }
@@ -234,11 +235,11 @@ class UserController extends Controller
 
     /**
      * Get current user profile
-     * 
+     *
      * Get the profile of the authenticated user.
-     * 
+     *
      * @authenticated
-     * 
+     *
      * @response 200 {
      *   "UserId": 1,
      *   "FullName": "Nguyễn Văn A",
@@ -256,41 +257,51 @@ class UserController extends Controller
      */
     public function getProfile()
     {
-        $user = Auth::user();
+        $user = Auth::guard('api')->user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy thông tin đăng nhập',
+            ], 401);
+        }
+
         return new UserResource($user);
     }
 
     /**
      * Update current user profile
-     * 
+     *
      * Update the profile of the authenticated user.
-     * 
+     * Email và PhoneNumber sẽ được validate unique, **tự động loại trừ** user hiện tại
+     * (không báo trùng khi user không đổi SĐT/Email).
+     *
      * @authenticated
-     * 
-     * @bodyParam FullName string The full name. Example: Nguyễn Văn A Updated
-     * @bodyParam Email string The email address. Example: user@example.com
-     * @bodyParam PhoneNumber string The phone number. Example: 0987654321
-     * @bodyParam Address string The address. Example: Hà Nội
-     * @bodyParam DateOfBirth string The date of birth. Example: 2000-01-01
-     * @bodyParam Gender string The gender. Enum: Male, Female, Other. Example: Male
-     * 
+     *
+     * @bodyParam FullName string required The full name. Example: Nguyễn Văn A Updated
+     * @bodyParam Email string required The email address. Example: user@example.com
+     * @bodyParam PhoneNumber string required The phone number (10 digits). Example: 0987654321
+     * @bodyParam Address string required The address. Example: Hà Nội
+     * @bodyParam DateOfBirth string The date of birth (Y-m-d). Example: 2000-01-01
+     * @bodyParam Gender string The gender. Enum: Male, Female. Example: Male
+     *
      * @response 200 {
      *   "success": true,
      *   "message": "Cập nhật thông tin thành công",
      *   "data": {
      *     "UserId": 1,
      *     "FullName": "Nguyễn Văn A Updated",
-     *     "Email": "user@example.com"
+     *     "Email": "user@example.com",
+     *     "PhoneNumber": "0987654321"
      *   }
      * }
      * @response 401 {
      *   "message": "Unauthenticated"
      * }
      * @response 422 {
-     *   "success": false,
-     *   "message": "Email đã được sử dụng",
+     *   "message": "Số điện thoại đã được sử dụng",
      *   "errors": {
-     *     "Email": ["Email đã được sử dụng"]
+     *     "PhoneNumber": ["Số điện thoại đã được sử dụng"]
      *   }
      * }
      */
@@ -302,62 +313,51 @@ class UserController extends Controller
             if (!$user) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Không tìm thấy thông tin đăng nhập'
+                    'message' => 'Không tìm thấy thông tin đăng nhập',
                 ], 401);
             }
 
-            $userId = $user->UserId;
+            // UpdateProfileRequest đã validate unique với ignore($userId, 'UserId')
+            // → Không cần checkEmailExists/checkPhoneExists thủ công nữa.
+            $data = $request->validated();
 
-            // ✅ Gọi xuống Service -> Repository kiểm tra trùng
-            $existingEmail = $this->service->checkEmailExists($request->Email, $userId);
-            if ($existingEmail) {
+            $updatedUser = $this->service->updateProfile($user->UserId, $data);
+
+            if (!$updatedUser) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Email đã được sử dụng',
-                    'errors' => ['Email' => ['Email đã được sử dụng']]
-                ], 422);
+                    'message' => 'Không tìm thấy người dùng',
+                ], 404);
             }
-
-            $existingPhone = $this->service->checkPhoneExists($request->PhoneNumber, $userId);
-            if ($existingPhone) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Số điện thoại đã được sử dụng',
-                    'errors' => ['PhoneNumber' => ['Số điện thoại đã được sử dụng']]
-                ], 422);
-            }
-
-            $data = $request->only([
-                'FullName', 'Email', 'PhoneNumber',
-                'Address', 'DateOfBirth', 'Gender'
-            ]);
-
-            $updatedUser = $this->service->updateProfile($userId, $data);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Cập nhật thông tin thành công',
-                'data' => new UserResource($updatedUser)
+                'data'    => new UserResource($updatedUser),
             ], 200);
+        } catch (ValidationException $e) {
+            // Laravel tự render 422 nếu dùng FormRequest.
+            // Block này chỉ để đảm bảo format JSON thống nhất nếu cần.
+            throw $e;
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Cập nhật thất bại: ' . $e->getMessage()
+                'message' => 'Cập nhật thất bại: ' . $e->getMessage(),
             ], 500);
         }
     }
 
     /**
      * Change password
-     * 
+     *
      * Change the password of the authenticated user.
-     * 
+     *
      * @authenticated
-     * 
+     *
      * @bodyParam current_password string required The current password. Example: 123456
-     * @bodyParam new_password string required The new password. Minimum 6 characters. Example: 12345678
+     * @bodyParam new_password string required The new password. Minimum 8 characters. Example: 12345678
      * @bodyParam new_password_confirmation string required The confirmation of the new password. Example: 12345678
-     * 
+     *
      * @response 200 {
      *   "success": true,
      *   "message": "Đổi mật khẩu thành công"
@@ -378,7 +378,7 @@ class UserController extends Controller
             if (!$user) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Không tìm thấy thông tin đăng nhập'
+                    'message' => 'Không tìm thấy thông tin đăng nhập',
                 ], 401);
             }
 
@@ -391,18 +391,18 @@ class UserController extends Controller
             if (!$result['success']) {
                 return response()->json([
                     'success' => false,
-                    'message' => $result['message']
+                    'message' => $result['message'],
                 ], 422);
             }
 
             return response()->json([
                 'success' => true,
-                'message' => $result['message']
+                'message' => $result['message'],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Đổi mật khẩu thất bại: ' . $e->getMessage()
+                'message' => 'Đổi mật khẩu thất bại: ' . $e->getMessage(),
             ], 500);
         }
     }

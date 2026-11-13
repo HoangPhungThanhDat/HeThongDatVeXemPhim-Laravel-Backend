@@ -33,38 +33,26 @@ class AuthController extends Controller
     public function register(StoreRegisterRequest $request): JsonResponse
     {
         $result = $this->authService->register($request->validated());
-
         return response()->json([
             'user' => new UserResource($result['user']->load('role')),
         ], 201);
     }
 
-    /**
-     * ⭐ LOGIN CHUNG — DÀNH CHO CLIENT (mọi role)
-     * Chỉ kiểm tra tài khoản active, KHÔNG check role.
-     */
+    // ============================================================
+    // LOGIN CHUNG — CLIENT (mọi role)
+    // ============================================================
     public function login(StoreLoginRequest $request): JsonResponse
     {
-        $result = $this->authService->login(
-            $request->Email,
-            $request->Password
-        );
-
+        $result = $this->authService->login($request->Email, $request->Password);
         if (!$result) {
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
         $user = $result['user']->load('role');
-
-        // Chỉ kiểm tra trạng thái active
         if (strtolower($user->Status) !== 'active') {
-            return response()->json([
-                'error' => 'Tài khoản đã bị khóa!',
-                'code'  => 'ACCOUNT_LOCKED',
-            ], 403);
+            return response()->json(['error' => 'Tài khoản đã bị khóa!', 'code' => 'ACCOUNT_LOCKED'], 403);
         }
 
-        // Ghi log đăng nhập
         Auditlog::create([
             'UserId'      => $user->UserId,
             'Action'      => 'Login',
@@ -86,24 +74,18 @@ class AuthController extends Controller
             ->cookie($this->refreshCookie($tokens['refresh_token']));
     }
 
-    /**
-     * ⭐ LOGIN ADMIN — DÀNH RIÊNG CHO ADMIN PANEL
-     * Chỉ Admin (RoleId = 1) mới login được.
-     */
+    // ============================================================
+    // LOGIN ADMIN — chỉ RoleId = 1
+    // ============================================================
     public function adminLogin(StoreLoginRequest $request): JsonResponse
     {
-        $result = $this->authService->login(
-            $request->Email,
-            $request->Password
-        );
-
+        $result = $this->authService->login($request->Email, $request->Password);
         if (!$result) {
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
         $user = $result['user']->load('role');
 
-        // Chỉ Admin mới login được vào admin panel
         if ($user->RoleId != 1) {
             return response()->json([
                 'error' => 'Tài khoản không có quyền truy cập Admin!',
@@ -112,17 +94,60 @@ class AuthController extends Controller
         }
 
         if (strtolower($user->Status) !== 'active') {
-            return response()->json([
-                'error' => 'Tài khoản đã bị khóa!',
-                'code'  => 'ACCOUNT_LOCKED',
-            ], 403);
+            return response()->json(['error' => 'Tài khoản đã bị khóa!', 'code' => 'ACCOUNT_LOCKED'], 403);
         }
 
-        // Ghi log đăng nhập admin
         Auditlog::create([
             'UserId'      => $user->UserId,
             'Action'      => 'Login',
             'Description' => "{$user->Email} đã đăng nhập vào Admin Panel",
+            'IpAddress'   => $request->ip(),
+            'DeviceInfo'  => $request->userAgent(),
+            'CreatedAt'   => Carbon::now(),
+        ]);
+
+        $tokens = $this->tokenService->issueTokens($user);
+
+        return response()
+            ->json([
+                'success'      => true,
+                'access_token' => $tokens['access_token'],
+                'expires_in'   => $tokens['expires_in'],
+                'user'         => new UserResource($user),
+            ])
+            ->cookie($this->refreshCookie($tokens['refresh_token']));
+    }
+
+    // ============================================================
+    //  LOGIN STAFF — chỉ RoleId = 7 hoặc RoleName = 'Staff'
+    // ============================================================
+    public function staffLogin(StoreLoginRequest $request): JsonResponse
+    {
+        $result = $this->authService->login($request->Email, $request->Password);
+        if (!$result) {
+            return response()->json(['error' => 'Invalid credentials'], 401);
+        }
+
+        $user = $result['user']->load('role');
+        $roleName = $user->role?->RoleName ?? null;
+
+        $isStaff = ($user->RoleId == 7) || ($roleName === 'Staff');
+
+        if (!$isStaff) {
+            return response()->json([
+                'error' => 'Tài khoản không có quyền truy cập hệ thống nhân viên!',
+                'code'  => 'NOT_STAFF',
+            ], 403);
+        }
+
+        if (strtolower($user->Status) !== 'active') {
+            return response()->json(['error' => 'Tài khoản đã bị khóa!', 'code' => 'ACCOUNT_LOCKED'], 403);
+        }
+
+        Auditlog::create([
+            'UserId'      => $user->UserId,
+            'Action'      => 'Login',
+            'Description' => "{$user->Email} đã đăng nhập vào Staff Portal",
             'IpAddress'   => $request->ip(),
             'DeviceInfo'  => $request->userAgent(),
             'CreatedAt'   => Carbon::now(),
@@ -169,7 +194,6 @@ class AuthController extends Controller
         $user = JWTAuth::setToken($tokens['access_token'])->authenticate();
         $user->load('role');
 
-        // Nếu tài khoản bị khóa giữa chừng → từ chối refresh
         if (strtolower($user->Status) !== 'active') {
             return response()
                 ->json([
@@ -201,9 +225,7 @@ class AuthController extends Controller
 
         try {
             JWTAuth::parseToken()->invalidate();
-        } catch (\Throwable $e) {
-            // bỏ qua nếu token không hợp lệ
-        }
+        } catch (\Throwable $e) {}
 
         if ($user) {
             Auditlog::create([
@@ -228,9 +250,7 @@ class AuthController extends Controller
 
         try {
             JWTAuth::parseToken()->invalidate();
-        } catch (\Throwable $e) {
-            // bỏ qua
-        }
+        } catch (\Throwable $e) {}
 
         Auditlog::create([
             'UserId'      => $user->UserId,
@@ -242,10 +262,7 @@ class AuthController extends Controller
         ]);
 
         return response()
-            ->json([
-                'success' => true,
-                'message' => 'Đã đăng xuất khỏi mọi thiết bị!',
-            ])
+            ->json(['success' => true, 'message' => 'Đã đăng xuất khỏi mọi thiết bị!'])
             ->cookie(Cookie::forget(config('jwt.cookie_name')));
     }
 
@@ -259,26 +276,34 @@ class AuthController extends Controller
     }
 
     // ============================================================
-    // GOOGLE OAUTH
+    // GOOGLE OAUTH — Hỗ trợ 3 app: admin | staff | client
     // ============================================================
 
-    public function redirectToGoogle()
-    {
-        return Socialite::driver('google')->stateless()->redirect();
-    }
-
-    /**
-     * ⭐ Google callback — hỗ trợ cả admin (3000) và client (3005)
-     * Dùng query param `?app=admin|client` để biết redirect về đâu.
-     */
-    public function handleGoogleCallback(Request $request)
+    public function redirectToGoogle(Request $request)
     {
         $app = $request->query('app', 'admin');
 
-        $frontendUrl = $app === 'client'
-            ? env('FRONTEND_CLIENT_URL', 'http://localhost:3005')
-            : env('FRONTEND_ADMIN_URL', 'http://localhost:3000');
+        // ⭐ Truyền app qua state để Google trả về nguyên vẹn
+        return Socialite::driver('google')
+            ->stateless()
+            ->with(['state' => $app])
+            ->redirect();
+    }
 
+    public function handleGoogleCallback(Request $request)
+    {
+        // ⭐ Đọc app từ state (Google trả về) hoặc query
+        $app = $request->query('state') ?? $request->query('app', 'admin');
+        $app = urldecode($app);
+
+        // ⭐ Xác định URL frontend theo app
+        $frontendUrl = match ($app) {
+            'staff'  => env('FRONTEND_STAFF_URL',  'http://localhost:3003'),
+            'client' => env('FRONTEND_CLIENT_URL', 'http://localhost:3005'),
+            default  => env('FRONTEND_ADMIN_URL',  'http://localhost:3000'),
+        };
+
+        // Cả Admin và Staff đều dùng /auth/sign-in
         $signInPath = $app === 'client' ? '/dang-nhap' : '/auth/sign-in';
 
         try {
@@ -287,13 +312,19 @@ class AuthController extends Controller
             $user = User::where('Email', $googleUser->getEmail())->first();
 
             if (!$user) {
-                $error = urlencode('Email chưa được đăng ký. Vui lòng liên hệ quản trị viên để được cấp quyền.');
+                $error = urlencode('Email chưa được đăng ký. Vui lòng liên hệ quản trị viên.');
                 return redirect("{$frontendUrl}{$signInPath}?error={$error}");
             }
 
-            // ⭐ Chỉ admin app mới cần check role Admin
+            $roleName = $user->role?->RoleName ?? null;
+
+            // Check role theo app
             if ($app === 'admin' && $user->RoleId != 1) {
-                $error = urlencode('Tài khoản không có quyền truy cập Admin. Vui lòng liên hệ quản trị viên.');
+                $error = urlencode('Tài khoản không có quyền truy cập Admin.');
+                return redirect("{$frontendUrl}{$signInPath}?error={$error}");
+            }
+            if ($app === 'staff' && ($user->RoleId != 2 && $roleName !== 'Staff')) {
+                $error = urlencode('Tài khoản không có quyền truy cập hệ thống nhân viên.');
                 return redirect("{$frontendUrl}{$signInPath}?error={$error}");
             }
 
@@ -321,7 +352,6 @@ class AuthController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Google login error: ' . $e->getMessage());
-
             $error = urlencode('Đăng nhập Google thất bại: ' . $e->getMessage());
             return redirect("{$frontendUrl}{$signInPath}?error={$error}");
         }
@@ -353,7 +383,6 @@ class AuthController extends Controller
     // ============================================================
     // COOKIE HELPER
     // ============================================================
-
     private function refreshCookie(string $refreshToken): \Symfony\Component\HttpFoundation\Cookie
     {
         $isProd = app()->environment('production');

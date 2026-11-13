@@ -245,7 +245,7 @@ class OrderRepository
         return $data;
     }
 
-    public function getMyOrders($userId, $limit = 10)
+       public function getMyOrders($userId, $limit = 10)
     {
         $orders = Order::with([
             'user',
@@ -260,6 +260,17 @@ class OrderRepository
 
         $result = [];
         foreach ($orders->items() as $order) {
+            // ✅ THÊM ĐOẠN NÀY ĐỂ LẤY TÊN PHIM
+            $firstTicketDetail = $order->orderDetails->whereNotNull('TicketId')->first();
+            $movie = $firstTicketDetail?->ticket?->showtime?->movie;
+            
+            // Xử lý trường hợp 1 đơn có nhiều phim (nối tên lại)
+            $movieNames = $order->orderDetails
+                ->map(fn($d) => $d->ticket?->showtime?->movie?->Title)
+                ->filter()
+                ->unique()
+                ->implode(', ');
+
             $result[] = [
                 'OrderId' => $order->OrderId,
                 'OrderDate' => $order->OrderDate ? date('Y-m-d H:i:s', strtotime($order->OrderDate)) : null,
@@ -269,7 +280,11 @@ class OrderRepository
                     'FullName' => $order->user->FullName ?? null,
                 ],
                 'total_tickets' => $order->orderDetails->whereNotNull('TicketId')->count(),
-                'total_food_items' => $order->orderDetails->whereNotNull('ItemId')->count()
+                'total_food_items' => $order->orderDetails->whereNotNull('ItemId')->count(),
+                
+                // ✅ THÊM 2 DÒNG NÀY ĐỂ FRONTEND LẤY ĐƯỢC
+                'MovieName' => $movieNames ?: '—', 
+                // 'MovieTitle' => $movie->Title ?? '—', // (Tuỳ chọn nếu frontend dùng Title)
             ];
         }
 

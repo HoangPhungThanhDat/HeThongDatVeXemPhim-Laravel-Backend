@@ -41,12 +41,14 @@ use App\Http\Controllers\Api\RoomManagementController;
 // ========================================================
 Route::get('/ping', fn() => response()->json(['ok' => true, 't' => microtime(true)]));
 Route::post('/register', [AuthController::class, 'register']);
-
+Route::post('/payment/check-status', [PaymentController::class, 'checkPaymentStatus']);
 // Login cho CLIENT (moi role, chi check Status active)
 Route::post('/login', [AuthController::class, 'login']);
 
 // Login cho ADMIN PANEL (chi RoleId = 1)
 Route::post('/admin/login', [AuthController::class, 'adminLogin']);
+
+Route::post('/staff/login', [AuthController::class, 'staffLogin']);
 
 // REFRESH TOKEN - Public, dung HttpOnly cookie
 Route::prefix('auth')->group(function () {
